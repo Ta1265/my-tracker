@@ -1,0 +1,64 @@
+version: '3'
+
+# Define a network, which allows containers to communicate
+# with each other, by using their container name as a hostname
+networks:
+  portfolio-network:
+    external: true
+
+volumes:
+  mysql-volume:
+
+services:
+  portfolio-db:
+    # NOTE: Uncomment the line below if you are using Mac with m1/m2 chip
+    # platform: linux/x86_64
+    container_name: portfolio-db
+    image: mysql:5.7
+    # NOTE: use of "mysql_native_password" is not recommended: https://dev.mysql.com/doc/refman/8.0/en/upgrading-from-previous-series.html#upgrade-caching-sha2-password
+    # (this is just an example, not intended to be a production configuration)
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    env_file: ./.env
+    environment:
+      MYSQL_ROOT_PASSWORD: $MYSQLDB_PASSWORD
+    ports:
+      - $MYSQLDB_LOCAL_PORT:$MYSQLDB_DOCKER_PORT
+    volumes:
+      - mysql-volume:/var/lib/mysql:rw
+      # - ./mysql-db:/docker-entrypoint-initdb.d/
+    networks:
+      portfolio-network:
+        aliases:
+          - portfolio-db
+
+  portfolio-next-app:
+    depends_on:
+      - portfolio-db
+    container_name: portfolio-next-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    # Set environment variables directly in the docker-compose file
+    environment:
+      ENV_VARIABLE: ${ENV_VARIABLE}
+      NEXT_PUBLIC_ENV_VARIABLE: ${NEXT_PUBLIC_ENV_VARIABLE}
+
+    # Set envrionment variables based on the .env file
+    env_file:
+      - .env
+    volumes:
+      - ./package-lock.json:/app/package-lock.json
+      - ./package.json:/app/package.json
+      - ./src:/app/src
+      - ./public:/app/public
+    restart: always
+    ports:
+      - 3000:3000
+    networks:
+      portfolio-network:
+        aliases:
+          - portfolio-next-app
+
+  # Add more containers below (nginx, postgres, etc.)

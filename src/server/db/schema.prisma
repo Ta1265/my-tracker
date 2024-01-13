@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = "mysql://root:root@portfolio-db:3306/PORTFOLIO"
+}
+
+model Transaction {
+  id       Int      @id @default(autoincrement())
+  userId   Int      @default(1) @db.Int
+  coinName String   @db.VarChar(255)
+  product  String   @db.VarChar(255)
+  date     DateTime @default(now())
+  side     String   @db.VarChar(255)
+  size     Float    @db.Float
+  unit     String   @db.VarChar(255)
+  price    Float    @db.Float
+  fee      Float    @db.Float
+  total    Float    @db.Float
+  notes    String   @db.VarChar(255)
+  user     User     @relation(fields: [userId], references: [id])
+}
+
+model ExchangeRate {
+  id   Int      @id @default(autoincrement())
+  date DateTime @default(now())
+  unit String   @unique @db.VarChar(255)
+  rate Float    @db.Float
+}
+
+model User {
+  id          Int           @id @default(autoincrement())
+  name        String?
+  email       String        @unique
+  password    String
+  username    String        @unique
+  image       String?
+  OauthTokens OuathToken[]
+  Transaction Transaction[]
+}
+
+model OuathToken {
+  id                   String   @id @default(cuid())
+  userId               Int
+  accessToken          String   @unique
+  accessTokenExpiresOn DateTime
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
