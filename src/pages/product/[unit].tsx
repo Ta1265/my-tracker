@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo } from 'react';
 import { useState } from 'react';
-import ProductTable from '../_components/ProductTable';
+import ProductTable from '../../components/ProductTable';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import PriceChart from '../_components/PriceChart';
-import SingleStat from '../_components/SingleStat';
+import PriceChart from '../../components/PriceChart';
+import SingleStat from '../../components/SingleStat';
 import { Spinner } from 'flowbite-react';
 
 const sortDollars = (rowA: any, rowB: any, columnId: string) => {
@@ -17,7 +17,7 @@ const useGetProduct = (selectedProductName: String | null) => {
   const [transactions, setTransactions] = useState<Array<Transaction>>([]);
   const [isLoading, setLoading] = useState(true);
 
-  console.log('hello????????', selectedProductName)
+  console.log('hello????????', selectedProductName);
   useEffect(() => {
     if (!selectedProductName) return;
     setLoading(true);

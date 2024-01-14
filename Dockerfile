@@ -31,4 +31,8 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 # Start Next.js in development mode based on the preferred package manager
 RUN npm run generate
+# RUN npm run build
+# EXPOSE 3001  
+# RUN npm run start
+# CMD ["npm", "start"]
 CMD ["npm", "run", "dev"]

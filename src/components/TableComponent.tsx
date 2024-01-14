@@ -1,7 +1,7 @@
 // TableComponent.tsx
-import React, { useState } from "react";
-import { useTable } from "react-table";
-import { motion } from "framer-motion";
+import React, { useState } from 'react';
+import { useTable } from 'react-table';
+import { motion } from 'framer-motion';
 
 interface TableComponentProps {
   columns: any[];
@@ -19,14 +19,14 @@ const TableComponent: React.FC<TableComponentProps> = ({ columns, data }) => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      <table {...getTableProps()} className="table-auto border-collapse w-full">
+    <div className="flex h-screen items-center justify-center">
+      <table {...getTableProps()} className="w-full table-auto border-collapse">
         <thead>
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column) => (
                 <th {...column.getHeaderProps()} className="border p-2">
-                  {column.render("Header")}
+                  {column.render('Header')}
                 </th>
               ))}
             </tr>
@@ -41,19 +41,19 @@ const TableComponent: React.FC<TableComponentProps> = ({ columns, data }) => {
                   {...row.getRowProps()}
                   onClick={() => handleRowClick(row)}
                   className={`cursor-pointer ${
-                    selectedRow === row.id ? "bg-gray-200" : ""
+                    selectedRow === row.id ? 'bg-gray-200' : ''
                   }`}
                 >
                   {row.cells.map((cell) => (
                     <td {...cell.getCellProps()} className="border p-2">
-                      {cell.render("Cell")}
+                      {cell.render('Cell')}
                     </td>
                   ))}
                 </tr>
                 {selectedRow === row.id && (
                   <motion.tr
                     initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
+                    animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
                     className="bg-gray-100"
                   >

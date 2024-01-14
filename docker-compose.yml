@@ -38,7 +38,7 @@ services:
     container_name: portfolio-next-app
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
 
     # Set environment variables directly in the docker-compose file
     environment:
@@ -53,6 +53,7 @@ services:
       - ./package.json:/app/package.json
       - ./src:/app/src
       - ./public:/app/public
+    # command: npm run start
     restart: always
     ports:
       - 3000:3000

@@ -1,10 +1,10 @@
 import Image from 'next/image';
-import StatsTable from './_components/StatsTable';
-import SummaryTable from './_components/SummaryTable';
+import StatsTable from '../components/StatsTable';
+import SummaryTable from '../components/SummaryTable';
 import React, { useMemo, useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { ProfitLossColumn } from './_components/ProfitLossColumn';
+import ProfitLossColumn from '../components/ProfitLossColumn';
 
 const useGetStats = () => {
   const [stats, setStats] = useState<FormattedProductStats[]>([]);

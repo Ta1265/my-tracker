@@ -14,7 +14,7 @@ export default function Component() {
     if (status === 'authenticated') {
       router.push('/stats');
     } else {
-      signIn();
+      signIn('username');
     }
   }, [status, router]);
 

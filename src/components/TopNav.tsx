@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { Avatar, Dropdown, Navbar } from 'flowbite-react';
 
-export const TopNav: React.FC<{}> = ({}) => {
+const TopNav: React.FC<{}> = ({}) => {
   const { data: session, status } = useSession();
 
   const links = [
@@ -97,3 +97,5 @@ export const TopNav: React.FC<{}> = ({}) => {
     </nav>
   );
 };
+
+export default TopNav;
