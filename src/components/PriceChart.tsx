@@ -17,6 +17,11 @@ import Link from 'next/link';
 import moment from 'moment';
 import { useFetchCurrentPrice } from '../_hooks/useFetchCurrentPrice';
 import { useFetchPriceHistory } from '../_hooks/useFetchPriceHistory';
+import Skeleton from '@mui/joy/Skeleton';
+import AspectRatio from '@mui/joy/AspectRatio/AspectRatio';
+import Box from '@mui/joy/Box';
+import Select from '@mui/joy/Select';
+import Option from '@mui/joy/Option';
 
 const VerticalLiner = {
   id: 'verticalLiner',
@@ -50,6 +55,7 @@ const VerticalLiner = {
     ctx.beginPath();
     ctx.lineWidth = opts.width;
     ctx.strokeStyle = opts.color;
+
     ctx.setLineDash(opts.dash);
     ctx.moveTo(x, bottom);
     ctx.lineTo(x, top);
@@ -193,7 +199,7 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
           {hoveringChart ? hoverPrice : currentPrice}
         </div>
         <div className="flex-grow text-center text-3xl"></div>
-        <select
+        <Select
           // className="ml-auto rounded-md bg-gray-700 px-4 py-2 text-sm text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
           className="
             lg:text-md
@@ -208,129 +214,141 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
             dark:bg-black
             md:text-xl
           "
-          onChange={({ target: { value } }: any) => setTimeFrame(value)}
+          onChange={(
+            event: React.SyntheticEvent | null,
+            newValue: 'h' | 'd' | 'w' | 'm' | '3m' | '6m' | 'y' | 'all',
+          ) => {
+            setTimeFrame(newValue);
+          }}
           defaultValue={timeFrame}
+          sx={{
+            border: 0,
+          }}
         >
-          <option value="h"> Hour</option>
-          <option value="d"> Day</option>
-          <option value="w"> Week</option>
-          <option value="m"> Month</option>
-          <option value="3m"> 3 Month</option>
-          <option value="6m"> 6 Month</option>
-          <option value="y"> 1 Year</option>
-          <option value="all"> All Time</option>
-        </select>
+          <Option value="h"> Hour</Option>
+          <Option value="d"> Day</Option>
+          <Option value="w"> Week</Option>
+          <Option value="m"> Month</Option>
+          <Option value="3m"> 3 Month</Option>
+          <Option value="6m"> 6 Month</Option>
+          <Option value="y"> 1 Year</Option>
+          <Option value="all"> All Time</Option>
+        </Select>
       </div>
-      <Line
-        onMouseLeave={() => setHoveringChart(false)}
-        onMouseEnter={() => setHoveringChart(true)}
-        height="300px"
-        width="800px"
-        options={{
-          responsive: true,
-          animation: {
-            duration: 50,
-            easing: 'easeInOutQuad',
-          },
-          plugins: {
-            VerticalLiner: {},
-            legend: {
-              display: false,
-            },
-            title: {
-              display: true,
-              text: tfSettings.titleText,
-              font: {
-                size: 14,
+      <Box width={900} height={337}>
+        <Skeleton loading={priceHistoryLoading} width={900} height={337}>
+          <Line
+            onMouseLeave={() => setHoveringChart(false)}
+            onMouseEnter={() => setHoveringChart(true)}
+            height="300px"
+            width="800px"
+            options={{
+              responsive: true,
+              animation: {
+                duration: 50,
+                easing: 'easeInOutQuad',
               },
-            },
-            tooltip: {
-              mode: 'index',
-              intersect: false,
-              backgroundColor: 'rgba(0,0,0,0.0)',
-              titleFont: {
-                weight: 'bold',
-                size: 20,
-              },
-              caretPadding: 50,
-              callbacks: {
-                title: (context) =>
-                  moment(context[0].label).format('MMM D, YYYY h:mm a'),
-                label: (context) => {
-                  setHoverPrice(
-                    hoveringChart
-                      ? context.parsed.y.toLocaleString('en-US', {
-                          style: 'currency',
-                          currency: 'USD',
-                          maximumFractionDigits: 2,
-                        })
-                      : null,
-                  );
+              plugins: {
+                VerticalLiner: {},
+                legend: {
+                  display: false,
+                },
+                title: {
+                  display: true,
+                  text: tfSettings.titleText,
+                  font: {
+                    size: 14,
+                  },
+                },
+                tooltip: {
+                  mode: 'index',
+                  intersect: false,
+                  backgroundColor: 'rgba(0,0,0,0.0)',
+                  titleFont: {
+                    weight: 'bold',
+                    size: 20,
+                  },
+                  caretPadding: 50,
+                  callbacks: {
+                    title: (context) =>
+                      moment(context[0].label).format('MMM D, YYYY h:mm a'),
+                    label: (context) => {
+                      setHoverPrice(
+                        hoveringChart
+                          ? context.parsed.y.toLocaleString('en-US', {
+                              style: 'currency',
+                              currency: 'USD',
+                              maximumFractionDigits: 2,
+                            })
+                          : null,
+                      );
 
-                  return '';
+                      return '';
+                    },
+                  },
                 },
               },
-            },
-          },
-          scales: {
-            x: {
-              type: 'time',
-              time: {
-                unit: tfSettings.unit,
-                parser: 'X', // Parsing the input as Unix timestamp (seconds)
-                displayFormats: {
-                  minute: 'h:mm a',
-                  hour: 'h:mm a',
-                  day: 'MMM-DD-YY',
+              scales: {
+                x: {
+                  type: 'time',
+                  time: {
+                    unit: tfSettings.unit,
+                    parser: 'X', // Parsing the input as Unix timestamp (seconds)
+                    displayFormats: {
+                      minute: 'h:mm a',
+                      hour: 'h:mm a',
+                      day: 'MMM-DD-YY',
+                    },
+                  },
+                  ticks: {
+                    source: 'auto',
+                    autoSkip: true,
+                    maxTicksLimit: 6,
+                    font: {
+                      size: 14,
+                    },
+                  },
+                },
+                y: {
+                  ticks: {
+                    source: 'auto',
+                    autoSkip: true,
+                    maxTicksLimit: 6,
+                    font: {
+                      size: 14,
+                    },
+                  },
                 },
               },
-              ticks: {
-                source: 'auto',
-                autoSkip: true,
-                maxTicksLimit: 6,
-                font: {
-                  size: 14,
-                },
-              },
-            },
-            y: {
-              ticks: {
-                source: 'auto',
-                autoSkip: true,
-                maxTicksLimit: 6,
-                font: {
-                  size: 14,
-                },
-              },
-            },
-          },
-        }}
-        data={{
-          labels: priceData
-            .filter((_, i) => i % tfSettings.downSample === 0)
-            .map(([date, _]) => date * 1000),
-          datasets: [
-            {
-              label: unit,
-              data: priceData
+            }}
+            data={{
+              labels: priceData
                 .filter((_, i) => i % tfSettings.downSample === 0)
-                .map(([_, price]) => price),
-              borderColor: priceChange > 0 ? '#27AD75' : '#F0616D',
-              pointRadius: 0,
-              tension: 0,
-              borderWidth: 2,
-              // pointHoverRadius: 10,
-              // pointStyle: 'circle',
-              // pointBackgroundColor: 'grey',
-              // pointBorderColor: 'grey-800',
-              // pointHoverBorderColor: 'grey-800',
-              // fill: true,
-            },
-          ],
-        }}
-      />
-
+                .map(([date, _]) => date * 1000),
+              datasets: [
+                {
+                  label: unit,
+                  data: priceData
+                    .filter((_, i) => i % tfSettings.downSample === 0)
+                    .map(([_, price]) => price),
+                  borderColor: priceChange > 0 ? '#27AD75' : '#F0616D',
+                  pointRadius: 0,
+                  tension: 0,
+                  borderWidth: 2,
+                  // pointHoverRadius: 10,
+                  // pointStyle: 'circle',
+                  // pointBackgroundColor: 'grey',
+                  // pointBorderColor: 'grey-800',
+                  // pointHoverBorderColor: 'grey-800',
+                  // fill: true,
+                },
+              ],
+            }}
+          />
+        </Skeleton>
+      </Box>
       <br />
+
       <SingleStat
         unit={unit}
         priceChange={priceChange}

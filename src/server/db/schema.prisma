@@ -51,3 +51,11 @@ model OuathToken {
   accessTokenExpiresOn DateTime
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model TokenInfo {
+  token_id  Int     @id
+  symbol   String  @db.VarChar(40)
+  slug    String  @db.VarChar(40)
+  name   String  @db.VarChar(40)
+  rank   Int     @db.Int
+}

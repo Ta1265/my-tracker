@@ -2,6 +2,8 @@
 import React, { useMemo } from 'react';
 import { useRef, useState, useEffect } from 'react';
 import { useTable, Column, useSortBy } from 'react-table';
+import AddTransaction from './AddTransaction';
+import Table from '@mui/joy/Table';
 
 type DataType = {
   [key: string]: any;
@@ -66,7 +68,7 @@ const ProductTable: React.FC<TableProps> = ({ columns, data }) => {
             borderTop: '0px',
             position: 'sticky',
             top: 0,
-            zIndex: 100,
+            zIndex: 50,
           }}
         >
           {headerGroups.map((headerGroup) => (
@@ -76,7 +78,7 @@ const ProductTable: React.FC<TableProps> = ({ columns, data }) => {
               {...headerGroup.getHeaderGroupProps()}
               style={{
                 boxShadow: 'inset 0px -2px grey, inset 0px 2px grey',
-                zIndex: 100,
+                zIndex: 50,
               }}
             >
               {headerGroup.headers.map((column, index) => (
@@ -91,7 +93,7 @@ const ProductTable: React.FC<TableProps> = ({ columns, data }) => {
                   style={{
                     borderTop: '0px',
                     border: 'none',
-                    zIndex: 100,
+                    zIndex: 50,
                   }}
                 >
                   {column.render('Header')}

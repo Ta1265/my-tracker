@@ -1,11 +1,16 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { useState } from 'react';
 import ProductTable from '../../components/ProductTable';
+import ProductTableNew from '../../components/ProductTableNew';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import PriceChart from '../../components/PriceChart';
 import SingleStat from '../../components/SingleStat';
-import { Spinner } from 'flowbite-react';
+import { useGetProduct } from '../../_hooks/useGetProduct';
+import RemoveIcon from '@mui/icons-material/Remove';
+import ConfirmDeleteDialog from '../../components/ConfirmDeleteDialog';
+import { useReload } from '../../context/ReloadContext';
+import { SnackbarContext } from '../../context/SnackBarContext';
+import { Tooltip } from '@mui/joy';
 
 const sortDollars = (rowA: any, rowB: any, columnId: string) => {
   const aNum = parseFloat(rowA.values[columnId].replace(/[$,]/g, ''));
@@ -13,30 +18,32 @@ const sortDollars = (rowA: any, rowB: any, columnId: string) => {
   return aNum - bNum;
 };
 
-const useGetProduct = (selectedProductName: String | null) => {
-  const [transactions, setTransactions] = useState<Array<Transaction>>([]);
-  const [isLoading, setLoading] = useState(true);
-
-  console.log('hello????????', selectedProductName);
-  useEffect(() => {
-    if (!selectedProductName) return;
-    setLoading(true);
-    fetch(`/api/product/${selectedProductName}`)
-      .then((res) => res.json())
-      .then((resp: Array<Transaction>) => {
-        console.log('got resp', resp);
-        setTransactions(resp);
-        setLoading(false);
-      });
-  }, [selectedProductName]);
-
-  return { transactions, isLoading };
-};
+const deleteTransaction = async (id: number) => {
+  await fetch(`/api/transaction/${id}`, {
+    method: 'DELETE',
+  })
+    .then((resp) => {
+      if (resp.status === 204) {
+        console.log('success');
+      }
+    })
+    .then((error) => {
+      console.log('error', error);
+    });
+}
 
 export default function Product() {
+  const snackBarCtx = useContext(SnackbarContext);
   const router = useRouter();
   const unit = router.query.unit as string;
   const { transactions, isLoading } = useGetProduct(unit);
+  const { triggerReload } = useReload();
+
+  const [deleteTransactionSelection, setDeleteTransactionSelection] = useState<
+    number | null
+  >(null);
+  const [confirmModalIsOpen, setConfirmModalIsOpen] = useState(false);
+
   const productColumns = useMemo(
     () => [
       {
@@ -91,6 +98,40 @@ export default function Product() {
           const b = rowB.values[columnId];
           return a > b ? 1 : -1;
         },
+        Cell: ({ cell: { value } }: { cell: { value: any } }) => {
+          return (
+            <Tooltip title={value}>
+              <div
+                style={{
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  textAlign: 'center',
+                }}
+              >
+                {value}
+              </div>
+            </Tooltip>
+          );
+        },
+      },
+      {
+        Header: '',
+        accessor: 'id',
+        myWidth: '5%',
+        Cell: ({ cell: { value } }: { cell: { value: any }}) => {
+          return (
+            <Tooltip title="Delete transaction">
+              <RemoveIcon
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  setConfirmModalIsOpen(true);
+                  setDeleteTransactionSelection(value);
+                }}
+              />
+            </Tooltip>
+          );
+        },
       },
     ],
     [],
@@ -108,7 +149,39 @@ export default function Product() {
 
       <br />
 
-      <ProductTable columns={productColumns} data={transactions} />
+      <div
+        className="
+        xs:max-h-[700px]
+        max-h-[600px]
+        scrollbar scrollbar-thin
+        scrollbar-track-transparent
+
+        scrollbar-thumb-gray-400
+        dark:text-gray-400
+        sm:max-h-[600px]
+        lg:max-h-[500px]
+        xl:max-h-[400px]
+      "
+        style={{
+          minWidth: '899px',
+          maxWidth: '899px',
+          overflowY: 'scroll',
+          overflowX: 'auto',
+        }}
+      >
+        <ProductTableNew columns={productColumns} data={transactions} />
+      </div>
+
+      <ConfirmDeleteDialog
+        isOpen={confirmModalIsOpen}
+        setIsOpen={setConfirmModalIsOpen}
+        onConfirm={async () => {
+          if (deleteTransactionSelection !== null) {
+            deleteTransaction(deleteTransactionSelection).then(triggerReload);
+            snackBarCtx.toastSuccess({ message: 'Transaction deleted' });
+          }
+        }}
+      />
     </>
   );
 }

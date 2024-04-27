@@ -1,29 +1,14 @@
 import Image from 'next/image';
 import StatsTable from '../components/StatsTable';
+import StatsTableNew from '../components/StatsTableNew';
 import SummaryTable from '../components/SummaryTable';
 import React, { useMemo, useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import ProfitLossColumn from '../components/ProfitLossColumn';
-
-const useGetStats = () => {
-  const [stats, setStats] = useState<FormattedProductStats[]>([]);
-  const [summary, setSummary] = useState<StatsSummary[]>([]);
-  const [isLoading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setLoading(true);
-    fetch('/api/stats/all')
-      .then((res) => res.json())
-      .then(({ stats, summary }) => {
-        setStats(stats);
-        setSummary(summary);
-        setLoading(false);
-      });
-  }, []);
-
-  return { stats, summary, isLoading };
-};
+import { useGetStats } from '../_hooks/useGetStats';
+import Select from '@mui/joy/Select';
+import Option from '@mui/joy/Option';
 
 const sortDollars = (rowA: any, rowB: any, columnId: string) => {
   const aNum = parseFloat(rowA.values[columnId].replace(/[$,]/g, ''));
@@ -53,13 +38,14 @@ export default function Stats() {
           cell: {
             value: { productName },
           },
+        }: {
+          cell: { value: { productName: string } };
         }) => {
           return (
             <div
               className="flex items-center text-center"
               style={{
                 position: 'sticky',
-                zIndex: 100,
                 background: 'inherit',
               }}
             >
@@ -86,7 +72,9 @@ export default function Stats() {
             value: { holdings, valueOfHoldings },
           },
         }: {
-          value: { holdings: string; valueOfHoldings: string };
+          cell: {
+            value: { holdings: string; valueOfHoldings: string };
+          };
         }) => (
           <div className="text-center">
             <span>{valueOfHoldings}</span>
@@ -113,7 +101,7 @@ export default function Stats() {
         sortType: sortDollars,
       },
       {
-        Header: 'Break Even',
+        Header: 'Cost Basis',
         accessor: 'breakEvenPrice',
         sortType: sortDollars,
       },
@@ -123,15 +111,16 @@ export default function Stats() {
         sortType: sortDollars,
       },
       {
-        Header: `%`,
+        Header: ` `,
         accessor: (row: any) => ({
           unit: row.productName,
           coinName: row.coinName,
           currentPrice: row.currentPrice,
+          holdings: row.holdings,
         }),
         Cell: ({
           cell: {
-            value: { unit, coinName, currentPrice },
+            value: { unit, coinName, currentPrice, holdings },
           },
         }: {
           cell: {
@@ -139,6 +128,7 @@ export default function Stats() {
               unit: string;
               coinName: string;
               currentPrice: string;
+              holdings: string;
             };
           };
         }) => (
@@ -146,34 +136,45 @@ export default function Stats() {
             coinName={coinName}
             selectedTimeFrame={selectedTimeFrame}
             currentPrice={currentPrice}
+            holdings={holdings}
           />
         ),
         sortType: () => 0,
         Filter: ({ column }) => (
-          <>
-            <select
+          <div style={{ display: 'flex', justifyContent: 'right' }}>
+            {/* <Select
               className="
-            hover:border-grey-700
-            bg-gray-700
-            text-center
-            text-sm
-            dark:bg-black
-          "
-              onChange={({ target: { value } }: any) => {
-                setSelectedTimeFrame(value);
+                hover:border-grey-700
+                text-md
+                bg-gray-700
+                dark:bg-black
+                dark:text-gray-400
+
+              " */}
+            <Select
+              onChange={(
+                event: React.SyntheticEvent | null,
+                newValue: 'h' | 'd' | 'w' | 'm' | '3m' | '6m' | 'y' | 'all',
+              ) => {
+                setSelectedTimeFrame(newValue);
               }}
               defaultValue={selectedTimeFrame}
+              sx={{
+                border: 0,
+                textAlign: 'center',
+                width: '100px',
+              }}
             >
-              <option value="h">Hour</option>
-              <option value="d">Day</option>
-              <option value="w">Week</option>
-              <option value="m">Month</option>
-              <option value="3m">3 Month</option>
-              <option value="6m">6 Month</option>
-              <option value="y">1 Year</option>
-              <option value="all">All Time</option>
-            </select>
-          </>
+              <Option value="h">Hour</Option>
+              <Option value="d">Day</Option>
+              <Option value="w">Week</Option>
+              <Option value="m">1 M</Option>
+              <Option value="3m">3 M</Option>
+              <Option value="6m">6 M</Option>
+              <Option value="y">1 Y</Option>
+              <Option value="all">All</Option>
+            </Select>
+          </div>
         ),
       },
       {
@@ -224,7 +225,7 @@ export default function Stats() {
     [selectedTimeFrame],
   );
 
-  if (isLoading) return <div></div>;
+  // if (isLoading) return <div></div>;
 
   return (
     <>
@@ -254,25 +255,9 @@ export default function Stats() {
           overflowX: 'auto',
         }}
       >
-        <StatsTable columns={statsColumns} data={stats} />
+        <StatsTableNew columns={statsColumns} data={stats} />
       </div>
     </>
-    // <main
-    //   className="
-    //   flex
-    //   flex-col
-    //   items-center
-    //   justify-center
-    //   py-10
-    //   "
-    // >
-    // <div
-    //   className="
-    //       mx-auto
-    //       px-5
-    //       py-5
-    //     "
-    // >
   );
 }
 

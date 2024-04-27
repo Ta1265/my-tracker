@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useReload } from '../context/ReloadContext';
+
 
 export const useFetchPriceHistory = (
   coinName: string | null,
   timeFrame: TimeFrame,
 ) => {
+  const { reload } = useReload();
   const [priceData, setPriceData] = useState<Array<any>>([[]]);
   const [priceChange, setPriceChange] = useState<number>(0);
 
@@ -28,7 +31,7 @@ export const useFetchPriceHistory = (
         setPriceChange(0);
         setLoading(false);
       });
-  }, [coinName, timeFrame]);
+  }, [coinName, timeFrame, reload]);
 
   return { priceData, priceChange, isLoading };
 };

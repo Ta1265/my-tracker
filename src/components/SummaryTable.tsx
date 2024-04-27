@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-key */
 import React from 'react';
+import Skeleton from '@mui/joy/Skeleton';
 
 type DataType = {
   [key: string]: any;
@@ -10,12 +11,14 @@ interface SummaryTableProps {
 }
 
 const SummaryTable: React.FC<SummaryTableProps> = ({ data }) => {
-  if (!data) {
-    return <div>Loading...</div>;
-  }
+  // if (!data) {
+  //   return <div>Loading...</div>;
+  // }
+  const loading = !data;
 
-  const inGreen =
-    parseFloat(data.totalPLatCurrentPrice.replace(/[^0-9.-]+/g, '')) > 0;
+  const inGreen = data
+    ? parseFloat(data.totalPLatCurrentPrice.replace(/[^0-9.-]+/g, '')) > 0
+    : false;
 
   return (
     // <div className="flex justify-center">
@@ -29,7 +32,19 @@ const SummaryTable: React.FC<SummaryTableProps> = ({ data }) => {
       <tbody>
         <tr className="text-4xl md:text-lg lg:text-2xl">
           <td className="text-center">
-            <span className="text-center">{data.totalValueOfHoldings}</span>
+            <span className="text-center">
+              {loading ? (
+                <Skeleton
+                  variant="rectangular"
+                  width={150}
+                  height={34}
+                  overlay={true}
+                  loading={true}
+                />
+              ) : (
+                <>{data.totalValueOfHoldings}</>
+              )}
+            </span>
           </td>
           <td
             className="text-center"
@@ -37,18 +52,25 @@ const SummaryTable: React.FC<SummaryTableProps> = ({ data }) => {
               ...(inGreen ? { color: '#27AD75' } : { color: '#F0616D' }),
             }}
           >
-            <span className="px-4 text-center">
-              {data.totalPLatCurrentPrice}
-            </span>
-            <span className="px-4 text-center">
-              {inGreen ? '▲' : '▼'} {data.totalPercentPL}
-            </span>
+            {loading ? (
+              <Skeleton
+                variant="rectangular"
+                width={258}
+                height={34}
+                overlay={true}
+                loading={true}
+              />
+            ) : (
+              <>
+                <span className="px-4 text-center">
+                  {data.totalPLatCurrentPrice}
+                </span>
+                <span className="px-4 text-center">
+                  {inGreen ? '▲' : '▼'} {data.totalPercentPL}
+                </span>
+              </>
+            )}
           </td>
-          <td
-            style={{
-              ...(inGreen ? { color: '#27AD75' } : { color: '#F0616D' }),
-            }}
-          ></td>
         </tr>
       </tbody>
     </table>

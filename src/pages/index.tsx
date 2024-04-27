@@ -1,6 +1,3 @@
-// export default function Home() {
-//   return <div>Home</div>;
-// }
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';

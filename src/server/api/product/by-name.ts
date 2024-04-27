@@ -29,6 +29,7 @@ const formatUSD = (value: number) =>
 
 const formatTransactions = (transactions: Transaction[]) =>
   transactions.map((transaction) => ({
+    id: transaction.id,
     fullName: transaction.coinName, //unitToNameMap[transaction.unit],
     product: transaction.product,
     date: new Date(transaction.date).toLocaleString(),
@@ -54,10 +55,14 @@ export default async function handler(
 
   const { product } = req.query;
 
+  if (!product || Array.isArray(product)) {
+    return [];
+  }
+
   // let transactions = await getTransactions();
 
   const transactions = await db.transaction.findMany({
-    where: { product: `${product}-USD`, userId },
+    where: { unit: product, userId },
     orderBy: { date: 'desc' },
   });
 

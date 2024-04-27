@@ -1,8 +1,9 @@
 /* eslint-disable react/jsx-key */
+import { useTable, useSortBy, Column } from 'react-table';
 import React, { useEffect } from 'react';
 import { useState } from 'react';
-import { useTable, useSortBy, Column } from 'react-table';
 import { useRouter } from 'next/router';
+import Table from '@mui/joy/Table';
 
 type DataType = {
   [key: string]: any;
@@ -13,7 +14,7 @@ interface TableProps {
   data: DataType[];
 }
 
-const StatsTable: React.FC<TableProps> = ({ columns, data }) => {
+const StatsTableNew: React.FC<TableProps> = ({ columns, data }) => {
   const router = useRouter();
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
@@ -28,55 +29,41 @@ const StatsTable: React.FC<TableProps> = ({ columns, data }) => {
   }, []);
 
   return (
-    <table
+    <Table
       {...getTableProps()}
       className="table-fixed text-left text-gray-500 dark:text-gray-400"
       style={{
         width: '100%',
       }}
+      variant="plain"
+      size="lg"
+      stickyHeader={true}
     >
       <thead
         className="
             whitespace-nowrap
-            bg-gray-50
             uppercase
             text-gray-700
             dark:bg-black
             dark:text-gray-400
           "
-        style={{
-          borderTop: '0px',
-          position: 'sticky',
-          top: 0,
-          zIndex: 51,
-        }}
       >
         {headerGroups.map((headerGroup) => (
-          <tr
-            {...headerGroup.getHeaderGroupProps()}
-            style={{
-              boxShadow: 'inset 0px -2px grey, inset 0px 2px grey',
-              zIndex: 100,
-            }}
-          >
+          <tr {...headerGroup.getHeaderGroupProps()}>
             {headerGroup.headers.map((column, columnIndex) => {
               if (column.Filter) {
                 return (
                   <th
                     scope="col"
                     className="py-3 text-center"
+                    {...column.getHeaderProps()}
                     style={{
-                      borderTop: '0px',
-                      border: 'none',
-                      zIndex: 51,
+                      top: '-1px', // prevent rows peeking above sticky header
+                      textAlign: 'center',
+                      verticalAlign: 'middle',
                     }}
                   >
-                    {/* <div className="relative text-center">
-                      <div className="absolute text-center"> */}
-                    {column.render('Header')}
-                    {/* </div> */}
                     {column.render('Filter')}
-                    {/* </div> */}
                   </th>
                 );
               }
@@ -86,9 +73,9 @@ const StatsTable: React.FC<TableProps> = ({ columns, data }) => {
                   className="py-3 text-center"
                   {...column.getHeaderProps(column.getSortByToggleProps())}
                   style={{
-                    borderTop: '0px',
-                    border: 'none',
-                    zIndex: 51,
+                    top: '-1px', // prevent rows peeking above sticky header
+                    textAlign: 'center',
+                    verticalAlign: 'middle',
                   }}
                 >
                   {column.render('Header')}
@@ -127,8 +114,7 @@ const StatsTable: React.FC<TableProps> = ({ columns, data }) => {
                 className={`
                   ease-in-out-out
                   transform transform
-                  border-b-[.25px]
-                  border-gray-500
+                  border-gray-800
                   transition-transform
                   duration-500
                   ${loaded ? 'translate-y-0' : '-translate-y-5'}
@@ -173,8 +159,8 @@ const StatsTable: React.FC<TableProps> = ({ columns, data }) => {
           );
         })}
       </tbody>
-    </table>
+    </Table>
   );
 };
 
-export default StatsTable; /* eslint-disable react/jsx-key */
+export default StatsTableNew;

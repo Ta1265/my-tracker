@@ -6,10 +6,12 @@ const ProfitLossColumn = ({
   coinName,
   selectedTimeFrame,
   currentPrice,
+  holdings,
 }: {
   coinName: string;
   selectedTimeFrame: TimeFrame;
   currentPrice: string;
+  holdings: string;
 }) => {
   const { priceChange, isLoading } = useFetchPriceHistory(
     coinName,
