@@ -40,3 +40,4 @@ transactions.csv
 db-dumps
 .private
 .env
+.secrets
