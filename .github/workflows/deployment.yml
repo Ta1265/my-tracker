@@ -21,7 +21,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          dockerfile: Dockerfile.prod
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/my-tracker:my-tracker-next-app
+          tags: ${{ secrets.DOCKER_USERNAME }}/my-tracker:latest
     
-
