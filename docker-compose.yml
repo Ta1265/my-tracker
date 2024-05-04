@@ -40,7 +40,7 @@ services:
     container_name: portfolio-next-app
     build:
       context: .
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile
     # Set environment variables directly in the docker-compose file
     environment:
       ENV_VARIABLE: ${ENV_VARIABLE}
