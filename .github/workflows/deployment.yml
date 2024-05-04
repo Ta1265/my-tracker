@@ -23,4 +23,20 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/my-tracker:latest
+
+      - name: Deploy to EC2 instance
+        uses: appleboy/ssh-action@master
+        with: 
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            sudo docker stop app || true
+            sudo docker rm app || true
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/my-tracker:latest
+            sudo docker run -p 80:3000 \
+            -e NEXTAUTH_SECRET=${{ NEXTAUTH_SECRET }} \
+            -e DATABASE_URL=${{ DATABASE_URL }} \
+            -e NEXTAUTH_URL=${{ NEXTAUTH_URL }} \
+            --name app ${{ secrets.DOCKER_USERNAME }}/my-tracker:latest
     
