@@ -114,7 +114,7 @@ export const authOptions: NextAuthOptions = {
       } | null> {
         const user = await db.user
           .findFirst({
-            where: { username },
+            where: { username: username.toLowerCase() },
           })
           .catch((error) => console.error('Auth Error: ', error));
 

@@ -1,159 +1,51 @@
 #!/bin/bash
 
-# Update package lists
+################
+# Description:
+# 1. Installs Nginx, certbot, 
+# 2. Generates a strong Diffie-Hellman group
+# 3. Generates an SSL certificate using certbot with --webroot plugin. 
+# 4. Creates an Nginx configuration file for the HTTPS server block and starts Nginx. 
+################
+
+echo "Installing Nginx and certbot"
 sudo apt-get update
+sudo sudo apt install -y certbot # install cert bot for Let's Encrypt
 
-# Install Nginx
-sudo apt-get install -y nginx
+sudo apt-get install -y nginx # Install Nginx, -y to answer yes to all prompts
 
-# Remove the default Nginx configuration
-sudo rm /etc/nginx/sites-enabled/default
+sudo rm /etc/nginx/sites-enabled/default # Remove the default Nginx site page
 
-# Create a new Nginx configuration
-sudo cp ./nginx/nginx.config /etc/nginx/sites-available/node
+sudo cp nginx/nginx.conf /etc/nginx/nginx.conf # Copy the Nginx configuration file
 
-# symlink to sites-enabled to be used by nginx
-sudo ln -s /etc/nginx/sites-available/node /etc/nginx/sites-enabled/
-
-# Test the configuration
-sudo nginx -t
-
-# Reload Nginx to apply the changes
-sudo systemctl reload nginx
-
-
-# setup ssl
+echo "Generating Diffie-Hellman group"
+# Generate group to use for DHE ciphersuites
 sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
 
-# map all HTTP requests for .well-known/acme-challenge
+# Map all HTTP requests for .well-known/acme-challenge
 sudo mkdir -p /var/lib/letsencrypt/.well-known
 sudo chgrp www-data /var/lib/letsencrypt
 sudo chmod g+s /var/lib/letsencrypt
 
+# sudo systemctl stop nginx || true # Stop nginx if it is running, to allow certbot to bind to port 80 with --webroot plugin
 
-sudo mkdir /etc/nginx
-sudo mkdir /etc/nginx/sites-available
-sudo mkdir /etc/nginx/sites-available/node
-sudo mkdir /etc/nginx/sites-enabled
-sudo mkdir /etc/nginx/snippets
+echo "Running certbot to generate SSL certificate"
+# Run certbot to generate SSL certificate, using --webroot plugin to bind to port 80
+sudo certbot certonly \
+  --agree-tos \ 
+  --register-unsafely-without-email \
+  --webroot \  # Use the webroot plugin to bind to port 80
+  -w /var/lib/letsencrypt/ \  # Specify the webroot directory
+  -d tubesock.xyz \  # Specify the domain name
+  -d www.tubesock.xyz \  # Specify the domain name
 
-# map all HTTP requests for .well-known/acme-challenge
-sudo mkdir -p /var/lib/letsencrypt/.well-known
-# change permissions
-sudo chgrp www-data /var/lib/letsencrypt
-sudo chmod g+s /var/lib/letsencrypt
+# echo "Starting Nginx" 
+# sudo systemctl start nginx
+# sudo systemctl reload nginx
 
-# generate dhparam.pem
-sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
-
-# create SSL configuration file
-sudo bash -c 'cat > /etc/nginx/snippets/ssl.conf <<EOF
-ssl_dhparam /etc/ssl/certs/dhparam.pem;
-
-ssl_session_timeout 1d;
-ssl_session_cache shared:SSL:10m;
-ssl_session_tickets off;
-
-ssl_protocols TLSv1.2 TLSv1.3;
-ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
-ssl_prefer_server_ciphers on;
-
-ssl_stapling on;
-ssl_stapling_verify on;
-resolver 8.8.8.8 8.8.4.4 valid=300s;
-resolver_timeout 30s;
-
-add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-add_header X-Frame-Options SAMEORIGIN;
-add_header X-Content-Type-Options nosniff;
-EOF'
+echo "Setup complete"
+ 
 
 
-# create a new Nginx configuration
-sudo bash -c 'cat > /etc/nginx/nginx.conf <<EOF
-server {
-  listen 80 http2;
-  server_name tubesock.xyz www.tubesock.xyz;
 
-  include snippets/letsencrypt.conf;
-  
-  # direct to lets encrypt files
-  location ^~ /.well-known/acme-challenge/ {
-    allow all;
-    root /var/lib/letsencrypt/;
-    default_type "text/plain";
-    try_files $uri =404;
-  }
 
-  location / {
-    return 301 https://$host$request_uri;
-  }
-
-}
-
-server {
-  listen 443 ssl http2;
-  server_name tubesock.xyz www.tubesock.xyz;
-
-  # SSL configurations
-  ssl_certificate /etc/letsencrypt/live/tubesock.xyz/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/tubesock.xyz/privkey.pem;
-  ssl_trusted_certificate /etc/letsencrypt/live/tubesock.xyz/chain.pem;
-
-  ssl_dhparam /etc/ssl/certs/dhparam.pem;
-
-  ssl_session_timeout 1d;
-  ssl_session_cache shared:SSL:10m;
-  ssl_session_tickets off;
-
-  ssl_protocols TLSv1.2 TLSv1.3;
-  ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
-  ssl_prefer_server_ciphers on;
-
-  ssl_stapling on;
-  ssl_stapling_verify on;
-  resolver 8.8.8.8 8.8.4.4 valid=300s;
-  resolver_timeout 30s;
-
-  add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-  add_header X-Frame-Options SAMEORIGIN;
-  add_header X-Content-Type-Options nosniff;
-
-  # direct to lets encrypt files
-  location ^~ /.well-known/acme-challenge/ {
-    allow all;
-    root /var/lib/letsencrypt/;
-    default_type "text/plain";
-    try_files $uri =404;
-  }
-
-  # direct to next app on port 3000
-  location / {
-      proxy_set_header   X-Forwarded-For $remote_addr;
-      proxy_set_header   Host $http_host;
-      proxy_pass         "http://127.0.0.1:3000";
-  }
-}
-EOF'
-
-# Create nginx docker file
-sudo bash -c 'cat > Dockerfile.nginx <<EOF
-FROM nginx:1.15-alpine
-
-WORKDIR /app
-
-EOF'
-
-# Stop and remove the existing Docker container if there is one
-sudo docker stop my-nginx-container || true
-sudo docker rm my-nginx-container || true
-
-# Build the Docker image
-sudo docker build -t my-nginx-container -f Dockerfile.nginx .
-
-# Run the Docker container
-sudo docker run -p 443:443 \
--v /etc/letsencrypt:/etc/letsencrypt \
--v /var/lib/letsencrypt:/var/lib/letsencrypt \
--v /etc/nginx/nginx.conf:/etc/nginx/nginx.conf \
---name my-nginx-container my-nginx-container

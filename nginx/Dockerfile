@@ -1,5 +1,5 @@
-FROM nginx:1.15-alpine
+# Use the official Nginx image as the base
+FROM nginx
 
-WORKDIR /app
-
-COPY nginx.conf /etc/nginx/nginx.conf
+# Copy the Nginx configuration file into the image
+COPY nginx/nginx.conf /etc/nginx/nginx.conf

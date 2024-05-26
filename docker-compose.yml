@@ -34,40 +34,13 @@ services:
 
   # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  portfolio-next-app:
-    depends_on:
-      - portfolio-db
-    container_name: portfolio-next-app
-    build:
-      context: .
-      dockerfile: Dockerfile
-    # Set environment variables directly in the docker-compose file
-    environment:
-      ENV_VARIABLE: ${ENV_VARIABLE}
-      NEXT_PUBLIC_ENV_VARIABLE: ${NEXT_PUBLIC_ENV_VARIABLE}
-    # Set envrionment variables based on the .env file
-    env_file:
-      - .env
-    volumes:
-      - ./src:/app/src
-      - ./public:/app/public
-    restart: always
-    ports:
-      - 3000:3000
-    networks:
-      portfolio-network:
-        aliases:
-          - portfolio-next-app
-
-  # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-  # portfolio-next-app-dev:
+  # portfolio-next-app:
   #   depends_on:
   #     - portfolio-db
-  #   container_name: portfolio-next-app-dev
+  #   container_name: portfolio-next-app
   #   build:
   #     context: .
-  #     dockerfile: Dockerfile.dev
+  #     dockerfile: Dockerfile
   #   # Set environment variables directly in the docker-compose file
   #   environment:
   #     ENV_VARIABLE: ${ENV_VARIABLE}
@@ -84,37 +57,33 @@ services:
   #   networks:
   #     portfolio-network:
   #       aliases:
-  #         - portfolio-next-app-dev
-            
+  #         - portfolio-next-app
+
   # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  # nginx:
-  #   image: nginx:1.15-alpine
-  #   container_name: portfolio-nginx
-  #   build:
-  #     context: .
-  #     dockerfile: ./nginx/Dockerfile
-  #   ports:
-  #     - 80:80
-  #     - '443:443'
-  #   restart: always
-  #   volumes:
-  #     - ./nginx/nginx.conf/:/etc/nginx/conf.d/:ro
-  #     - ./certbot/www/:/var/www/certbot/:ro
-  #   networks:
-  #     portfolio-network:
-  #       aliases:
-  #         - portfolio-nginx
-
-  # certbot:
-  #   container_name: portfolio-certbot
-  #   image: certbot/certbot:latest
-  #   volumes:
-  #     - ./certbot/www:/var/www/certbot:rw
-  #     - ./certbot/conf:/etc/letsencrypt:rw
-  #   networks:
-  #     portfolio-network:
-  #       aliases:
-  #         - portfolio-certbot
-
-  # # Add more containers below (nginx, postgres, etc.)
+  portfolio-next-app-dev:
+    depends_on:
+      - portfolio-db
+    container_name: portfolio-next-app-dev
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    # Set environment variables directly in the docker-compose file
+    environment:
+      ENV_VARIABLE: ${ENV_VARIABLE}
+      NEXT_PUBLIC_ENV_VARIABLE: ${NEXT_PUBLIC_ENV_VARIABLE}
+    # Set envrionment variables based on the .env file
+    env_file:
+      - .env
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+    restart: always
+    ports:
+      - 3000:3000
+    networks:
+      portfolio-network:
+        aliases:
+          - portfolio-next-app-dev
+            
+  # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
