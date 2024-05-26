@@ -20,23 +20,27 @@ const TopNav: React.FC<{}> = ({}) => {
     <>
       <nav
         className="
-        lg:text-md
+        xs:p-2
         mx-auto
         flex
         w-full
-        min-w-[850px]
+        max-w-[915px]
         items-center
         justify-center
         border-b-[1px]
         border-gray-700
-        p-6
-        text-3xl
-        md:text-xl
+        sm:p-2
+        md:p-6
+        lg:p-6
+        lg:text-2xl
+        xl:p-6
       "
-        style={{
-          minWidth: '915px',
-          maxWidth: '915px',
-        }}
+        style={
+          {
+            // minWidth: '915px',
+            // maxWidth: '915px',
+          }
+        }
       >
         <div className="flex flex-wrap justify-center space-x-4">
           {links.map(({ label, href }) => (
@@ -62,10 +66,8 @@ const TopNav: React.FC<{}> = ({}) => {
             bg-gray-700
             px-1
             py-2
-            text-3xl
             text-white
             dark:bg-black
-            md:text-xl
           "
             onClick={() => setIsOpen(true)}
           >
@@ -73,52 +75,57 @@ const TopNav: React.FC<{}> = ({}) => {
           </button>
         </div>
 
-        <div className="ml-auto flex space-x-5">
-          {status === 'loading' ? (
-            <></>
-          ) : session?.isAuthenticated ? (
-            <Dropdown
-              className="bg-gray-700 dark:bg-black"
-              arrowIcon={true}
-              inline
-              label={session?.user.username}
-            >
-              <Dropdown.Header className="py-2">
-                <span className="block py-1 text-3xl text-white md:text-lg">
-                  {session?.user.name}
-                </span>
-                <span className="block truncate py-1 text-2xl font-medium text-white md:text-lg">
-                  {session?.user.email}
-                </span>
-              </Dropdown.Header>
-              <Dropdown.Divider className="border-b-2" />
-              <Dropdown.Item
-                className="py-5 text-3xl text-white md:text-xl"
-                onClick={() => signOut()}
+        <div
+          className="ml-auto flex space-x-5 sm:text-xl "
+          style={{ zIndex: 999 }}
+        >
+          <div className="relative">
+            {status === 'loading' ? (
+              <></>
+            ) : session?.isAuthenticated ? (
+              <Dropdown
+                className="z-999 sm:text-md fixed bg-gray-700 dark:bg-black"
+                arrowIcon={true}
+                inline
+                label={session?.user.username}
               >
-                Sign out
-              </Dropdown.Item>
-            </Dropdown>
-          ) : (
-            <button
-              className="
-              lg:text-md
+                <Dropdown.Header className="sm:text-md py-2">
+                  <span className="block py-1 text-white">
+                    {session?.user.name}
+                  </span>
+                  <span className="block truncate py-1 font-medium text-white">
+                    {session?.user.email}
+                  </span>
+                </Dropdown.Header>
+                <Dropdown.Divider className="border-b-2" />
+                <Dropdown.Item
+                  className="sm:text-md z-999 py-5 text-white"
+                  onClick={() => signOut()}
+                >
+                  Sign out
+                </Dropdown.Item>
+              </Dropdown>
+            ) : (
+              <button
+                className="
               hover:border-grey-700
               font-b
+              z-999
               ml-auto
               bg-gray-700
               px-1
               py-2
-              text-3xl
+              text-xl
               text-white
               dark:bg-black
-              md:text-xl
+              sm:text-lg
             "
-              onClick={() => signIn()}
-            >
-              Sign in
-            </button>
-          )}
+                onClick={() => signIn()}
+              >
+                Sign in
+              </button>
+            )}
+          </div>
         </div>
       </nav>
 

@@ -142,7 +142,7 @@ export default function Product() {
   }
 
   return (
-    <>
+    <div className="mx-auto overscroll-none h-full">
       <div>
         <PriceChart unit={unit} productFullName={transactions[0]?.fullName} />
       </div>
@@ -182,6 +182,6 @@ export default function Product() {
           }
         }}
       />
-    </>
+    </div>
   );
 }

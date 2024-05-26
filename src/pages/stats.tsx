@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import StatsTable from '../components/StatsTable';
-import StatsTableNew from '../components/StatsTableNew';
+import StatsTableNewest from '../components/StatsTableNewest';
 import SummaryTable from '../components/SummaryTable';
 import React, { useMemo, useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
@@ -79,7 +79,7 @@ export default function Stats() {
           <div className="text-center">
             <span>{valueOfHoldings}</span>
             <br></br>
-            <span className="text-xl md:text-base lg:text-base xl:text-sm">
+            <span className="">
               {holdings}
             </span>
           </div>
@@ -229,13 +229,15 @@ export default function Stats() {
 
   return (
     <>
-      <div className="flex justify-center py-5">
-        <SummaryTable data={summary[0]} />
+      <div className="mx-auto">
+        <div className="sm:py-4 py-3 flex justify-center">
+          <SummaryTable data={summary[0]} />
+        </div>
       </div>
 
       <br />
 
-      <div
+      {/* <div
         className="
          xs:max-h-[900px]
          max-h-[1200px]
@@ -254,9 +256,9 @@ export default function Stats() {
           overflowY: 'auto',
           overflowX: 'auto',
         }}
-      >
-        <StatsTableNew columns={statsColumns} data={stats} />
-      </div>
+      > */}
+      <StatsTableNewest columns={statsColumns} data={stats} />
+      {/* </div> */}
     </>
   );
 }

@@ -22,22 +22,59 @@ const SummaryTable: React.FC<SummaryTableProps> = ({ data }) => {
 
   return (
     // <div className="flex justify-center">
-    <table className="text-grey-700 flex table text-left text-2xl text-gray-500 dark:text-gray-400">
-      <thead className="justify-between text-4xl text-gray-700 text-gray-700 dark:text-gray-400 md:text-lg">
+    <table
+      className="
+        text-grey-700 
+        flex 
+        table 
+        text-left 
+        text-gray-500 
+        dark:text-gray-400 
+        "
+    >
+      <thead
+        className="
+          justify-between 
+          text-gray-700 
+          text-gray-700 
+          dark:text-gray-400
+          "
+      >
         <tr>
-          <th className="px-10 py-4">Total Value</th>
-          <th className="px-10 py-4 text-center">Total P/L</th>
+          <th
+            className="
+              px-10 
+              xs:text-xl
+              sm:text-2xl
+              sm:py-2
+              md:py-4 
+              "
+          >
+            Total Value
+          </th>
+          <th 
+            className="
+              px-10 
+              text-center 
+              xs:text-xl
+              sm:text-2xl
+              sm:py-2
+              md:py-4 
+              "
+            >
+              Total P/L
+            </th>
         </tr>
       </thead>
       <tbody>
-        <tr className="text-4xl md:text-lg lg:text-2xl">
-          <td className="text-center">
+        <tr>
+          <td className="text-center xs:text-xl sm:text-2xl sm:py-2 md:py-4">
             <span className="text-center">
               {loading ? (
                 <Skeleton
                   variant="rectangular"
-                  width={150}
-                  height={34}
+                  width="100%"
+                  height="100%"
                   overlay={true}
                   loading={true}
                 />
@@ -47,7 +84,7 @@ const SummaryTable: React.FC<SummaryTableProps> = ({ data }) => {
             </span>
           </td>
           <td
-            className="text-center"
+            className="text-center xs:text-xl sm:text-2xl sm:py-2 md:py-4"
             style={{
               ...(inGreen ? { color: '#27AD75' } : { color: '#F0616D' }),
             }}
@@ -55,8 +92,8 @@ const SummaryTable: React.FC<SummaryTableProps> = ({ data }) => {
             {loading ? (
               <Skeleton
                 variant="rectangular"
-                width={258}
-                height={34}
+                width="100%"
+                height="100%"
                 overlay={true}
                 loading={true}
               />

@@ -6,21 +6,28 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <>
       <main
         className="
+        justify-top
         dark
         flex
+        h-screen
         flex-col
         items-center
-        justify-center
       "
+        style={{
+          touchAction: 'none',
+        }}
       >
-        <div
+        {/* <div
           className="
            mx-auto
          "
-        >
-          <TopNav />
-          <div className="px-5 py-5">{children}</div>
-        </div>
+        > */}
+        <TopNav />
+        {/* </div> */}
+
+        {/* <div className="px-5 py-5"> */}
+        {children}
+        {/* </div> */}
       </main>
     </>
   );

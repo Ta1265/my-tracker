@@ -16,8 +16,9 @@ export default function App({
   return (
     <>
       <Head>
-        <meta name="viewport" content="width=device-width"></meta>
-        <meta name="viewport" content="viewport-fit=cover width=device-width" />
+        <></>
+        {/* <meta name="viewport" content="width=device-width"></meta>
+        <meta name="viewport" content="viewport-fit=cover width=device-width" /> */}
       </Head>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <SnackbarProvider>
