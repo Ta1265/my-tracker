@@ -179,13 +179,13 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
 
   return (
     <>
-      <div className="flex py-2">
+      <div className="xs:text-xl flex py-2 sm:text-2xl md:text-2xl lg:text-3xl">
         <div className="">
-          <span className="text-4xl capitalize md:text-3xl ">
+          <span className="capitalize">
             {productFullName} ({unit}){' '}
           </span>
           <span
-            className="px-1 text-2xl"
+            className="px-1"
             style={{
               ...(priceChange > 0
                 ? { color: '#27AD75' }
@@ -195,24 +195,19 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
             {priceChange > 0 ? '▲' : '▼'} {(priceChange * 100).toFixed(2)} %
           </span>
         </div>
-        <div className="px-3 text-3xl">
-          {hoveringChart ? hoverPrice : currentPrice}
-        </div>
-        <div className="flex-grow text-center text-3xl"></div>
+        <div className="px-3">{hoveringChart ? hoverPrice : currentPrice}</div>
+        <div className="flex-grow text-center"></div>
         <Select
           // className="ml-auto rounded-md bg-gray-700 px-4 py-2 text-sm text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
           className="
-            lg:text-md
             hover:border-grey-700
             font-b
             ml-auto
             bg-gray-700
             px-1
             py-2
-            text-3xl
             text-white
             dark:bg-black
-            md:text-xl
           "
           onChange={(
             event: React.SyntheticEvent | null,
@@ -235,13 +230,29 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
           <Option value="all"> All Time</Option>
         </Select>
       </div>
-      <Box width={900} height={337}>
-        <Skeleton loading={priceHistoryLoading} width={900} height={337}>
+      {/* <Box width={900} height={337}> */}
+      <Box className="max-h-400 h-max-content lg:max-h-450 mx-auto w-full" style={{
+        touchAction: 'none'
+      }}>
+        {/* <Skeleton 
+          loading={priceHistoryLoading}
+          height={450}
+          width={900}
+          > */}
+        {/* {priceHistoryLoading ? (
+          <Skeleton
+            loading
+            style={{
+              display: 'block',
+              boxSizing: 'border-box',
+              maxHeight: innerWidth < 768 ? '178px' :'450px',
+              maxWidth: '900px',
+            }}
+          />
+        ) : ( */}
           <Line
             onMouseLeave={() => setHoveringChart(false)}
             onMouseEnter={() => setHoveringChart(true)}
-            height="300px"
-            width="800px"
             options={{
               responsive: true,
               animation: {
@@ -305,8 +316,9 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
                     autoSkip: true,
                     maxTicksLimit: 6,
                     font: {
-                      size: 14,
+                      size: window.innerWidth < 768 ? 10 : 14,
                     },
+                    display: true,
                   },
                 },
                 y: {
@@ -315,8 +327,16 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
                     autoSkip: true,
                     maxTicksLimit: 6,
                     font: {
-                      size: 14,
+                      size: window.innerWidth < 768 ? 10 : 14,
                     },
+                    callback: (value, index, values) => {
+                      if (+value >= 1000) {
+                        return +value / 1000 + 'k';
+                      } else {
+                        return value;
+                      }
+                    },
+                    display: true,
                   },
                 },
               },
@@ -345,7 +365,9 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
               ],
             }}
           />
-        </Skeleton>
+        {/* )} */}
+
+        {/* </Skeleton> */}
       </Box>
       <br />
 

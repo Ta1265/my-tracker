@@ -9,13 +9,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         justify-top
         dark
         flex
-        h-screen
         flex-col
         items-center
       "
-        style={{
-          touchAction: 'none',
-        }}
+        // style={{
+        //   touchAction: 'none',
+        // }}
       >
         {/* <div
           className="

@@ -23,7 +23,11 @@ const StatsTableNewest: React.FC<TableProps> = ({ columns, data }) => {
 
   const [loaded, setLoaded] = useState(false);
 
+  const [screenWidth, setScreenWidth] = useState<number | null>(null);
 
+  useEffect(() => {
+    setScreenWidth(window.innerWidth);
+  }, []);
 
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current;
@@ -40,23 +44,20 @@ const StatsTableNewest: React.FC<TableProps> = ({ columns, data }) => {
     <div
       ref={scrollContainerRef}
       className="
+         max-h-full
+         lg:max-h-[700px]
+         w-full
+         lg:overflow-x-auto
+         overflow-y-auto
          scrollbar
          scrollbar-thin
          scrollbar-track-transparent
          scrollbar-thumb-gray-400
          dark:text-gray-400
-         overflow-x-auto
-         overflow-y-auto
-         w-full
-         h-full
-         overscroll-none
        "
       style={{
-        // minWidth: '900px',
         maxWidth: '910px',
-        maxHeight: '700px',
-        // overflowY: 'auto',
-        // overflowX: 'auto',
+        // maxHeight: '700px',
       }}
     >
       <Table
@@ -67,21 +68,15 @@ const StatsTableNewest: React.FC<TableProps> = ({ columns, data }) => {
           text-gray-500 
           dark:text-gray-400
         "
-        style={{
-          // width: '900px',
-        }}
         variant="plain"
-        size="lg"
+        size={screenWidth && screenWidth < 768 ? 'sm' : 'lg'}
         stickyHeader={true}
+        sx={{
+          justifyContent: 'space-between',
+          minWidth: 'min-content'
+        }}
       >
         <thead
-          className="
-            whitespace-nowrap
-            uppercase
-            text-gray-700
-            dark:bg-black
-            dark:text-gray-400
-          "
         >
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()}>
@@ -90,7 +85,7 @@ const StatsTableNewest: React.FC<TableProps> = ({ columns, data }) => {
                   return (
                     <th
                       scope="col"
-                      className="py-3 text-center"
+                      className="py-1 text-center"
                       {...column.getHeaderProps()}
                       style={{
                         ...(columnIndex === 0 && {
@@ -101,7 +96,9 @@ const StatsTableNewest: React.FC<TableProps> = ({ columns, data }) => {
                         top: '-1px', // prevent rows peeking above sticky header
                         textAlign: 'center',
                         verticalAlign: 'middle',
-                        width: '128px',
+                        width: screenWidth && screenWidth < 768 ? '80px' : '120px' ,
+                        paddingLeft: '5px',
+                        paddingRight: '5px',
                       }}
                     >
                       {column.render('Filter')}
@@ -122,7 +119,10 @@ const StatsTableNewest: React.FC<TableProps> = ({ columns, data }) => {
                       top: '-1px', // prevent rows peeking above sticky header
                       textAlign: 'center',
                       verticalAlign: 'middle',
-                      width: '128px',
+                      // width: '128px',
+                      width: screenWidth && screenWidth < 768 ? '100px' : '128px' ,
+                      paddingLeft: '5px',
+                      paddingRight: '5px',
                     }}
                   >
                     {column.render('Header')}
@@ -176,7 +176,6 @@ const StatsTableNewest: React.FC<TableProps> = ({ columns, data }) => {
                     <td
                       {...cell.getCellProps()}
                       className={`
-                        py-8
                         text-center
                         transition-opacity
                         duration-500

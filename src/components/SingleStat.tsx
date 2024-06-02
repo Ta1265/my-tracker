@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Skeleton from '@mui/joy/Skeleton';
+import { Grid, Typography, Box } from '@mui/material';
 
 interface SingleStatProps {
   unit: String;
@@ -38,151 +39,173 @@ const SingleStat: React.FC<SingleStatProps> = ({
 
   const showSkeleton = isLoading || !unitStats;
 
-  // if (isLoading || !unitStats) {
-  //   return <div>loading...</div>;
-  // }
+  const labelClass = 'font-semibold underline decoration-dotted py-1';
+  const valueClass = 'font-light';
+
+  const statWrapper = 'text-center w-[120px] md:basis-1/5 py-2 px-2';
 
   return (
-    <div className="flex table-fixed justify-center">
-      <table className="text-grey-700 flex table text-left text-lg text-gray-500 dark:text-gray-400">
-        <thead className="justify-between text-xl text-gray-700 text-gray-700 dark:text-gray-400 md:text-lg">
-          <tr>
-            <th className="px-5 py-2">Holdings</th>
-            <th className="px-5">AVG. Buy / Sell</th>
-            <th className="px-5">Cost Basis</th>
-            <th className="px-5">P/L All Time</th>
-            <th className="px-5">
-              P/L
-              {(() => {
-                if (timeFrame === 'h') return ' 1 Hour';
-                if (timeFrame === 'd') return ' 24 Hour';
-                if (timeFrame === 'w') return ' 7 Days';
-                if (timeFrame === 'm') return ' 30 Days';
-                if (timeFrame === '3m') return ' 3 Months';
-                if (timeFrame === '6m') return ' 6 Months';
-                if (timeFrame === 'y') return ' 1 Yeay';
-                if (timeFrame === 'all') return 'All Time';
-              })()}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr className="text-2xl md:text-lg">
-            <td>
-              {showSkeleton ? (
-                <Skeleton
-                  overlay={true}
-                  width={150}
-                  height={50}
-                  loading={showSkeleton}
-                  variant="rectangular"
-                />
-              ) : (
-                <div className="text-center">
-                  <span>{unitStats.valueOfHoldings}</span>
-                  <br></br>
-                  <span className="text-sm">{unitStats.holdings}</span>
-                </div>
-              )}
-            </td>
-            <td>
-              {showSkeleton ? (
-                <Skeleton
-                  overlay={true}
-                  loading={showSkeleton}
-                  width={150}
-                  height={50}
-                  variant="rectangular"
-                />
-              ) : (
-                <div className="text-center">
-                  <span>{unitStats.avgPurchasePrice}</span> /
-                  <br />
-                  <span>{unitStats.avgSellPrice}</span>
-                </div>
-              )}
-            </td>
-            <td>
-              {showSkeleton ? (
-                <Skeleton
-                  overlay={true}
-                  loading={showSkeleton}
-                  width={150}
-                  height={50}
-                  variant="rectangular"
-                />
-              ) : (
-                <div className="text-center">{unitStats.breakEvenPrice}</div>
-              )}
-            </td>
-            <td>
-              {showSkeleton ? (
-                <Skeleton
-                  overlay={true}
-                  width={150}
-                  height={50}
-                  loading={showSkeleton}
-                  variant="rectangular"
-                />
-              ) : (
-                <div
-                  className="text-center"
-                  style={{
-                    color:
-                      unitStats.percentPL[0] === '-' ? '#F0616D' : '#27AD75',
-                  }}
-                >
-                  <span>{unitStats.profitLossAtCurrentPrice} </span>
-                  <br />
-                  <span className="text-lg md:text-sm">
-                    {' '}
-                    {unitStats.percentPL}
-                  </span>
-                </div>
-              )}
-            </td>
-            <td>
-              {showSkeleton ? (
-                <Skeleton
-                  overlay={true}
-                  width={150}
-                  height={50}
-                  loading={showSkeleton}
-                  variant="rectangular"
-                />
-              ) : (
-                <>
-                  {priceChange ? (
-                    <div
-                      className="text-center"
-                      style={{
-                        color: priceChange < 0 ? '#F0616D' : '#27AD75',
-                      }}
-                    >
-                      {(() => {
-                        if (!timeFrameStartPrice) return '...';
-                        const holdings = parseFloat(unitStats.holdings);
-                        const currentValue = parseFloat(
-                          unitStats.valueOfHoldings.replace(/[$,]/g, ''),
-                        );
-                        const prevValue = holdings * timeFrameStartPrice;
-                        const profitLoss = currentValue - prevValue;
-                        return profitLoss.toLocaleString('en-US', {
-                          style: 'currency',
-                          currency: 'USD',
-                          maximumFractionDigits: 2,
-                        });
-                      })()}
-                    </div>
-                  ) : (
-                    <div className="text-center">...</div>
-                  )}
-                </>
-              )}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div
+      className="
+        text-grey-700 
+        flex 
+        flex-wrap 
+        text-center 
+        text-gray-500 
+        dark:text-gray-400
+        text-xs
+        md:text-base
+        lg:text-lg
+        md:justify-between
+      "
+    >
+      <div className={statWrapper}>
+        <div className="flex-col">
+          <div className={labelClass}>Holdings</div>
+          <div className={valueClass}>
+            {showSkeleton ? (
+              <Skeleton
+                width={(() => window.innerWidth < 768 ? 120 : 150)()}
+                height={40}
+                loading={true}
+                variant="rectangular"
+              >
+              </Skeleton>
+            ) : (
+              <div className="text-center">
+                <span>{unitStats.valueOfHoldings}</span>
+                <br></br>
+                <span className="">{unitStats.holdings}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className={statWrapper}>
+        <div className="flex-col">
+          <div className={labelClass}>AVG. Buy / Sell</div>
+          <div className={valueClass}>
+            {showSkeleton ? (
+              <Skeleton
+                width={(() => window.innerWidth < 768 ? 120 : 150)()}
+                height={40}
+                loading={true}
+                variant="rectangular"
+              >
+              </Skeleton>
+            ) : (
+              <div className="grid-rows-2 text-center">
+                <div>{unitStats.avgPurchasePrice} /</div>
+                <div>{unitStats.avgSellPrice}</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className={statWrapper}>
+        <div className="flex-col">
+          <div className={labelClass}>Break Even</div>
+          <div className={valueClass}>
+            {showSkeleton ? 
+              <Skeleton
+                width={(() => window.innerWidth < 768 ? 100 : 150)()}
+                height={40}
+                loading={true}
+                variant="rectangular"
+              >
+              </Skeleton>
+          
+            : <div>{unitStats.breakEvenPrice}</div>}
+          </div>
+        </div>
+      </div>
+
+      <div className={statWrapper}>
+        <div className="flex-col">
+          <div className={labelClass}>P/L All Time</div>
+          <div className={valueClass}>
+            {showSkeleton ? (
+              <Skeleton
+                width={(() => window.innerWidth < 768 ? 120 : 150)()}
+                height={40}
+                loading={true}
+                variant="rectangular"
+              >
+              </Skeleton>
+            ) : (
+              <div
+                className="flex-col"
+                style={{
+                  color: unitStats.percentPL[0] === '-' ? '#F0616D' : '#27AD75',
+                }}
+              >
+                <span>{unitStats.profitLossAtCurrentPrice} </span>
+                <br />
+                <span className=""> {unitStats.percentPL}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className={statWrapper}>
+        <div className="flex-col">
+          <div className={labelClass}>
+            P/L
+            {(() => {
+              if (timeFrame === 'h') return ' 1 Hour';
+              if (timeFrame === 'd') return ' 24 Hour';
+              if (timeFrame === 'w') return ' 7 Days';
+              if (timeFrame === 'm') return ' 30 Days';
+              if (timeFrame === '3m') return ' 3 Months';
+              if (timeFrame === '6m') return ' 6 Months';
+              if (timeFrame === 'y') return ' 1 Year';
+              if (timeFrame === 'all') return 'All Time';
+            })()}
+          </div>
+          <div className={valueClass}>
+            {showSkeleton ? (
+              <Skeleton
+                width={(() => window.innerWidth < 768 ? 120 : 150)()}
+                height={40}
+                loading={true}
+                variant="rectangular"
+              >
+              </Skeleton>
+            ) : (
+              <>
+                {priceChange ? (
+                  <div
+                    className="text-center"
+                    style={{
+                      color: priceChange < 0 ? '#F0616D' : '#27AD75',
+                    }}
+                  >
+                    {(() => {
+                      if (!timeFrameStartPrice) return '...';
+                      const holdings = parseFloat(unitStats.holdings);
+                      const currentValue = parseFloat(
+                        unitStats.valueOfHoldings.replace(/[$,]/g, ''),
+                      );
+                      const prevValue = holdings * timeFrameStartPrice;
+                      const profitLoss = currentValue - prevValue;
+                      return profitLoss.toLocaleString('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                        maximumFractionDigits: 2,
+                      });
+                    })()}
+                  </div>
+                ) : (
+                  <div className="text-center">...</div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

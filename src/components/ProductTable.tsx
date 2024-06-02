@@ -29,36 +29,33 @@ const ProductTable: React.FC<TableProps> = ({ columns, data }) => {
   return (
     <div
       className="
-        xs:max-h-[700px]
-        max-h-[800px]
-        scrollbar scrollbar-thin
-        scrollbar-track-transparent
-
-        scrollbar-thumb-gray-400
-        dark:text-gray-400
-        sm:max-h-[600px]
-        lg:max-h-[500px]
-        xl:max-h-[400px]
-      "
+         w-full
+         overflow-x-auto
+         overflow-y-auto
+         overscroll-none
+         scrollbar
+         scrollbar-thin
+         scrollbar-track-transparent
+         scrollbar-thumb-gray-400
+         dark:text-gray-400
+       "
       style={{
-        top: 0,
-        maxWidth: '1440px',
-        overflowY: 'scroll',
-        overflowX: 'auto',
+        maxWidth: '900px',
       }}
     >
       <table
         {...getTableProps()}
-        className="text-left text-sm text-gray-500 dark:text-gray-400"
+        className="text-left text-gray-500 dark:text-gray-400 table table-fixed"
         style={{
-          width: '100%',
+          width: '895px'
         }}
       >
         <thead
           className="
+            text-[12px]
+            py-2
+            md:text-sm
             bg-gray-50
-            py-1
-            text-sm
             uppercase
             text-white
             dark:bg-black
@@ -74,7 +71,7 @@ const ProductTable: React.FC<TableProps> = ({ columns, data }) => {
           {headerGroups.map((headerGroup) => (
             <tr
               id="product-header-row"
-              className=""
+              className="text-[10px] md:text-sm"
               {...headerGroup.getHeaderGroupProps()}
               style={{
                 boxShadow: 'inset 0px -2px grey, inset 0px 2px grey',
@@ -85,8 +82,10 @@ const ProductTable: React.FC<TableProps> = ({ columns, data }) => {
                 <th
                   scope="col"
                   className="
-                    px-6
-                    py-3
+                    px-1
+                    py-1
+                    md:px-3
+                    md:py-1
                     text-center
                   "
                   {...column.getHeaderProps(column.getSortByToggleProps())}
@@ -94,6 +93,7 @@ const ProductTable: React.FC<TableProps> = ({ columns, data }) => {
                     borderTop: '0px',
                     border: 'none',
                     zIndex: 50,
+                    ...(column.myWidth && { width: column.myWidth })
                   }}
                 >
                   {column.render('Header')}
@@ -117,6 +117,8 @@ const ProductTable: React.FC<TableProps> = ({ columns, data }) => {
                 id="transaction-row"
                 {...row.getRowProps()}
                 className={`
+                text-[10px]
+                md:text-sm
                 ease-in-out-out
                 transform
                 border-b-[0.75px]
@@ -133,8 +135,10 @@ const ProductTable: React.FC<TableProps> = ({ columns, data }) => {
                   <td
                     {...cell.getCellProps()}
                     className={`
-                      px-6
-                      py-4
+                      px-1
+                      py-1
+                      md:px-6
+                      md:py-4
                       text-center
                       transition-opacity
                       duration-500

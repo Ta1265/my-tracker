@@ -58,6 +58,7 @@ export default function Product() {
       {
         Header: 'Side',
         accessor: 'side',
+        // myWidth: '5%',
         sortType: (rowA, rowB, columnId) => {
           const a = rowA.values[columnId];
           const b = rowB.values[columnId];
@@ -84,6 +85,7 @@ export default function Product() {
         Header: 'Fee',
         accessor: 'fee',
         sortType: sortDollars,
+        // myWidth: '5%'
       },
       {
         Header: 'Total',
@@ -100,7 +102,7 @@ export default function Product() {
         },
         Cell: ({ cell: { value } }: { cell: { value: any } }) => {
           return (
-            <Tooltip title={value}>
+            <Tooltip title={value} style={{width: '100%'}}>
               <div
                 style={{
                   overflow: 'hidden',
@@ -142,35 +144,15 @@ export default function Product() {
   }
 
   return (
-    <div className="mx-auto overscroll-none h-full">
-      <div>
+    // <div className="mx-auto overscroll-none h-full">
+    <>
+      <div className="mx-auto w-full" style={{ maxWidth: '900px'}}>
         <PriceChart unit={unit} productFullName={transactions[0]?.fullName} />
       </div>
 
       <br />
 
-      <div
-        className="
-        xs:max-h-[700px]
-        max-h-[600px]
-        scrollbar scrollbar-thin
-        scrollbar-track-transparent
-
-        scrollbar-thumb-gray-400
-        dark:text-gray-400
-        sm:max-h-[600px]
-        lg:max-h-[500px]
-        xl:max-h-[400px]
-      "
-        style={{
-          minWidth: '899px',
-          maxWidth: '899px',
-          overflowY: 'scroll',
-          overflowX: 'auto',
-        }}
-      >
-        <ProductTableNew columns={productColumns} data={transactions} />
-      </div>
+      <ProductTableNew columns={productColumns} data={transactions} />
 
       <ConfirmDeleteDialog
         isOpen={confirmModalIsOpen}
@@ -182,6 +164,6 @@ export default function Product() {
           }
         }}
       />
-    </div>
+    </>
   );
 }

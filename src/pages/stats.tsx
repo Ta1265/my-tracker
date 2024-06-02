@@ -9,6 +9,7 @@ import ProfitLossColumn from '../components/ProfitLossColumn';
 import { useGetStats } from '../_hooks/useGetStats';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
+import dynamic from 'next/dynamic';
 
 const sortDollars = (rowA: any, rowB: any, columnId: string) => {
   const aNum = parseFloat(rowA.values[columnId].replace(/[$,]/g, ''));
@@ -23,7 +24,7 @@ export default function Stats() {
   const statsColumns = useMemo(
     () => [
       {
-        Header: 'Product',
+        Header: 'Coin',
         // accessor: 'productName',
         accessor: (row: any) => ({
           productName: row.productName,
@@ -52,8 +53,8 @@ export default function Stats() {
               <Image
                 src={`/${productName}-icon.png`}
                 alt={productName}
-                width={40}
-                height={40}
+                width={30}
+                height={30}
               />
               <span className="ml-2"> {productName}</span>
             </div>
@@ -95,13 +96,13 @@ export default function Stats() {
           return aNum - bNum;
         },
       },
+      // {
+      //   Header: 'Avg. Buy',
+      //   accessor: 'avgPurchasePrice',
+      //   sortType: sortDollars,
+      // },
       {
-        Header: 'Avg. Buy',
-        accessor: 'avgPurchasePrice',
-        sortType: sortDollars,
-      },
-      {
-        Header: 'Cost Basis',
+        Header: 'Break even',
         accessor: 'breakEvenPrice',
         sortType: sortDollars,
       },
@@ -141,16 +142,7 @@ export default function Stats() {
         ),
         sortType: () => 0,
         Filter: ({ column }) => (
-          <div style={{ display: 'flex', justifyContent: 'right' }}>
-            {/* <Select
-              className="
-                hover:border-grey-700
-                text-md
-                bg-gray-700
-                dark:bg-black
-                dark:text-gray-400
-
-              " */}
+          <div style={{ display: 'flex', justifyContent: 'right', width: '110px' }}>
             <Select
               onChange={(
                 event: React.SyntheticEvent | null,
@@ -163,6 +155,7 @@ export default function Stats() {
                 border: 0,
                 textAlign: 'center',
                 width: '100px',
+                fontSize: '14px'
               }}
             >
               <Option value="h">Hour</Option>
@@ -229,7 +222,8 @@ export default function Stats() {
 
   return (
     <>
-      <div className="mx-auto">
+      <div className="mx-auto" style={{
+      }}>
         <div className="sm:py-4 py-3 flex justify-center">
           <SummaryTable data={summary[0]} />
         </div>
