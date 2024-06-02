@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
-import { Box, Button, DialogContent, DialogContentText } from '@mui/material';
+// import { Box, Button, DialogContent, DialogContentText } from '@mui/material';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+// import DialogContent from '@mui/material/DialogContent';
+// import DialogContentText from '@mui/material/DialogContentText';
 
 const ConfirmDeleteDialog = ({
   isOpen,

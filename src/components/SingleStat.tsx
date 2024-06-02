@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Skeleton from '@mui/joy/Skeleton';
-import { Grid, Typography, Box } from '@mui/material';
+// import { Grid, Typography, Box } from '@mui/material';
+
 
 interface SingleStatProps {
   unit: String;
@@ -40,7 +41,7 @@ const SingleStat: React.FC<SingleStatProps> = ({
   const showSkeleton = isLoading || !unitStats;
 
   const labelClass = 'font-semibold underline decoration-dotted py-1';
-  const valueClass = 'font-light';
+  const valueClass = 'font-light text-white';
 
   const statWrapper = 'text-center w-[120px] md:basis-1/5 py-2 px-2';
 

@@ -1,8 +1,7 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import React, { useState } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { Avatar, Dropdown, Navbar } from 'flowbite-react';
+import { Dropdown } from 'flowbite-react';
 import AddTransaction from './AddTransaction';
 
 const TopNav: React.FC<{}> = ({}) => {

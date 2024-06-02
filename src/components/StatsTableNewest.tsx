@@ -47,7 +47,7 @@ const StatsTableNewest: React.FC<TableProps> = ({ columns, data }) => {
          max-h-full
          lg:max-h-[700px]
          w-full
-         lg:overflow-x-auto
+         overflow-x-auto
          overflow-y-auto
          scrollbar
          scrollbar-thin

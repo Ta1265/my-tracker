@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useFetchPriceHistory } from '../_hooks/useFetchPriceHistory';
-import { Spinner } from 'flowbite-react';
+// import { Spinner } from 'flowbite-react';
 
 const ProfitLossColumn = ({
   coinName,

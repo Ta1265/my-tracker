@@ -1,31 +1,19 @@
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { createTheme, ThemeProvider, withStyles } from '@mui/material/styles';
+import { DateTimePicker } from '@mui/x-date-pickers';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import dayjs from 'dayjs';
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import Modal from 'react-modal';
-import Select, { createFilter } from 'react-select';
-import styled from '@emotion/styled';
-import {
-  Box,
-  Button,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  IconButton,
-  Input,
-  InputAdornment,
-  InputLabel,
-  Radio,
-  RadioGroup,
-  Stack,
-  Switch,
-  TextField,
-  Typography,
-} from '@mui/material';
+import Select from 'react-select';
+
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import InputAdornment from '@mui/material/InputAdornment';
+import Stack from '@mui/material/Stack';
+import Switch from '@mui/material/Switch';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import NumberFormatCustom from './NumberFormatCustom';
-import { useRouter } from 'next/router';
 import { useReload } from '../context/ReloadContext';
 import { SnackbarContext } from '../context/SnackBarContext';
 import { useGetTokenList } from '../_hooks/useGetTokenList';
@@ -42,6 +30,9 @@ const textFieldSx = {
     borderColor: 'rgba(255, 255, 255, 0.7)',
     outline: 'none',
     boxShadow: 'none',
+  },
+  '& input': {
+    backgroundColor: 'transparent',
   },
 };
 
@@ -228,10 +219,11 @@ const AddTransaction: React.FC<{
       overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75"
       style={{
         overlay: {
-          zIndex: 75,
+          zIndex: 99,
         },
         content: {
           width: '80%',
+          maxHeight: '90%',
           maxWidth: '600px',
           borderRadius: '0.5rem', // rounded corners
           // backgroundColor: '#1F2937', // background color
@@ -243,7 +235,7 @@ const AddTransaction: React.FC<{
       }}
     >
       <ThemeProvider theme={theme}>
-        <form onSubmit={handleSubmit} className="mx-auto max-w-lg">
+        <form onSubmit={handleSubmit} className="">
           <div className="mb-5 ">
             <Stack
               direction="row"
@@ -299,6 +291,11 @@ const AddTransaction: React.FC<{
                         errors: [],
                       },
                     });
+                  }}
+                  sx={{
+                    '& Input': {
+                      backgroundColor: 'transparent',
+                    },
                   }}
                   // referenceDate={dayjs()}
                   slotProps={{
