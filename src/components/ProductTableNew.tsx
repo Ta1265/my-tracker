@@ -1,10 +1,9 @@
-
 /* eslint-disable react/jsx-key */
 import React, { useMemo } from 'react';
 import { useRef, useState, useEffect } from 'react';
 import { useTable, Column, useSortBy } from 'react-table';
-import AddTransaction from './AddTransaction';
 import Table from '@mui/joy/Table';
+import SortArrow from './SortArrow';
 
 type DataType = {
   [key: string]: any;
@@ -62,31 +61,33 @@ const ProductTableNew: React.FC<TableProps> = ({ columns, data }) => {
          scrollbar-thin
          scrollbar-track-transparent
          scrollbar-thumb-gray-400
-         dark:text-gray-400
        "
       style={{
         maxWidth: '900px',
+        overscrollBehavior: 'none',
       }}
     >
       <Table
         {...getTableProps()}
         className=""
         style={{
-          maxWidth: '100%',
+          maxWidth: '880px',
           minWidth: '880px',
         }}
         variant="plain"
-        size={screenWidth < 768 ? 'sm' : 'lg'}
+        size={screenWidth && screenWidth < 768 ? 'sm' : 'md'}
         stickyHeader={true}
+        sx={{
+          '& thead th': {
+            borderBottomWidth: '3px',
+            backgroundColor: '#000',
+          },
+        }}
       >
         <thead
           className="
-            bg-gray-50
             py-1
             uppercase
-            text-white
-            dark:bg-black
-            dark:text-gray-400
           "
         >
           {headerGroups.map((headerGroup) => (
@@ -98,6 +99,7 @@ const ProductTableNew: React.FC<TableProps> = ({ columns, data }) => {
                     className="
                       py-1
                       text-center
+                      dark:text-gray-400
                     "
                     {...column.getHeaderProps(column.getSortByToggleProps())}
                     style={{
@@ -107,14 +109,10 @@ const ProductTableNew: React.FC<TableProps> = ({ columns, data }) => {
                       ...(column.myWidth && { width: column.myWidth }),
                     }}
                   >
-                    {column.render('Header')}
-                    <span>
-                      {column.isSorted
-                        ? column.isSortedDesc
-                          ? ' 🔽'
-                          : ' 🔼'
-                        : ''}
-                    </span>
+                    
+                    <SortArrow isSorted={column.isSorted} isSortedDesc={column.isSortedDesc}>
+                      {column.render('Header')}
+                    </SortArrow>
                   </th>
                 );
               })}
@@ -165,5 +163,7 @@ const ProductTableNew: React.FC<TableProps> = ({ columns, data }) => {
     </div>
   );
 };
+
+
 
 export default ProductTableNew; /* eslint-disable react/jsx-key */

@@ -11,10 +11,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         flex
         flex-col
         items-center
+        h-screen
       "
-        // style={{
-        //   touchAction: 'none',
-        // }}
+        style={{
+        }}
       >
         {/* <div
           className="

@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import { useState } from 'react';
 import ProductTable from '../../components/ProductTable';
 import ProductTableNew from '../../components/ProductTableNew';
@@ -10,7 +10,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import ConfirmDeleteDialog from '../../components/ConfirmDeleteDialog';
 import { useReload } from '../../context/ReloadContext';
 import { SnackbarContext } from '../../context/SnackBarContext';
-import { Tooltip } from '@mui/joy';
+import Tooltip  from '@mui/joy/Tooltip';
 
 const sortDollars = (rowA: any, rowB: any, columnId: string) => {
   const aNum = parseFloat(rowA.values[columnId].replace(/[$,]/g, ''));
@@ -44,6 +44,13 @@ export default function Product() {
   >(null);
   const [confirmModalIsOpen, setConfirmModalIsOpen] = useState(false);
 
+
+  const [screenWidth, setScreenWidth] = useState<number | null>(null);
+
+  useEffect(() => {
+    setScreenWidth(window.innerWidth);
+  }, []);
+
   const productColumns = useMemo(
     () => [
       {
@@ -54,6 +61,24 @@ export default function Product() {
           const dateB = new Date(rowB.values[columnId]).getTime();
           return dateA - dateB;
         },
+        Cell: ({ cell: { value } }: { cell: { value: any } }) => {
+         
+          return (
+            <Tooltip title={value}>
+              <div
+                style={{
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                }}
+              >
+                {new Date(value).toLocaleDateString()}
+              </div>
+            </Tooltip>
+          )
+        }
       },
       {
         Header: 'Side',
@@ -102,13 +127,14 @@ export default function Product() {
         },
         Cell: ({ cell: { value } }: { cell: { value: any } }) => {
           return (
-            <Tooltip title={value} style={{width: '100%'}}>
+            <Tooltip title={value}>
               <div
                 style={{
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
                   textAlign: 'center',
+                  cursor: 'pointer',
                 }}
               >
                 {value}

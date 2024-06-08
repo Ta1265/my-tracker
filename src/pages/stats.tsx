@@ -48,6 +48,7 @@ export default function Stats() {
               style={{
                 position: 'sticky',
                 background: 'inherit',
+                justifyContent: 'left',
               }}
             >
               <Image
@@ -80,9 +81,7 @@ export default function Stats() {
           <div className="text-center">
             <span>{valueOfHoldings}</span>
             <br></br>
-            <span className="">
-              {holdings}
-            </span>
+            <span className="">{holdings}</span>
           </div>
         ),
 
@@ -142,8 +141,15 @@ export default function Stats() {
         ),
         sortType: () => 0,
         Filter: ({ column }) => (
-          <div style={{ display: 'flex', justifyContent: 'right', width: '110px' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              minWidth: 'fit-content',
+            }}
+          >
             <Select
+              className="uppercase dark:text-gray-400"
               onChange={(
                 event: React.SyntheticEvent | null,
                 newValue: 'h' | 'd' | 'w' | 'm' | '3m' | '6m' | 'y' | 'all',
@@ -154,24 +160,24 @@ export default function Stats() {
               sx={{
                 border: 0,
                 textAlign: 'center',
-                width: '100px',
-                fontSize: '14px'
+                fontSize: 'inherit',
+                backgroundColor: 'inherit',
               }}
             >
-              <Option value="h">Hour</Option>
-              <Option value="d">Day</Option>
-              <Option value="w">Week</Option>
+              <Option value="h">HOUR</Option>
+              <Option value="d">DAY</Option>
+              <Option value="w">WEEK</Option>
               <Option value="m">1 M</Option>
               <Option value="3m">3 M</Option>
               <Option value="6m">6 M</Option>
               <Option value="y">1 Y</Option>
-              <Option value="all">All</Option>
+              <Option value="all">ALL</Option>
             </Select>
           </div>
         ),
       },
       {
-        Header: 'P/L',
+        Header: 'Profit/Loss',
         accessor: (row: any) => ({
           profitLossAtCurrentPrice: row.profitLossAtCurrentPrice,
           percentPL: row.percentPL,
@@ -222,9 +228,8 @@ export default function Stats() {
 
   return (
     <>
-      <div className="mx-auto" style={{
-      }}>
-        <div className="sm:py-4 py-3 flex justify-center">
+      <div className="mx-auto" style={{}}>
+        <div className="flex justify-center py-3 sm:py-4">
           <SummaryTable data={summary[0]} />
         </div>
       </div>

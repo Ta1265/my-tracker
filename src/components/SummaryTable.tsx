@@ -26,10 +26,7 @@ const SummaryTable: React.FC<SummaryTableProps> = ({ data }) => {
     // <div className="flex justify-center">
     <table
       className="
-        text-grey-700 
         table-auto 
-        text-gray-500 
-        dark:text-gray-400
       "
     >
       <thead

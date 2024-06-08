@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Table from '@mui/joy/Table';
+import SortArrow from './SortArrow';
 
 type DataType = {
   [key: string]: any;
@@ -44,8 +45,6 @@ const StatsTableNewest: React.FC<TableProps> = ({ columns, data }) => {
     <div
       ref={scrollContainerRef}
       className="
-         max-h-full
-         lg:max-h-[700px]
          w-full
          overflow-x-auto
          overflow-y-auto
@@ -57,26 +56,33 @@ const StatsTableNewest: React.FC<TableProps> = ({ columns, data }) => {
        "
       style={{
         maxWidth: '910px',
-        // maxHeight: '700px',
+        overscrollBehavior: 'none',
       }}
     >
+
       <Table
         {...getTableProps()}
         className="
           table-fixed 
           text-left 
-          text-gray-500 
-          dark:text-gray-400
         "
+        borderAxis="xBetween"
         variant="plain"
         size={screenWidth && screenWidth < 768 ? 'sm' : 'lg'}
         stickyHeader={true}
         sx={{
           justifyContent: 'space-between',
-          minWidth: 'min-content'
+          minWidth: 'min-content',
+          '& thead th': {
+            backgroundColor: '#000',
+            borderBottomWidth: '3px',
+          },
         }}
       >
-        <thead
+        <thead 
+          className="
+            uppercase
+          "
         >
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()}>
@@ -84,8 +90,7 @@ const StatsTableNewest: React.FC<TableProps> = ({ columns, data }) => {
                 if (column.Filter) {
                   return (
                     <th
-                      scope="col"
-                      className="py-1 text-center"
+                      className="dark:text-gray-400"
                       {...column.getHeaderProps()}
                       style={{
                         ...(columnIndex === 0 && {
@@ -93,10 +98,10 @@ const StatsTableNewest: React.FC<TableProps> = ({ columns, data }) => {
                           left: '0px',
                           zIndex: 53,
                         }),
-                        top: '-1px', // prevent rows peeking above sticky header
                         textAlign: 'center',
                         verticalAlign: 'middle',
-                        width: screenWidth && screenWidth < 768 ? '80px' : '120px' ,
+                        width:
+                          screenWidth && screenWidth < 768 ? '80px' : '120px',
                         paddingLeft: '5px',
                         paddingRight: '5px',
                       }}
@@ -107,32 +112,28 @@ const StatsTableNewest: React.FC<TableProps> = ({ columns, data }) => {
                 }
                 return (
                   <th
-                    scope="col"
-                    className="py-3 text-center"
                     {...column.getHeaderProps(column.getSortByToggleProps())}
+                    className="dark:text-gray-400"
                     style={{
                       ...(columnIndex === 0 && {
                         position: 'sticky',
                         left: '0px',
                         zIndex: 53,
                       }),
-                      top: '-1px', // prevent rows peeking above sticky header
                       textAlign: 'center',
                       verticalAlign: 'middle',
-                      // width: '128px',
-                      width: screenWidth && screenWidth < 768 ? '100px' : '128px' ,
+                      width:
+                        screenWidth && screenWidth < 768 ? '100px' : '128px',
                       paddingLeft: '5px',
                       paddingRight: '5px',
                     }}
                   >
-                    {column.render('Header')}
-                    <span>
-                      {column.isSorted
-                        ? column.isSortedDesc
-                          ? ' 🔽'
-                          : ' 🔼'
-                        : ''}
-                    </span>
+                    <SortArrow
+                      isSorted={column.isSorted}
+                      isSortedDesc={column.isSortedDesc}
+                    >
+                      {column.render('Header')}
+                    </SortArrow>
                   </th>
                 );
               })}
@@ -176,6 +177,7 @@ const StatsTableNewest: React.FC<TableProps> = ({ columns, data }) => {
                     <td
                       {...cell.getCellProps()}
                       className={`
+                        justify-center
                         text-center
                         transition-opacity
                         duration-500

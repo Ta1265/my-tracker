@@ -28,6 +28,7 @@ const TopNav: React.FC<{}> = ({}) => {
         justify-center
         border-b-[1px]
         border-gray-700
+        p-1
         sm:p-2
         md:p-6
         lg:p-6
