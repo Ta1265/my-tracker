@@ -52,7 +52,6 @@ const ProductTableNew: React.FC<TableProps> = ({ columns, data }) => {
     // >
     <div
       className="
-         max-h-full
          lg:max-h-[300px]
          w-full
          lg:overflow-x-auto
@@ -64,14 +63,13 @@ const ProductTableNew: React.FC<TableProps> = ({ columns, data }) => {
        "
       style={{
         maxWidth: '900px',
-        overscrollBehavior: 'none',
       }}
     >
       <Table
         {...getTableProps()}
         className=""
         style={{
-          maxWidth: '880px',
+          maxWidth: '900px',
           minWidth: '880px',
         }}
         variant="plain"

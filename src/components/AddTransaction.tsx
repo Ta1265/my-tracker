@@ -34,6 +34,9 @@ const textFieldSx = {
   '& input': {
     backgroundColor: 'transparent',
   },
+  '& label:not(.Mui-focused)': {
+    transform: 'translate(14px, 7px) scale(1)',
+  },
 };
 
 const theme = createTheme({
@@ -235,7 +238,7 @@ const AddTransaction: React.FC<{
       }}
     >
       <ThemeProvider theme={theme}>
-        <form onSubmit={handleSubmit} className="">
+        <form onSubmit={handleSubmit} className="flex flex-col">
           <div className="mb-5 ">
             <Stack
               direction="row"
@@ -260,7 +263,7 @@ const AddTransaction: React.FC<{
             </Stack>
           </div>
 
-          <div className="mb-5 flex flex-col">
+          <div className="mb-5">
             <div className="mb-5">
               <div style={{ width: '270px' }}>
                 <DateTimePicker
@@ -295,6 +298,9 @@ const AddTransaction: React.FC<{
                   sx={{
                     '& Input': {
                       backgroundColor: 'transparent',
+                    },
+                    '& label:not(.Mui-focused)': {
+                      transform: 'translate(14px, 7px) scale(1)',
                     },
                   }}
                   // referenceDate={dayjs()}
@@ -388,7 +394,7 @@ const AddTransaction: React.FC<{
                 sx={textFieldSx}
                 error={formValues.size.errors.length > 0}
                 helperText={formValues.size.errors.join(', ')}
-                className="w-full"
+                className="w-full h-full"
                 id="outlined-basic"
                 label="size"
                 variant="outlined"
@@ -398,6 +404,9 @@ const AddTransaction: React.FC<{
                   step: '0.00000001',
                 }}
                 InputProps={{
+                  classes: {
+                    root: 'translate(14px, 14px) scale(1)',
+                  },
                   ...(formValues.size.value?.length && {
                     startAdornment: (
                       <InputAdornment position="start">
@@ -445,7 +454,7 @@ const AddTransaction: React.FC<{
                   });
                 }}
               />
-            </div>
+            </div> 
 
             <div className="mb-5">
               <TextField

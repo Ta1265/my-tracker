@@ -170,9 +170,8 @@ export default function Product() {
   }
 
   return (
-    // <div className="mx-auto overscroll-none h-full">
-    <>
-      <div className="mx-auto w-full" style={{ maxWidth: '900px'}}>
+      <div className="mx-auto w-full overflow-auto h-full" style={{ maxWidth: '900px'}}>
+      <div className="mx-auto w-full " style={{ maxWidth: '900px'}}>
         <PriceChart unit={unit} productFullName={transactions[0]?.fullName} />
       </div>
 
@@ -190,6 +189,6 @@ export default function Product() {
           }
         }}
       />
-    </>
+    </div> 
   );
 }

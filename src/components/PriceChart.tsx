@@ -157,6 +157,7 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
   const [tfSettings, setTfSettings] = useState<TimeFrameSettings>(
     timeFrameSettingsMap[timeFrame],
   );
+  
 
   const { currentPrice } = useFetchCurrentPrice(unit, timeFrame);
 
@@ -165,6 +166,7 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
     priceChange,
     isLoading: priceHistoryLoading,
   } = useFetchPriceHistory(productFullName, timeFrame);
+
 
   useEffect(() => {
     if (priceHistoryLoading) return;
@@ -176,7 +178,9 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
 
   return (
     <>
-      <div className="xs:text-xl flex py-2 sm:text-2xl md:text-2xl lg:text-3xl">
+      <div
+        className="text-md flex p-1 sm:text-2xl items-center"
+      >
         <div className="">
           <span className="capitalize">
             {productFullName} ({unit}){' '}
@@ -205,6 +209,7 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
             py-2
             text-white
             dark:bg-black
+
           "
           onChange={(
             event: React.SyntheticEvent | null,
@@ -215,6 +220,8 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
           defaultValue={timeFrame}
           sx={{
             border: 0,
+            
+            fontSize: window.innerWidth < 768 ? '1rem' : '1.5rem',
           }}
         >
           <Option value="h"> Hour</Option>
@@ -324,12 +331,12 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
                   },
                   callback: (value, index, values) => {
                     if (+value >= 1000) {
-                      return +value / 1000 + 'k';
+                      return (+value / 1000).toFixed(1) + 'k';
                     } else {
-                      return value;
+                      return value.toFixed(1);
                     }
                   },
-                  display: true,
+                  display: window.innerWidth < 768 ? false : true,
                 },
               },
             },

@@ -34,6 +34,11 @@ const StatsTableNewest: React.FC<TableProps> = ({ columns, data }) => {
     const scrollContainer = scrollContainerRef.current;
     if (scrollContainer) {
       scrollContainer.scrollLeft = scrollContainer.scrollWidth;
+
+      const distanceToTop = scrollContainer.getBoundingClientRect().top + 8;
+
+      scrollContainer.style.setProperty('--distance-to-top', `${distanceToTop}px`);
+
     }
 
     setTimeout(() => {
@@ -56,7 +61,7 @@ const StatsTableNewest: React.FC<TableProps> = ({ columns, data }) => {
        "
       style={{
         maxWidth: '910px',
-        overscrollBehavior: 'none',
+        maxHeight: `calc(100vh - var(--distance-to-top))`,
       }}
     >
 

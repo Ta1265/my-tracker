@@ -6,7 +6,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <>
       <main
         className="
-        justify-top
         dark
         flex
         flex-col
@@ -16,17 +15,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         style={{
         }}
       >
+        
+      <TopNav />
         {/* <div
           className="
            mx-auto
          "
         > */}
-        <TopNav />
         {/* </div> */}
 
-        {/* <div className="px-5 py-5"> */}
         {children}
-        {/* </div> */}
       </main>
     </>
   );

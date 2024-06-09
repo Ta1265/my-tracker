@@ -34,13 +34,13 @@ const TopNav: React.FC<{}> = ({}) => {
         lg:p-6
         lg:text-2xl
         xl:p-6
+        bg-black
       "
-        style={
-          {
-            // minWidth: '915px',
-            // maxWidth: '915px',
-          }
-        }
+        style={{
+          // position: 'fixed',
+          // top: 0,
+          // zIndex: 100,
+        }}
       >
         <div className="flex flex-wrap justify-center space-x-4">
           {links.map(({ label, href }) => (
@@ -77,7 +77,7 @@ const TopNav: React.FC<{}> = ({}) => {
 
         <div
           className="ml-auto flex space-x-5 sm:text-xl "
-          style={{ zIndex: 999 }}
+          style={{ zIndex: 99 }}
         >
           <div className="relative">
             {status === 'loading' ? (
