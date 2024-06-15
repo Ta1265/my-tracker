@@ -33,7 +33,7 @@ jobs:
           script: |
             sudo docker stop app || true
             sudo docker rm app || true
-            sudo docker image prune -a -f || true
+            sudo docker system prune -a -f || true
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/my-tracker:latest
             sudo docker run -d -p 3000:3000 \
             -e NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }} \
