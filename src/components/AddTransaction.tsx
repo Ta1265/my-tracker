@@ -218,7 +218,7 @@ const AddTransaction: React.FC<{
       onRequestClose={closeModal}
       shouldCloseOnOverlayClick={false}
       contentLabel="Add Transaction"
-      className="bg-text-gray-400 flex items-center justify-center bg-opacity-100 outline-none"
+      className="bg-text-gray-400 flex items-center justify-center bg-opacity-100 outline-none overflow-auto"
       overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75"
       style={{
         overlay: {
@@ -226,8 +226,8 @@ const AddTransaction: React.FC<{
         },
         content: {
           width: '80%',
-          maxHeight: '90%',
           maxWidth: '600px',
+          maxHeight: '100%',
           borderRadius: '0.5rem', // rounded corners
           // backgroundColor: '#1F2937', // background color
           backgroundColor: 'black',
@@ -238,7 +238,7 @@ const AddTransaction: React.FC<{
       }}
     >
       <ThemeProvider theme={theme}>
-        <form onSubmit={handleSubmit} className="flex flex-col">
+        <form onSubmit={handleSubmit} className="mx-auto top-0 flex flex-col h-full">
           <div className="mb-5 ">
             <Stack
               direction="row"
