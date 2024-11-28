@@ -10,7 +10,7 @@ export const useGetProduct = (selectedProductName: String | null) => {
     if (!selectedProductName) return;
     setLoading(true);
     fetch(`/api/product/${selectedProductName}`)
-      .then((res) => res.json())
+      .then((res) => res?.json())
       .then((resp: Array<Transaction>) => {
         console.log('got resp', resp);
         setTransactions(resp);

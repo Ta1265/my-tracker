@@ -2,18 +2,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerAuthSession } from '../../auth';
 import { db } from '../../db/db';
 
-// export default async function handler(
-//   req: NextApiRequest,
-//   res: NextApiResponse<any>,
-// ) {
-//   if (req.method === 'DELETE') {
-//     await handleDeleteTransaction(req, res);
-//   } else {
-//     res.status(405).end(`Method ${req.method} Not implemented`);
-//   }
-
-// }
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<any>,

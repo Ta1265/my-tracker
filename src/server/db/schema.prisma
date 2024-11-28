@@ -53,9 +53,9 @@ model OuathToken {
 }
 
 model TokenInfo {
-  token_id  Int     @id
-  symbol   String  @db.VarChar(40)
-  slug    String  @db.VarChar(40)
-  name   String  @db.VarChar(40)
-  rank   Int     @db.Int
+  token_id Int    @id
+  symbol   String @db.VarChar(40)
+  slug     String @db.VarChar(40)
+  name     String @db.VarChar(40)
+  rank     Int    @db.Int
 }

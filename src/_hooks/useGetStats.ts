@@ -4,13 +4,13 @@ import { useReload } from '../context/ReloadContext';
 export const useGetStats = () => {
   const { reload } = useReload();
   const [stats, setStats] = useState<FormattedProductStats[]>([]);
-  const [summary, setSummary] = useState<StatsSummary[]>([]);
+  const [summary, setSummary] = useState<StatsSummary | null>(null);
   const [isLoading, setLoading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
     fetch('/api/stats/all')
-      .then((res) => res.json())
+      .then((res) => res?.json())
       .then(({ stats, summary }) => {
         setStats(stats);
         setSummary(summary);

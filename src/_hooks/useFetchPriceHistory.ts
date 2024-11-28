@@ -19,7 +19,7 @@ export const useFetchPriceHistory = (
     fetch(
       `https://price-api.crypto.com/price/v2/${timeFrame}/${coinName.toLowerCase()}`,
     )
-      .then((res) => res.json())
+      .then((res) => res?.json())
       .then((resp: any) => {
         setPriceData(resp.prices);
         setPriceChange(resp.price_change);

@@ -1,28 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-// import { readCSV } from "../../../utils/read-csv";
-// import csv from "csv-parser";
-// import fs from "fs";
-import axios from 'axios';
 import type { Transaction } from '@prisma/client';
 import { db } from '../../db/db';
-import { unitToNameMap } from '../../helpers/unitToNameMap';
 import { getServerAuthSession } from '../../auth';
-
-const getExchangeRates = async (): Promise<ExchangeRates> => {
-  return axios
-    .get('https://api.coinbase.com/v2/exchange-rates')
-    .then((resp) => resp.data.data.rates);
-};
-
-// const getTransactions = async (): Promise<Transaction[]> => {
-//   return readCSV("src/data/transactions.csv").then((results) =>
-//     results.filter(
-//       (result) =>
-//         new Date(result.date).getTime() >
-//         new Date("2021-01-01T00:00:00").getTime()
-//     )
-//   );
-// }
 
 const formatUSD = (value: number) =>
   value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
@@ -58,8 +37,6 @@ export default async function handler(
   if (!product || Array.isArray(product)) {
     return [];
   }
-
-  // let transactions = await getTransactions();
 
   const transactions = await db.transaction.findMany({
     where: { unit: product, userId },

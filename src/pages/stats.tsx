@@ -230,7 +230,7 @@ export default function Stats() {
     <>
       <div className="mx-auto" style={{}}>
         <div className="flex justify-center py-3 sm:py-4">
-          <SummaryTable data={summary[0]} />
+          <SummaryTable data={summary} />
         </div>
       </div>
 

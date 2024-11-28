@@ -32,6 +32,17 @@ const ProductTableNew: React.FC<TableProps> = ({ columns, data }) => {
     return () => setLoaded(false);
   }, []);
 
+        // xl:max-h-[300px]
+  
+  console.log(
+    '%csrc/components/ProductTableNew.tsx line:36\n\n \t',
+    'color: #26bfa5;',
+    {
+      'window.innerHeight': window.innerHeight,
+    },
+    '\n\n',
+  );
+  
   return (
     // <div
     //   className="
@@ -52,14 +63,12 @@ const ProductTableNew: React.FC<TableProps> = ({ columns, data }) => {
     // >
     <div
       className="
-         lg:max-h-[300px]
          w-full
-         lg:overflow-x-auto
-         overflow-y-auto
+         overflow-auto
          scrollbar
          scrollbar-thin
          scrollbar-track-transparent
-         scrollbar-thumb-gray-400
+         scrollbar-thumb-gray-700
        "
       style={{
         maxWidth: '900px',

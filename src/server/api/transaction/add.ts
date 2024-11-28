@@ -59,17 +59,26 @@ export default async function handler(
     return res.status(400).json({ error: 'Invalid token_id' });
   }
 
-  await db.transaction.create({
+  let total = parseFloat(size) * parseFloat(price) + parseFloat(fee);
+
+  if (side.toUpperCase() === 'BUY') {
+    total = total * -1;
+  } else {
+    total = Math.abs(total);
+  }
+
+  const newTransaction = await db.transaction.create({
     data: {
       product: `${tokenInfo.symbol.toUpperCase()}-USD`,
       date,
-      coinName: tokenInfo.slug.charAt(0).toUpperCase() + tokenInfo.slug.slice(1),
+      coinName:
+        tokenInfo.slug.charAt(0).toUpperCase() + tokenInfo.slug.slice(1),
       side: side.toUpperCase(),
       size: parseFloat(size),
       unit: tokenInfo.symbol,
       price: parseFloat(price),
       fee: parseFloat(fee),
-      total: parseFloat(size) * parseFloat(price) + parseFloat(fee),
+      total,
       notes,
       userId,
     },
@@ -77,3 +86,4 @@ export default async function handler(
 
   return res.status(200).send('Transaction added');
 }
+

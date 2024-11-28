@@ -170,25 +170,45 @@ export default function Product() {
   }
 
   return (
-      <div className="mx-auto w-full overflow-auto h-full" style={{ maxWidth: '900px'}}>
-      <div className="mx-auto w-full " style={{ maxWidth: '900px'}}>
-        <PriceChart unit={unit} productFullName={transactions[0]?.fullName} />
+    <div
+      className="
+        mx-auto 
+        h-full 
+        w-full 
+        overflow-auto
+        scrollbar
+        scrollbar-thin
+        scrollbar-track-transparent
+        scrollbar-thumb-gray-700
+      "
+    >
+      <div
+        className="
+        mx-auto 
+        h-full 
+        w-full 
+      "
+        style={{ maxWidth: '900px' }}
+      >
+        <div className="mx-auto w-full" style={{ maxWidth: '900px' }}>
+          <PriceChart unit={unit} productFullName={transactions[0]?.fullName} />
+        </div>
+
+        <br />
+
+        <ProductTableNew columns={productColumns} data={transactions} />
+
+        <ConfirmDeleteDialog
+          isOpen={confirmModalIsOpen}
+          setIsOpen={setConfirmModalIsOpen}
+          onConfirm={async () => {
+            if (deleteTransactionSelection !== null) {
+              deleteTransaction(deleteTransactionSelection).then(triggerReload);
+              snackBarCtx.toastSuccess({ message: 'Transaction deleted' });
+            }
+          }}
+        />
       </div>
-
-      <br />
-
-      <ProductTableNew columns={productColumns} data={transactions} />
-
-      <ConfirmDeleteDialog
-        isOpen={confirmModalIsOpen}
-        setIsOpen={setConfirmModalIsOpen}
-        onConfirm={async () => {
-          if (deleteTransactionSelection !== null) {
-            deleteTransaction(deleteTransactionSelection).then(triggerReload);
-            snackBarCtx.toastSuccess({ message: 'Transaction deleted' });
-          }
-        }}
-      />
-    </div> 
+    </div>
   );
 }

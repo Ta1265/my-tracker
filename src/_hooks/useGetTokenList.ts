@@ -19,7 +19,7 @@ export const useGetTokenList = () => {
     setLoading(true);
 
     fetch(`/api/token-info/search/${coinSearchValue}`)
-      .then((res) => res.json())
+      .then((res) => res?.json())
       .then((resp: { symbol: string; name: string; token_id: number }) => {
         if (!Array.isArray(resp)) {
           return;

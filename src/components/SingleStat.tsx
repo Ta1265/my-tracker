@@ -20,8 +20,8 @@ const useGetUnitStats = (unit: String) => {
     if (!unit) return;
     setLoading(true);
     fetch(`/api/stats/${unit}`)
-      .then((res) => res.json())
-      .then((resp: FormattedProductStats) => {
+      .then((res) => res?.json())
+      .then((resp) => {
         setUnitStats(resp);
         setLoading(false);
       });

@@ -35,9 +35,15 @@ type ProductStats = {
   };
 };
 type StatsSummary = {
+  initialInvestment: string;
+  proceedsFromSales: string;
+  costBasis: string;
   totalValueOfHoldings: string;
   totalPLatCurrentPrice: string;
   totalPercentPL: string;
+  totalGrowth: string;
+  roi: string;
+  cash: string;
 };
 
 type FormattedProductStats = {

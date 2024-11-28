@@ -37,13 +37,4 @@ export default async function handler(
     console.error(error)
     return res.status(500).json({ error: 'Internal Server Error' });
   }
-
-
-  // return res.status(200).json(
-  //   tokenInfos.map((tokenInfo) => ({
-  //     name: tokenInfo.name,
-  //     unit: tokenInfo.symbol,
-  //     token_id: tokenInfo.token_id,
-  //   })),
-  // );
 }

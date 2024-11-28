@@ -5,14 +5,18 @@ import { formatUSD } from '../../helpers/format-usd';
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<any>,
+  res: NextApiResponse<string>,
 ) {
   const { unit } = req.query;
   // update to latest exchange rates in db
   await getExchangeRates();
-  const { rate } = await db.exchangeRate.findFirst({
+  const exchangeRate = await db.exchangeRate.findFirst({
     where: { unit: `${unit}` },
   });
 
-  return res.status(200).json(formatUSD(rate));
+  if (!exchangeRate) {
+    return res.status(404).json('Exchange rate not found');
+  }
+
+  return res.status(200).json(formatUSD(exchangeRate.rate));
 }

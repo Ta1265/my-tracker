@@ -171,7 +171,13 @@ const AddTransaction: React.FC<{
         notes: formValues.notes.value,
       }),
     })
-      .then((resp) => {
+      .then(async (resp) => {
+        if (resp.status !== 200) {
+          throw new Error(
+            'Failed to add transaction. \n' +
+              `Error: ${(await resp.json()).error}`,
+          );
+        }
         snackBarCtx.toastSuccess({
           message: 'Transaction added successfully.',
         });
@@ -183,7 +189,7 @@ const AddTransaction: React.FC<{
       .catch((error) => {
         console.error(error);
         snackBarCtx.toastError({
-          message: 'Failed to add transaction.',
+          message: `Failed to add transaction. ${error.message}`,
         });
       });
   };
@@ -192,7 +198,6 @@ const AddTransaction: React.FC<{
     setFormValues(getDefaultFormValue());
     setIsOpen(false);
   };
-
 
   const calcTotal = () => {
     if (

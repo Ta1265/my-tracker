@@ -8,12 +8,6 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<any>,
 ) {
-  console.log(
-    '%csrc/server/api/exchange-rates/history.ts line:11\n\n \t',
-    'color: #26bfa5;',
-    'hererere?????',
-  );
-
   const { timeFrame, coinName } = req.query;
 
   const priceData = await axios

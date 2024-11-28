@@ -12,7 +12,7 @@ export const useFetchCurrentPrice = (
     if (!unit) return;
     setCurrentPriceIsLoading(true);
     fetch(`/api/exchange-rates/unit/${unit}`)
-      .then((res) => res.json())
+      .then((res) => res?.json())
       .then((resp: string) => {
         setCurrentPrice(resp);
         setCurrentPriceIsLoading(false);
