@@ -74,7 +74,6 @@ const TopNav: React.FC<{}> = ({}) => {
             Add Transaction
           </button>
         </div>
-
         <div
           className="ml-auto flex space-x-5 sm:text-xl "
           style={{ zIndex: 99 }}

@@ -6,6 +6,7 @@ type ReloadContextType = {
   triggerReload: () => void;
 };
 
+
 export const ReloadContext = createContext<ReloadContextType>({
   reload: false,
   triggerReload: () => {},

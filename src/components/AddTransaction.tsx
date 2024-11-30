@@ -34,9 +34,9 @@ const textFieldSx = {
   '& input': {
     backgroundColor: 'transparent',
   },
-  '& label:not(.Mui-focused)': {
-    transform: 'translate(14px, 7px) scale(1)',
-  },
+  // '& label:not(.Mui-focused)': {
+  //   transform: 'translate(14px, 7px) scale(1)',
+  // },
 };
 
 const theme = createTheme({
@@ -243,7 +243,7 @@ const AddTransaction: React.FC<{
       }}
     >
       <ThemeProvider theme={theme}>
-        <form onSubmit={handleSubmit} className="mx-auto top-0 flex flex-col h-full">
+        <form onSubmit={handleSubmit} className="">
           <div className="mb-5 ">
             <Stack
               direction="row"
@@ -304,9 +304,9 @@ const AddTransaction: React.FC<{
                     '& Input': {
                       backgroundColor: 'transparent',
                     },
-                    '& label:not(.Mui-focused)': {
-                      transform: 'translate(14px, 7px) scale(1)',
-                    },
+                    // '& label:not(.Mui-focused)': {
+                    //   transform: 'translate(14px, 7px) scale(1)',
+                    // },
                   }}
                   // referenceDate={dayjs()}
                   slotProps={{
@@ -410,7 +410,7 @@ const AddTransaction: React.FC<{
                 }}
                 InputProps={{
                   classes: {
-                    root: 'translate(14px, 14px) scale(1)',
+                    // root: 'translate(14px, 14px) scale(1)',
                   },
                   ...(formValues.size.value?.length && {
                     startAdornment: (

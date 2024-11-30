@@ -25,7 +25,6 @@ const ConfirmDeleteDialog = ({
     setIsOpen(false);
   };
 
-  console.log('here', { isOpen });
   useEffect(() => {}, []);
 
   return (

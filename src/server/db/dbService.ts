@@ -1,7 +1,7 @@
 import { db } from './db';
 import { Prisma } from '@prisma/client'
 
-interface CoinSummary {
+export interface CoinSummary {
   productName: string;
   coinName: string;
   currentPrice: number;

@@ -1,13 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { db } from '../../db/db';
 import { getExchangeRates } from '../../helpers/get-exchange-rates';
 import { formatUSD } from '../../helpers/format-usd';
 import { getServerAuthSession } from '../../auth';
-import dbService from '../../db/dbService';
+import DBService from '../../db/dbService';
+import type { CoinSummaryResp } from '../../../../types/global';
 
-const formatStats = (stats: any[]) =>
+const formatSummaries = (
+  stats: Awaited<ReturnType<typeof DBService.getCoinSummaries>>,
+): CoinSummaryResp[] =>
   stats.map((stat) => ({
     productName: stat.productName,
+    coinName: stat.coinName,
     avgPurchasePrice: formatUSD(stat.avgPurchasePrice),
     avgSellPrice: formatUSD(stat.avgSellPrice),
     holdings: stat.holdings.toFixed(4),
@@ -16,20 +19,27 @@ const formatStats = (stats: any[]) =>
     percentPL: stat.percentPL.toFixed(1) + '%',
     currentPrice: formatUSD(stat.currentPrice),
     breakEvenPrice: formatUSD(stat.breakEvenPrice),
+    inGreen: stat.profitLossAtCurrentPrice > 0,
   }));
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<CoinSummaryResp[] | { error: string }>,
+) {
   const session = await getServerAuthSession({ req, res });
-  if (!session?.user?.id) {
+  const userId = session?.user?.id;
+
+  if (!userId) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const userId = session.user.id;
-  const unit = req.query.unit;
+  let unit = req.query?.unit as string | undefined;
 
+  // fetch and store to the db the latest exchange rates from coinbase
   await getExchangeRates();
-  const unitSummary = await dbService.getCoinSummaries(userId, unit);
-  const formatted = formatStats(unitSummary);
+  const unitSummaries = await DBService.getCoinSummaries(userId, unit);
 
-  res.status(200).json(formatted[0]);
+  const formatted = formatSummaries(unitSummaries);
+
+  return res.status(200).json(formatted);
 }

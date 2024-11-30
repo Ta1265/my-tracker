@@ -2,8 +2,8 @@
 import React, { useMemo } from 'react';
 import { useRef, useState, useEffect } from 'react';
 import { useTable, Column, useSortBy } from 'react-table';
-import AddTransaction from './AddTransaction';
 import Table from '@mui/joy/Table';
+import SortArrow from './SortArrow';
 
 type DataType = {
   [key: string]: any;
@@ -15,10 +15,18 @@ interface TableProps {
 }
 
 const ProductTable: React.FC<TableProps> = ({ columns, data }) => {
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    useTable({ columns, data }, useSortBy);
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
+    { columns, data },
+    useSortBy,
+  );
 
   const [loaded, setLoaded] = useState(false);
+
+  const [screenWidth, setScreenWidth] = useState<number | null>(null);
+
+  useEffect(() => {
+    setScreenWidth(window.innerWidth);
+  }, []);
 
   useEffect(() => {
     setLoaded(true);
@@ -30,82 +38,64 @@ const ProductTable: React.FC<TableProps> = ({ columns, data }) => {
     <div
       className="
          w-full
-         overflow-x-auto
-         overflow-y-auto
-         overscroll-none
+         overflow-auto
          scrollbar
          scrollbar-thin
          scrollbar-track-transparent
-         scrollbar-thumb-gray-400
-         dark:text-gray-400
+         scrollbar-thumb-gray-700
        "
       style={{
         maxWidth: '900px',
       }}
     >
-      <table
+      <Table
         {...getTableProps()}
-        className="text-left text-gray-500 dark:text-gray-400 table table-fixed"
+        className=""
         style={{
-          width: '895px'
+          maxWidth: '900px',
+          minWidth: '880px',
+        }}
+        variant="plain"
+        size={screenWidth && screenWidth < 768 ? 'sm' : 'md'}
+        stickyHeader={true}
+        sx={{
+          '& thead th': {
+            borderBottomWidth: '3px',
+            backgroundColor: '#000',
+          },
         }}
       >
         <thead
           className="
-            text-[12px]
-            py-2
-            md:text-sm
-            bg-gray-50
+            py-1
             uppercase
-            text-white
-            dark:bg-black
-            dark:text-gray-400
           "
-          style={{
-            borderTop: '0px',
-            position: 'sticky',
-            top: 0,
-            zIndex: 50,
-          }}
         >
           {headerGroups.map((headerGroup) => (
-            <tr
-              id="product-header-row"
-              className="text-[10px] md:text-sm"
-              {...headerGroup.getHeaderGroupProps()}
-              style={{
-                boxShadow: 'inset 0px -2px grey, inset 0px 2px grey',
-                zIndex: 50,
-              }}
-            >
-              {headerGroup.headers.map((column, index) => (
-                <th
-                  scope="col"
-                  className="
-                    px-1
-                    py-1
-                    md:px-3
-                    md:py-1
-                    text-center
-                  "
-                  {...column.getHeaderProps(column.getSortByToggleProps())}
-                  style={{
-                    borderTop: '0px',
-                    border: 'none',
-                    zIndex: 50,
-                    ...(column.myWidth && { width: column.myWidth })
-                  }}
-                >
-                  {column.render('Header')}
-                  <span>
-                    {column.isSorted
-                      ? column.isSortedDesc
-                        ? ' 🔽'
-                        : ' 🔼'
-                      : ''}
-                  </span>
-                </th>
-              ))}
+            <tr id="product-header-row" {...headerGroup.getHeaderGroupProps()}>
+              {headerGroup.headers.map((column, index) => {
+                return (
+                  <th
+                    scope="col"
+                    className="
+                      py-1
+                      text-center
+                      dark:text-gray-400
+                    "
+                    {...column.getHeaderProps(column.getSortByToggleProps())}
+                    style={{
+                      top: '-1px', // prevent rows peeking above sticky header
+                      textAlign: 'center',
+                      verticalAlign: 'middle',
+                      ...(column.myWidth && { width: column.myWidth }),
+                    }}
+                  >
+                    <SortArrow isSorted={column.isSorted} isSortedDesc={column.isSortedDesc}>
+                      {column.render('Header')}
+                    </SortArrow>
+                  </th>
+                );
+              })}
             </tr>
           ))}
         </thead>
@@ -117,11 +107,8 @@ const ProductTable: React.FC<TableProps> = ({ columns, data }) => {
                 id="transaction-row"
                 {...row.getRowProps()}
                 className={`
-                text-[10px]
-                md:text-sm
                 ease-in-out-out
                 transform
-                border-b-[0.75px]
                 border-gray-800
                 transition-transform
                 duration-500
@@ -135,10 +122,6 @@ const ProductTable: React.FC<TableProps> = ({ columns, data }) => {
                   <td
                     {...cell.getCellProps()}
                     className={`
-                      px-1
-                      py-1
-                      md:px-6
-                      md:py-4
                       text-center
                       transition-opacity
                       duration-500
@@ -146,7 +129,7 @@ const ProductTable: React.FC<TableProps> = ({ columns, data }) => {
                     `}
                     style={{
                       transitionDelay: `${rowIndex * 0.05}s`,
-                      zIndex: 49,
+                      textAlign: 'center',
                     }}
                   >
                     {cell.render('Cell')}
@@ -156,9 +139,9 @@ const ProductTable: React.FC<TableProps> = ({ columns, data }) => {
             );
           })}
         </tbody>
-      </table>
+      </Table>
     </div>
   );
 };
 
-export default ProductTable; /* eslint-disable react/jsx-key */
+export default ProductTable;

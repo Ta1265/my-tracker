@@ -1,49 +1,67 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Skeleton from '@mui/joy/Skeleton';
-// import { Grid, Typography, Box } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
+import type { CoinSummaryResp } from '../../types/global';
 
+const StatDisplay: React.FC<{
+  label: string;
+  isPending: boolean;
+  content: React.ReactNode;
+}> = ({ label, isPending, content }) => {
+  return (
+    <div className="w-[120px] px-2 py-2 text-center md:basis-1/5">
+      <div className="flex-col">
+        <div className="py-1 font-semibold underline decoration-dotted">{label}</div>
+        <div className="font-light text-white">
+          {isPending ? (
+            <Skeleton
+              width={window.innerWidth < 768 ? 120 : 150}
+              height={40}
+              loading={true}
+              variant="rectangular"
+            />
+          ) : (
+            content
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
-interface SingleStatProps {
+const SingleStat: React.FC<{
   unit: String;
   priceChange: number | null;
   timeFrame: TimeFrame;
   timeFrameStartPrice: number;
-}
+}> = ({ unit, priceChange, timeFrame, timeFrameStartPrice }) => {
+  const {
+    isPending,
+    data: coinSummary,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: [`summary`, unit],
+    queryFn: async ({ signal }): Promise<CoinSummaryResp> => {
+      const resp = await fetch(`/api/summary/${unit}`, { signal });
+      if (!resp.ok) {
+        throw new Error('Network response error');
+      }
 
-const useGetUnitStats = (unit: String) => {
-  const [unitStats, setUnitStats] = useState<FormattedProductStats | null>(
-    null,
-  );
-  const [isLoading, setLoading] = useState(true);
+      const data = await resp.json();
 
-  useEffect(() => {
-    if (!unit) return;
-    setLoading(true);
-    fetch(`/api/stats/${unit}`)
-      .then((res) => res?.json())
-      .then((resp) => {
-        setUnitStats(resp);
-        setLoading(false);
-      });
-  }, [unit]);
+      if (!data?.length || data.length !== 1) {
+        throw new Error('Unexpected response');
+      }
 
-  return { unitStats, isLoading };
-};
+      return data[0];
+    },
+  });
 
-const SingleStat: React.FC<SingleStatProps> = ({
-  unit,
-  priceChange,
-  timeFrame,
-  timeFrameStartPrice,
-}) => {
-  const { unitStats, isLoading } = useGetUnitStats(unit);
-
-  const showSkeleton = isLoading || !unitStats;
-
-  const labelClass = 'font-semibold underline decoration-dotted py-1';
-  const valueClass = 'font-light text-white';
-
-  const statWrapper = 'text-center w-[120px] md:basis-1/5 py-2 px-2';
+  if (isError) {
+    console.error(error);
+    return <div>Error Loading Portfolio Summary.</div>;
+  }
 
   return (
     <div
@@ -52,163 +70,102 @@ const SingleStat: React.FC<SingleStatProps> = ({
         flex 
         flex-wrap 
         text-center 
-        text-gray-500 
+        text-xs 
+        text-gray-500
         dark:text-gray-400
-        text-xs
+        md:justify-between
         md:text-base
         lg:text-lg
-        md:justify-between
       "
     >
-      <div className={statWrapper}>
-        <div className="flex-col">
-          <div className={labelClass}>Holdings</div>
-          <div className={valueClass}>
-            {showSkeleton ? (
-              <Skeleton
-                width={(() => window.innerWidth < 768 ? 120 : 150)()}
-                height={40}
-                loading={true}
-                variant="rectangular"
-              >
-              </Skeleton>
-            ) : (
-              <div className="text-center">
-                <span>{unitStats.valueOfHoldings}</span>
-                <br></br>
-                <span className="">{unitStats.holdings}</span>
-              </div>
-            )}
+      <StatDisplay
+        label="Holdings"
+        isPending={isPending}
+        content={
+          <div className="text-center">
+            <span>{coinSummary?.valueOfHoldings}</span>
+            <br></br>
+            <span className="">{coinSummary?.holdings}</span>
           </div>
-        </div>
-      </div>
-
-      <div className={statWrapper}>
-        <div className="flex-col">
-          <div className={labelClass}>AVG. Buy / Sell</div>
-          <div className={valueClass}>
-            {showSkeleton ? (
-              <Skeleton
-                width={(() => window.innerWidth < 768 ? 120 : 150)()}
-                height={40}
-                loading={true}
-                variant="rectangular"
-              >
-              </Skeleton>
-            ) : (
-              <div className="grid-rows-2 text-center">
-                <div>{unitStats.avgPurchasePrice} /</div>
-                <div>{unitStats.avgSellPrice}</div>
-              </div>
-            )}
+        }
+      />
+      <StatDisplay
+        label="AVG. Buy / Sell"
+        isPending={isPending}
+        content={
+          <div className="grid-rows-2 text-center">
+            <div>{coinSummary?.avgPurchasePrice}</div>
+            <div>{coinSummary?.avgSellPrice}</div>
           </div>
-        </div>
-      </div>
+        }
+      />
 
-      <div className={statWrapper}>
-        <div className="flex-col">
-          <div className={labelClass}>Break Even</div>
-          <div className={valueClass}>
-            {showSkeleton ? 
-              <Skeleton
-                width={(() => window.innerWidth < 768 ? 100 : 150)()}
-                height={40}
-                loading={true}
-                variant="rectangular"
-              >
-              </Skeleton>
-          
-            : <div>{unitStats.breakEvenPrice}</div>}
+      <StatDisplay
+        label="Break Even"
+        isPending={isPending}
+        content={<div>{coinSummary?.breakEvenPrice}</div>}
+      />
+
+      <StatDisplay
+        label="P/L All Time"
+        isPending={isPending}
+        content={
+          <div
+            className="flex-col"
+            style={{
+              color: coinSummary?.inGreen ? '#27AD75' : '##F0616D',
+            }}
+          >
+            <span>{coinSummary?.profitLossAtCurrentPrice} </span>
+            <br />
+            <span className=""> {coinSummary?.percentPL}</span>
           </div>
-        </div>
-      </div>
+        }
+      />
 
-      <div className={statWrapper}>
-        <div className="flex-col">
-          <div className={labelClass}>P/L All Time</div>
-          <div className={valueClass}>
-            {showSkeleton ? (
-              <Skeleton
-                width={(() => window.innerWidth < 768 ? 120 : 150)()}
-                height={40}
-                loading={true}
-                variant="rectangular"
-              >
-              </Skeleton>
-            ) : (
-              <div
-                className="flex-col"
-                style={{
-                  color: unitStats.percentPL[0] === '-' ? '#F0616D' : '#27AD75',
-                }}
-              >
-                <span>{unitStats.profitLossAtCurrentPrice} </span>
-                <br />
-                <span className=""> {unitStats.percentPL}</span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className={statWrapper}>
-        <div className="flex-col">
-          <div className={labelClass}>
-            P/L
+      <StatDisplay
+        label={`P/L ${(() => {
+          if (timeFrame === 'h') return '1 Hour';
+          if (timeFrame === 'd') return '24 Hour';
+          if (timeFrame === 'w') return '7 Days';
+          if (timeFrame === 'm') return '30 Days';
+          if (timeFrame === '3m') return '3 Months';
+          if (timeFrame === '6m') return '6 Months';
+          if (timeFrame === 'y') return '1 Year';
+          if (timeFrame === 'all') return 'All Time';
+        })()}`}
+        isPending={
+          isPending ||
+          !priceChange ||
+          !timeFrameStartPrice ||
+          !coinSummary?.holdings ||
+          !coinSummary?.valueOfHoldings
+        }
+        content={
+          <div
+            className="text-center"
+            style={{
+              color: !priceChange || priceChange < 0 ? '#F0616D' : '#27AD75',
+            }}
+          >
             {(() => {
-              if (timeFrame === 'h') return ' 1 Hour';
-              if (timeFrame === 'd') return ' 24 Hour';
-              if (timeFrame === 'w') return ' 7 Days';
-              if (timeFrame === 'm') return ' 30 Days';
-              if (timeFrame === '3m') return ' 3 Months';
-              if (timeFrame === '6m') return ' 6 Months';
-              if (timeFrame === 'y') return ' 1 Year';
-              if (timeFrame === 'all') return 'All Time';
+              if (!timeFrameStartPrice) return '...';
+              if (!coinSummary?.holdings || !coinSummary?.valueOfHoldings) return '...';
+              const holdings = parseFloat(coinSummary?.holdings);
+              const currentValue = parseFloat(coinSummary?.valueOfHoldings?.replace(/[$,]/g, ''));
+              const prevValue = holdings * timeFrameStartPrice;
+              const profitLoss = currentValue - prevValue;
+              return profitLoss.toLocaleString('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                maximumFractionDigits: 2,
+              });
             })()}
           </div>
-          <div className={valueClass}>
-            {showSkeleton ? (
-              <Skeleton
-                width={(() => window.innerWidth < 768 ? 120 : 150)()}
-                height={40}
-                loading={true}
-                variant="rectangular"
-              >
-              </Skeleton>
-            ) : (
-              <>
-                {priceChange ? (
-                  <div
-                    className="text-center"
-                    style={{
-                      color: priceChange < 0 ? '#F0616D' : '#27AD75',
-                    }}
-                  >
-                    {(() => {
-                      if (!timeFrameStartPrice) return '...';
-                      const holdings = parseFloat(unitStats.holdings);
-                      const currentValue = parseFloat(
-                        unitStats.valueOfHoldings.replace(/[$,]/g, ''),
-                      );
-                      const prevValue = holdings * timeFrameStartPrice;
-                      const profitLoss = currentValue - prevValue;
-                      return profitLoss.toLocaleString('en-US', {
-                        style: 'currency',
-                        currency: 'USD',
-                        maximumFractionDigits: 2,
-                      });
-                    })()}
-                  </div>
-                ) : (
-                  <div className="text-center">...</div>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      </div>
+        }
+      />
     </div>
   );
 };
 
-export default SingleStat; /* eslint-disable react/jsx-key */
+export default SingleStat;

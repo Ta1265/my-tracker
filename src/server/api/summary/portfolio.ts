@@ -1,26 +1,9 @@
-
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getExchangeRates } from '../../helpers/get-exchange-rates';
 import { formatUSD } from '../../helpers/format-usd';
 import { getServerAuthSession } from '../../auth';
 import DBService from '../../db/dbService';
-
-async function getUnitSummaries(userId: number) {
-  const unitSummaries = await DBService.getCoinSummaries(userId);
-
-  return unitSummaries.map((stat) => ({
-    productName: stat.productName,
-    coinName: stat.coinName,
-    avgPurchasePrice: formatUSD(stat.avgPurchasePrice),
-    holdings: stat.holdings.toFixed(4),
-    valueOfHoldings: formatUSD(stat.valueOfHoldings),
-    profitLossAtCurrentPrice: formatUSD(stat.profitLossAtCurrentPrice),
-    percentPL: stat.percentPL.toFixed(1) + '%',
-    currentPrice: formatUSD(stat.currentPrice),
-    breakEvenPrice: formatUSD(stat.breakEvenPrice),
-    chicken: stat,
-  }));
-}
+import type { PortfolioSummary } from '../../../../types/global';
 
 async function getNetCashFlowAndContributions(userId: number) {
   // Calculate net cash holdings and total contributions assuming reinvested gains (FIFO by date)
@@ -47,7 +30,6 @@ async function getNetCashFlowAndContributions(userId: number) {
 
   return { netCashHoldings, netContributions };
 }
-
 
 async function getTotalSummary(userId: number) {
   const [summary, { netCashHoldings, netContributions }] = await Promise.all([
@@ -80,9 +62,10 @@ async function getTotalSummary(userId: number) {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<any>,
+  res: NextApiResponse<PortfolioSummary | { error: string }>,
 ) {
   const session = await getServerAuthSession({ req, res });
+
   const userId = session?.user?.id;
 
   if (!userId) {
@@ -92,13 +75,7 @@ export default async function handler(
   // fetch and store to the db the latest exchange rates from coinbase
   await getExchangeRates();
 
-  const [unitSummaries, totalSummary] = await Promise.all([
-    getUnitSummaries(userId),
-    getTotalSummary(userId),
-  ]);
+  const summary = await getTotalSummary(userId);
 
-  res.status(200).json({
-    stats: unitSummaries,
-    summary: totalSummary,
-  });
+  res.status(200).json(summary);
 }

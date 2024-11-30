@@ -1,38 +1,16 @@
 /* eslint-disable react/jsx-key */
 import React from 'react';
 import Skeleton from '@mui/joy/Skeleton';
-import Table from '@mui/joy/Table';
-import { Box } from '@mui/joy';
-
-type DataType = {
-  [key: string]: any;
-};
-
-interface SummaryTableProps {
-  data: {
-    purchases: string;
-    sales: string;
-    costBasis: string;
-    valueOfHoldings: string;
-    totalPLatCurrentPrice: string;
-    netCashHoldings: string;
-    netContributions: string;
-    accountValue: string;
-    realizedReturn: string;
-    roi: string;
-    inGreen: boolean;
-  };
-}
-
-interface row {
-  label: string;
-  sign: string;
-  value: any;
-  end?: boolean;
-}
+import type { PortfolioSummary } from '../../types/global';
+import { useQuery } from '@tanstack/react-query';
 
 const InfoTable: React.FC<{
-  rows: row[];
+  rows: {
+    label: string;
+    sign: string;
+    value: any;
+    end?: boolean;
+  }[];
 }> = ({ rows }) => {
   return (
     <div
@@ -73,15 +51,54 @@ const InfoTable: React.FC<{
   );
 };
 
+const TotalTd: React.FC<{ content: React.ReactNode; isPending: boolean; inGreen: boolean }> = ({
+  content,
+  isPending,
+  inGreen,
+}) => {
+  return (
+    <td className="text-center" style={{ color: inGreen ? '#27AD75' : '#F0616D' }}>
+      {isPending ? (
+        <Skeleton
+          variant="rectangular"
+          width="100%"
+          height="100%"
+          overlay={true}
+          loading={isPending}
+        >
+          ....
+        </Skeleton>
+      ) : (
+        content
+      )}
+    </td>
+  );
+};
 
-const SummaryTable: React.FC<SummaryTableProps> = ({ data }) => {
+const SummaryTable: React.FC<{}> = () => {
+  const { isPending, isRefetching, isRefetchError, isError, data, error } = useQuery({
+    queryKey: ['portfolio'],
+    queryFn: async ({ signal }): Promise<PortfolioSummary> => {
+      const resp = await fetch('/api/summary/portfolio', { signal })
+      if (!resp.ok) {
+        throw new Error('Network response error');
+      }
+      return resp.json();
+    },
+  });
+
   const [showBreakdown, setShowBreakdown] = React.useState(false);
 
-  const loading = !data;
+  const inGreen = data?.inGreen || false;
 
-  const inGreen = data?.inGreen;
+  const isLoading = isPending || isRefetching;
 
-  if (showBreakdown && !loading) {
+  if (isError || isRefetchError) {
+    console.error(error);
+    return <div>Error Loading Portfolio Summary.</div>;
+  }
+
+  if (showBreakdown && !isLoading) {
     return (
       <div
         className="flex flex-wrap justify-center"
@@ -89,7 +106,7 @@ const SummaryTable: React.FC<SummaryTableProps> = ({ data }) => {
       >
         <InfoTable
           rows={[
-            { label: 'Net Cash:', sign: '', value: data.netCashHoldings },
+            { label: 'Net Cash:', sign: '', value: data?.netCashHoldings },
             {
               label: 'Net Contrib.:',
               sign: '-',
@@ -99,31 +116,31 @@ const SummaryTable: React.FC<SummaryTableProps> = ({ data }) => {
               end: true,
               label: 'Realized:',
               sign: '',
-              value: data.realizedReturn,
+              value: data?.realizedReturn,
             },
           ]}
         />
         <InfoTable
           rows={[
-            { label: 'Purchases:', sign: '', value: data.purchases },
-            { label: 'Sales:', sign: '-', value: data.sales },
+            { label: 'Purchases:', sign: '', value: data?.purchases },
+            { label: 'Sales:', sign: '-', value: data?.sales },
             {
               end: true,
               label: 'Cost Basis:',
               sign: '',
-              value: data.costBasis,
+              value: data?.costBasis,
             },
           ]}
         />
         <InfoTable
           rows={[
-            { label: 'Holdings Value:', sign: '', value: data.valueOfHoldings },
-            { label: 'Cost Basis:', sign: '-', value: data.costBasis },
+            { label: 'Holdings Value:', sign: '', value: data?.valueOfHoldings },
+            { label: 'Cost Basis:', sign: '-', value: data?.costBasis },
             {
               end: true,
               label: 'Total P/L:',
               sign: '',
-              value: data.totalPLatCurrentPrice,
+              value: data?.totalPLatCurrentPrice,
             },
           ]}
         />
@@ -132,46 +149,18 @@ const SummaryTable: React.FC<SummaryTableProps> = ({ data }) => {
             {
               label: 'Total P/L:',
               sign: '',
-              value: data.totalPLatCurrentPrice,
+              value: data?.totalPLatCurrentPrice,
             },
-            { label: 'Net Contrib.:', sign: '÷', value: data.netContributions },
-            { end: true, label: 'ROI:', sign: '', value: data.roi },
+            { label: 'Net Contrib.:', sign: '÷', value: data?.netContributions },
+            { end: true, label: 'ROI:', sign: '', value: data?.roi },
           ]}
         />
       </div>
     );
   }
 
-  const TotalTd: React.FC<{ content: React.ReactNode }> = ({
-    content,
-  }) => {
-    return (
-      <td
-        className="text-center w"
-        style={{ color: inGreen ? '#27AD75' : '#F0616D' }}
-      >
-        {loading ? (
-          <Skeleton
-            variant="rectangular"
-            width="100%"
-            height="100%"
-            overlay={true}
-            loading={loading}
-          >
-            ....
-          </Skeleton>
-        ) : (
-          content
-        )}
-      </td>
-    );
-  };
-
   return (
-    <table
-      className="table-auto cursor-pointer"
-      onClick={() => setShowBreakdown(!showBreakdown)}
-    >
+    <table className="table-auto cursor-pointer" onClick={() => setShowBreakdown(!showBreakdown)}>
       <thead
         className="
           text-gray-700
@@ -183,23 +172,31 @@ const SummaryTable: React.FC<SummaryTableProps> = ({ data }) => {
           "
       >
         <tr>
-          <th className="px-5 py-2 text-center">Total Account Value</th>
+          <th className="px-5 py-2 text-center">Total Value</th>
 
           <th className="px-5 py-2 text-center">Total P/L</th>
-          <th className="px-5 py-2 text-center"></th>
+          <th className="px-5 py-2 text-center" style={{ visibility: 'hidden' }}>
+            Total P/L
+          </th>
         </tr>
       </thead>
       <tbody className="sm:text-lg md:text-xl lg:text-2xl">
         <tr>
-            <TotalTd content={<>{data?.accountValue}</>} />
-            <TotalTd content={<>{data?.accountValue}</>} />
-            <TotalTd
-              content={
-                <div style={{ whiteSpace: 'nowrap' }}>
-                  {inGreen ? '▲' : '▼'} {data?.roi}
-                </div>
-              }
-            />
+          <TotalTd isPending={isLoading} inGreen={inGreen} content={<>{data?.accountValue}</>} />
+          <TotalTd
+            isPending={isLoading}
+            inGreen={inGreen}
+            content={<>{data?.totalPLatCurrentPrice}</>}
+          />
+          <TotalTd
+            isPending={isLoading}
+            inGreen={inGreen}
+            content={
+              <div style={{ whiteSpace: 'nowrap' }}>
+                {inGreen ? '▲' : '▼'} {data?.roi}
+              </div>
+            }
+          />
         </tr>
       </tbody>
     </table>
