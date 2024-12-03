@@ -1,9 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useFetchPriceHistory } from '../_hooks/useFetchPriceHistory';
+import React from 'react';
 import Skeleton from '@mui/joy/Skeleton';
 import { useQuery } from '@tanstack/react-query';
-// import { Spinner } from 'flowbite-react';
-
 
 
 interface PriceResp {
@@ -12,12 +9,14 @@ interface PriceResp {
   usd_price_change: number;
 }
 
-const ProfitLossColumn = ({
+const PercentChange = ({
+  unit,
   coinName,
   selectedTimeFrame,
   currentPrice,
   holdings,
 }: {
+  unit: string;
   coinName: string;
   selectedTimeFrame: TimeFrame;
   currentPrice: string;
@@ -45,6 +44,16 @@ const ProfitLossColumn = ({
     // refetchOnWindowFocus: 'always',
   });
 
+  // const [price, setPrice] = useState<number | null>(null);
+
+  // useEffect(() => {
+  //   if (cbWs) {
+  //     cbWs.addSubscription(unit, (data) => {
+  //       setPrice(data.price)
+  //     })
+  //   }
+  // }, []);
+
   const isLoading = isPending || isRefetching;
 
   const priceChange = data?.price_change;
@@ -59,15 +68,10 @@ const ProfitLossColumn = ({
   const percentage = priceChange && (priceChange * 100).toFixed(1) + '%';
 
   return (
-    <div className="text-center" style={{ color }}>
-      <Skeleton
-        variant="rectangular"
-        width="100%"
-        height="100%"
-        overlay={true}
-        loading={isLoading}
-      >
+    <div className="text-center" style={{ color, fontFamily: 'Roboto Mono, monospace' }}>
+      <Skeleton variant="rectangular" width="100%" height="100%" overlay={true} loading={isLoading}>
         <span className="">
+          {/* {price} */}
           {arrow} {percentage}
         </span>
       </Skeleton>
@@ -75,4 +79,4 @@ const ProfitLossColumn = ({
   );
 };
 
-export default ProfitLossColumn;
+export default PercentChange;

@@ -124,8 +124,8 @@ async function getPortfolioSummary(userId: number) {
 
 
 async function getBuySellTotalFiFo(userId: number) {
-  return db.$queryRaw<[{ side: 'BUY' | 'SELL'; total: number }]>`
-    SELECT side, ABS(total) as total
+  return db.$queryRaw<[{ unit: string, side: 'BUY' | 'SELL'; total: number }]>`
+    SELECT unit, side, ABS(total) as total
     FROM PORTFOLIO.Transaction 
     WHERE userId = ${userId}
     ORDER BY date ASC

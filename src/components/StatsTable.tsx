@@ -7,12 +7,15 @@ import { useRouter } from 'next/router';
 import Table from '@mui/joy/Table';
 import SortArrow from './SortArrow';
 import { useQuery } from '@tanstack/react-query';
-import ProfitLossColumn from '../components/ProfitLossColumn';
+import PercentChange from './PercentChange';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import type { CoinSummaryResp } from '../../types/global';
 import Image from 'next/image';
 import useWindowSize from '../_hooks/windowResize';
+import CurrentPrice from './CurrentPrice';
+import ProfitLossAtCurrentPrice from './ProfitLossAtCurrentPrice';
+import Box from '@mui/material/Box';
 
 
 const sortDollars = (rowA: any, rowB: any, columnId: string) => {
@@ -20,6 +23,7 @@ const sortDollars = (rowA: any, rowB: any, columnId: string) => {
   const bNum = parseFloat(rowB.values[columnId].replace(/[$,]/g, ''));
   return aNum - bNum;
 };
+
 
 
 const StatsTableComponent: React.FC<{
@@ -238,7 +242,6 @@ const StatsTable: React.FC<{}> = () => {
     },
   });
 
-
   const statsColumns: Column<CoinSummaryResp>[] = React.useMemo(
     () => [
       {
@@ -290,11 +293,18 @@ const StatsTable: React.FC<{}> = () => {
             value: { holdings: string; valueOfHoldings: string };
           };
         }) => (
-          <div className="text-center">
+          <Box
+            className="text-left"
+            style={{
+              fontFamily: 'Roboto Mono, monospace',
+            }}
+          >
+            <span style={{ visibility: 'hidden' }}> ▲ </span>
             <span>{valueOfHoldings}</span>
             <br></br>
+            <span style={{ visibility: 'hidden' }}> ▲ </span>
             <span className="">{holdings}</span>
-          </div>
+          </Box>
         ),
 
         sortType: (rowA: any, rowB: any, columnId: any) => {
@@ -305,12 +315,43 @@ const StatsTable: React.FC<{}> = () => {
       },
       {
         Header: 'Break even',
-        accessor: 'breakEvenPrice',
+        accessor: (row: any) => ({
+          breakEven: row.breakEvenPrice,
+        }),
         sortType: sortDollars,
+        Cell: ({
+          cell: {
+            value: { breakEven },
+          },
+        }: {
+          cell: { value: { breakEven: string } };
+        }) => (
+          <Box
+            className="text-left"
+            style={{
+              fontFamily: 'Roboto Mono, monospace',
+            }}
+          >
+            <span style={{ visibility: 'hidden' }}> ▲ </span>
+            <span>{breakEven}</span>
+          </Box>
+        ),
       },
       {
         Header: 'Cur. Price',
-        accessor: 'currentPrice',
+        accessor: (row: any) => ({
+          unit: row.productName,
+          currentPrice: row.currentPrice,
+        }),
+        Cell: ({
+          cell: {
+            value: { unit, currentPrice },
+          },
+        }: {
+          cell: { value: { unit: string, currentPrice: string } };
+        }) => {
+          return <CurrentPrice unit={unit} backupCurrentPrice={currentPrice} />;
+        },
         sortType: sortDollars,
       },
       {
@@ -335,7 +376,8 @@ const StatsTable: React.FC<{}> = () => {
             };
           };
         }) => (
-          <ProfitLossColumn
+          <PercentChange
+            unit={unit}
             coinName={coinName}
             selectedTimeFrame={selectedTimeFrame}
             currentPrice={currentPrice}
@@ -388,10 +430,15 @@ const StatsTable: React.FC<{}> = () => {
           percentPL: row.percentPL,
           unit: row.productName,
           coinName: row.coinName,
+          holdings: row.holdings,
+          costBasis: row.costBasis,
+          totalBuyCost: row.totalBuyCost,
+          totalSellProfits: row.totalSellProfits,
+          netContributions: row.netContributions,
         }),
         Cell: ({
           cell: {
-            value: { profitLossAtCurrentPrice, percentPL, unit, coinName },
+            value: { profitLossAtCurrentPrice, percentPL, unit, holdings, costBasis, netContributions },
           },
         }: {
           cell: {
@@ -400,20 +447,33 @@ const StatsTable: React.FC<{}> = () => {
               percentPL: string;
               unit: string;
               coinName: string;
+              holdings: string;
+              costBasis: number;
+              totalBuyCost: number;
+              totalSellProfits: number;
+              netContributions: number;
             };
           };
         }) => (
-          <div
-            className="text-center"
-            style={{ color: percentPL[0] === '-' ? '#F0616D' : '#27AD75' }}
-          >
-            <span>{profitLossAtCurrentPrice} </span>
-            <br></br>
-            <span className="text-xl text-xs md:text-base lg:text-base xl:text-sm">
-              {' '}
-              {percentPL}
-            </span>
-          </div>
+          <ProfitLossAtCurrentPrice
+            unit={unit}
+            holdings={parseFloat(holdings)}
+            costBasis={costBasis}
+            backupProfitLossAtCurrentPrice={profitLossAtCurrentPrice}
+            backupPercentPl={percentPL}
+            netContributions={netContributions}
+          />
+          // <div
+          //   className="text-center"
+          //   style={{ color: percentPL[0] === '-' ? '#F0616D' : '#27AD75' }}
+          // >
+          //   <span>{profitLossAtCurrentPrice} </span>
+          //   <br></br>
+          //   <span className="text-xl text-xs md:text-base lg:text-base xl:text-sm">
+          //     {' '}
+          //     {percentPL}
+          //   </span>
+          // </div>
         ),
         sortType: (rowA: any, rowB: any, columnId: any) => {
           const aNum = parseFloat(

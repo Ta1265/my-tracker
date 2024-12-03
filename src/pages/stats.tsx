@@ -1,6 +1,7 @@
 import StatsTable from '../components/StatsTable';
 import SummaryTable from '../components/SummaryTable';
 import React from 'react';
+
 export default function Stats() {
 
   return (

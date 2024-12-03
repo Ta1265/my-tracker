@@ -41,3 +41,4 @@ db-dumps
 .private
 .env
 .secrets
+cdp_api_key.json

@@ -9,6 +9,7 @@ import { createContext, useContext, useState } from 'react';
 import { ReloadProvider } from '../context/ReloadContext';
 import { SnackbarProvider } from '../context/SnackBarContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { CoinbaseWsProvider } from '../context/CoinbaseWsFeedContext';
 
 export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   const queryClient = new QueryClient({
@@ -31,9 +32,11 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
           <SnackbarProvider>
             <ReloadProvider id="reload-provider">
               <SessionProvider session={session}>
-                <Layout>
-                  <Component {...pageProps} />
-                </Layout>
+                <CoinbaseWsProvider>
+                  <Layout>
+                    <Component {...pageProps} />
+                  </Layout>
+                </CoinbaseWsProvider>
               </SessionProvider>
             </ReloadProvider>
           </SnackbarProvider>

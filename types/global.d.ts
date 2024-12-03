@@ -24,4 +24,8 @@ export type CoinSummaryResp = {
   currentPrice: string;
   breakEvenPrice: string;
   inGreen: boolean;
+  costBasis: number;
+  totalBuyCost: number;
+  totalSellProfits: number;
+  netContributions: number;
 };
