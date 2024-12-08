@@ -199,7 +199,7 @@ export default function Product() {
         h-full 
         w-full 
       "
-        style={{ maxWidth: '900px' }}
+        style={{ maxWidth: '910px' }}
       >
         <div className="mx-auto w-full" style={{ maxWidth: '900px' }}>
           <PriceChart unit={router.query.unit as string} productFullName={productFullName} />

@@ -7,15 +7,19 @@ import { useRouter } from 'next/router';
 import Table from '@mui/joy/Table';
 import SortArrow from './SortArrow';
 import { useQuery } from '@tanstack/react-query';
-import PercentChange from './PercentChange';
+import { PercentChangeCell, PercentChangeCellMemo, PercentChangeFilter, PercentChangeFilterMemo } from './PercentChangeColumn';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import type { CoinSummaryResp } from '../../types/global';
 import Image from 'next/image';
 import useWindowSize from '../_hooks/windowResize';
 import CurrentPrice from './CurrentPrice';
-import ProfitLossAtCurrentPrice from './ProfitLossAtCurrentPrice';
+import { ProfitLossCell, ProfitLossFilter } from './ProfitLossColumn';
 import Box from '@mui/material/Box';
+import Tooltip from '@mui/joy/Tooltip';
+import { HoldingsCell } from './HoldingsColumn';
+import { CostBasisCell } from './CostBasisColumn';
+import { CoinColumnCell } from './CoinColumn';
 
 
 const sortDollars = (rowA: any, rowB: any, columnId: string) => {
@@ -67,87 +71,57 @@ const StatsTableComponent: React.FC<{
          scrollbar
          scrollbar-thin
          scrollbar-track-transparent
-         scrollbar-thumb-gray-400
+         scrollbar-thumb-gray-700
          dark:text-gray-400
        "
       style={{
-        maxWidth: '910px',
+        maxWidth: '900px',
         maxHeight: `calc(100vh - var(--distance-to-top))`,
       }}
     >
       <Table
         {...getTableProps()}
-        className="
-          table-fixed 
-          text-left 
-        "
+        className="table-fixed text-left"
         borderAxis="xBetween"
         variant="plain"
-        size={screenWidth && screenWidth < 768 ? 'sm' : 'lg'}
+        size={'md'}
         stickyHeader={true}
+        noWrap
         sx={{
           justifyContent: 'space-between',
-          minWidth: 'min-content',
+          '& tr > *:first-child': {
+            zIndex: 99,
+            position: 'sticky',
+            left: 0,
+            bgcolor: '#000',
+            width: '110px'
+          },
           '& thead th': {
-            backgroundColor: '#000',
+            bgcolor: '#000',
             borderBottomWidth: '3px',
+            textAlign: 'left',
+            verticalAlign: 'middle',
+            width: '130px',
+          },
+          '& tbody td': {
+            textAlign: 'left',
           },
         }}
       >
-        <thead
-          className="
-            uppercase
-          "
-        >
+        <thead className="uppercase">
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column, columnIndex) => {
-                if (column.Filter) {
-                  return (
-                    <th
-                      className="dark:text-gray-400"
-                      {...column.getHeaderProps()}
-                      style={{
-                        ...(columnIndex === 0 && {
-                          position: 'sticky',
-                          left: '0px',
-                          zIndex: 53,
-                        }),
-                        textAlign: 'center',
-                        verticalAlign: 'middle',
-                        width: screenWidth && screenWidth < 768 ? '80px' : '120px',
-                        paddingLeft: '5px',
-                        paddingRight: '5px',
-                      }}
-                    >
-                      {column.render('Filter')}
-                    </th>
-                  );
-                }
-                return (
-                  <th
-                    {...column.getHeaderProps(column.getSortByToggleProps())}
-                    key={column.id}
-                    className="dark:text-gray-400"
-                    style={{
-                      ...(columnIndex === 0 && {
-                        position: 'sticky',
-                        left: '0px',
-                        zIndex: 53,
-                      }),
-                      textAlign: 'center',
-                      verticalAlign: 'middle',
-                      width: screenWidth && screenWidth < 768 ? '100px' : '128px',
-                      paddingLeft: '5px',
-                      paddingRight: '5px',
-                    }}
-                  >
+              {headerGroup.headers.map((column, columnIndex) => (
+                <th className="dark:text-gray-400" {...column.getHeaderProps()} key={column.id}>
+                  <span className="flex flex-row items-center">
+                    <span style={{ visibility: 'hidden' }}> ▲ </span>
                     <SortArrow isSorted={column.isSorted} isSortedDesc={column.isSortedDesc}>
-                      {column.render('Header')}
+                      <span {...column.getSortByToggleProps()}>{column.render('Header')}</span>
                     </SortArrow>
-                  </th>
-                );
-              })}
+                    {column.Filter && column.render('Filter')}
+                  </span>
+                </th>
+              ))}
             </tr>
           ))}
         </thead>
@@ -188,22 +162,12 @@ const StatsTableComponent: React.FC<{
                     <td
                       {...cell.getCellProps()}
                       className={`
-                        justify-center
-                        text-center
                         transition-opacity
                         duration-500
-                        md:py-5
-                        xl:px-6
                         ${loaded ? 'opacity-100' : 'opacity-0'}
                       `}
                       style={{
                         transitionDelay: `${rowIndex * 0.05}s`,
-                        ...(cellIndex === 0 && {
-                          position: 'sticky',
-                          left: 0,
-                          zIndex: 53,
-                          background: 'inherit',
-                        }),
                       }}
                     >
                       {cell.render('Cell')}
@@ -221,16 +185,13 @@ const StatsTableComponent: React.FC<{
 };
 
 const StatsTable: React.FC<{}> = () => {
-  const router = useRouter();
   const [selectedTimeFrame, setSelectedTimeFrame] = useState<TimeFrame>('d');
+  const [selectedPlType, setSelectedPlType] = useState<'roi' | 'ror'>('roi');
+
   const { width: screenWidth } = useWindowSize();
 
   const {
-    isPending,
-    isRefetching,
-    isError,
     data = [],
-    error,
   } = useQuery({
     queryKey: ['summary', 'all-coins'],
     queryFn: async ({ signal }): Promise<CoinSummaryResp[]> => {
@@ -246,247 +207,86 @@ const StatsTable: React.FC<{}> = () => {
     () => [
       {
         Header: 'Coin',
-        // accessor: 'productName',
-        accessor: (row: any) => ({
-          productName: row.productName,
-          coinName: row.coinName,
-        }),
+        accessor: (row: CoinSummaryResp) => row,
+        Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
+          <CoinColumnCell coinSummary={cell.value} />
+        ),
         sortType: (rowA: any, rowB: any, columnId: any) => {
           const a = rowA.values[columnId].productName;
           const b = rowB.values[columnId].productName;
           return a > b ? 1 : -1;
         },
-        Cell: ({
-          cell: {
-            value: { productName },
-          },
-        }: {
-          cell: { value: { productName: string } };
-        }) => {
-          return (
-            <div
-              className="flex items-center text-center"
-              style={{
-                position: 'sticky',
-                background: 'inherit',
-                justifyContent: 'left',
-              }}
-            >
-              <Image src={`/${productName}-icon.png`} alt={productName} width={30} height={30} />
-              <span className="ml-2"> {productName}</span>
-            </div>
-          );
-        },
       },
       {
         Header: 'Holdings',
-        accessor: (row: any) => ({
-          holdings: row.holdings,
-          valueOfHoldings: row.valueOfHoldings,
-        }),
-        Cell: ({
-          cell: {
-            value: { holdings, valueOfHoldings },
-          },
-        }: {
-          cell: {
-            value: { holdings: string; valueOfHoldings: string };
-          };
-        }) => (
-          <Box
-            className="text-left"
-            style={{
-              fontFamily: 'Roboto Mono, monospace',
-            }}
-          >
-            <span style={{ visibility: 'hidden' }}> ▲ </span>
-            <span>{valueOfHoldings}</span>
-            <br></br>
-            <span style={{ visibility: 'hidden' }}> ▲ </span>
-            <span className="">{holdings}</span>
-          </Box>
+        accessor: (row: CoinSummaryResp) => row,
+        Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
+          <HoldingsCell coinSummary={cell.value} />
         ),
-
         sortType: (rowA: any, rowB: any, columnId: any) => {
-          const aNum = parseFloat(rowA.values[columnId].valueOfHoldings.replace(/[$,]/g, ''));
-          const bNum = parseFloat(rowB.values[columnId].valueOfHoldings.replace(/[$,]/g, ''));
+          const aNum = rowA.values[columnId].valueOfHoldings
+          const bNum = rowB.values[columnId].valueOfHoldings
           return aNum - bNum;
         },
       },
       {
-        Header: 'Break even',
-        accessor: (row: any) => ({
-          breakEven: row.breakEvenPrice,
-        }),
-        sortType: sortDollars,
-        Cell: ({
-          cell: {
-            value: { breakEven },
-          },
-        }: {
-          cell: { value: { breakEven: string } };
-        }) => (
-          <Box
-            className="text-left"
-            style={{
-              fontFamily: 'Roboto Mono, monospace',
-            }}
-          >
-            <span style={{ visibility: 'hidden' }}> ▲ </span>
-            <span>{breakEven}</span>
-          </Box>
+        Header: 'Cost Basis',
+        title: 'Cost Basis / Break Even',
+        accessor: (row: CoinSummaryResp) => row,
+        Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
+          <CostBasisCell coinSummary={cell.value} />
         ),
+        sortType: (rowA: any, rowB: any, columnId: any) => {
+          const aNum = rowA.values[columnId].costBasis
+          const bNum = rowB.values[columnId].costBasis
+          return aNum - bNum;
+        },
       },
       {
         Header: 'Cur. Price',
-        accessor: (row: any) => ({
-          unit: row.productName,
-          currentPrice: row.currentPrice,
-        }),
-        Cell: ({
-          cell: {
-            value: { unit, currentPrice },
-          },
-        }: {
-          cell: { value: { unit: string, currentPrice: string } };
-        }) => {
-          return <CurrentPrice unit={unit} backupCurrentPrice={currentPrice} />;
-        },
-        sortType: sortDollars,
-      },
-      {
-        Header: ` `,
-        accessor: (row: any) => ({
-          unit: row.productName,
-          coinName: row.coinName,
-          currentPrice: row.currentPrice,
-          holdings: row.holdings,
-        }),
-        Cell: ({
-          cell: {
-            value: { unit, coinName, currentPrice, holdings },
-          },
-        }: {
-          cell: {
-            value: {
-              unit: string;
-              coinName: string;
-              currentPrice: string;
-              holdings: string;
-            };
-          };
-        }) => (
-          <PercentChange
-            unit={unit}
-            coinName={coinName}
-            selectedTimeFrame={selectedTimeFrame}
-            currentPrice={currentPrice}
-            holdings={holdings}
+        accessor: (row: CoinSummaryResp) => row,
+        Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
+          <CurrentPrice
+            unit={cell.value.productName}
+            backupCurrentPrice={cell.value.currentPrice}
           />
-        ),
-        sortType: () => 0,
-        Filter: () => (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              minWidth: 'fit-content',
-            }}
-          >
-            <Select
-              className="uppercase dark:text-gray-400"
-              onChange={(
-                event: React.SyntheticEvent | null,
-                newValue: 'h' | 'd' | 'w' | 'm' | '3m' | '6m' | 'y' | 'all' | null,
-              ) => {
-                if (newValue) {
-                  setSelectedTimeFrame(newValue);
-                }
-              }}
-              defaultValue={selectedTimeFrame}
-              sx={{
-                border: 0,
-                textAlign: 'center',
-                fontSize: 'inherit',
-                backgroundColor: 'inherit',
-              }}
-            >
-              <Option value="h">HOUR</Option>
-              <Option value="d">DAY</Option>
-              <Option value="w">WEEK</Option>
-              <Option value="m">1 M</Option>
-              <Option value="3m">3 M</Option>
-              <Option value="6m">6 M</Option>
-              <Option value="y">1 Y</Option>
-              <Option value="all">ALL</Option>
-            </Select>
-          </div>
-        ),
-      },
-      {
-        Header: 'Profit/Loss',
-        accessor: (row: any) => ({
-          profitLossAtCurrentPrice: row.profitLossAtCurrentPrice,
-          percentPL: row.percentPL,
-          unit: row.productName,
-          coinName: row.coinName,
-          holdings: row.holdings,
-          costBasis: row.costBasis,
-          totalBuyCost: row.totalBuyCost,
-          totalSellProfits: row.totalSellProfits,
-          netContributions: row.netContributions,
-        }),
-        Cell: ({
-          cell: {
-            value: { profitLossAtCurrentPrice, percentPL, unit, holdings, costBasis, netContributions },
-          },
-        }: {
-          cell: {
-            value: {
-              profitLossAtCurrentPrice: string;
-              percentPL: string;
-              unit: string;
-              coinName: string;
-              holdings: string;
-              costBasis: number;
-              totalBuyCost: number;
-              totalSellProfits: number;
-              netContributions: number;
-            };
-          };
-        }) => (
-          <ProfitLossAtCurrentPrice
-            unit={unit}
-            holdings={parseFloat(holdings)}
-            costBasis={costBasis}
-            backupProfitLossAtCurrentPrice={profitLossAtCurrentPrice}
-            backupPercentPl={percentPL}
-            netContributions={netContributions}
-          />
-          // <div
-          //   className="text-center"
-          //   style={{ color: percentPL[0] === '-' ? '#F0616D' : '#27AD75' }}
-          // >
-          //   <span>{profitLossAtCurrentPrice} </span>
-          //   <br></br>
-          //   <span className="text-xl text-xs md:text-base lg:text-base xl:text-sm">
-          //     {' '}
-          //     {percentPL}
-          //   </span>
-          // </div>
         ),
         sortType: (rowA: any, rowB: any, columnId: any) => {
-          const aNum = parseFloat(
-            rowA.values[columnId].profitLossAtCurrentPrice.replace(/[$,]/g, ''),
-          );
-          const bNum = parseFloat(
-            rowB.values[columnId].profitLossAtCurrentPrice.replace(/[$,]/g, ''),
-          );
+          const aNum = rowA.values[columnId].currentPrice
+          const bNum = rowB.values[columnId].currentPrice
+          return aNum - bNum
+        },
+      },
+      {
+        Header: `Delta - ${selectedTimeFrame}`,
+        accessor: (row: CoinSummaryResp) => row,
+        Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
+          <PercentChangeCellMemo coinSummary={cell.value} selectedTimeFrame={selectedTimeFrame} />
+        ),
+        Filter: () => (
+          <PercentChangeFilterMemo
+            selectedTimeFrame={selectedTimeFrame}
+            setSelectedTimeFrame={setSelectedTimeFrame}
+          />
+        ),
+      },
+      {
+        Header: `Total ${selectedPlType}`,
+        accessor: (row: CoinSummaryResp) => row,
+        Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
+          <ProfitLossCell coinSummary={cell.value} selectedPlType={selectedPlType} />
+        ),
+        Filter: () => (
+          <ProfitLossFilter selectedPlType={selectedPlType} setSelectedPlType={setSelectedPlType} />
+        ),
+        sortType: (rowA: any, rowB: any, columnId: any) => {
+          const aNum = rowA.values[columnId].profitLossAtCurrentPrice;
+          const bNum = rowB.values[columnId].profitLossAtCurrentPrice;
           return aNum - bNum;
         },
       },
     ],
-    [selectedTimeFrame],
+    [selectedTimeFrame, selectedPlType],
   );
   
 

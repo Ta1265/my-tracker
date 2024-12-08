@@ -31,7 +31,7 @@ async function getNetCashFlowAndContributions(userId: number) {
   return { netCashHoldings, netContributions };
 }
 
-async function getTotalSummary(userId: number) {
+async function getTotalSummary(userId: number): Promise<PortfolioSummary> {
   const [summary, { netCashHoldings, netContributions }] = await Promise.all([
     DBService.getPortfolioSummary(userId),
     getNetCashFlowAndContributions(userId),
@@ -46,18 +46,32 @@ async function getTotalSummary(userId: number) {
   const roi = (summary.profitLoss / netContributions) * 100;
 
   return {
-    purchases: formatUSD(summary.totalBuyCost, true),
-    sales: formatUSD(summary.totalSellProfits, true),
-    costBasis: formatUSD(summary.costBasis, true),
-    valueOfHoldings: formatUSD(summary.valueOfHoldings, true),
-    totalPLatCurrentPrice: formatUSD(summary.profitLoss, true),
-    netCashHoldings: formatUSD(netCashHoldings, true),
-    netContributions: formatUSD(netContributions, true),
-    accountValue: formatUSD(accountValue, true),
-    realizedReturn: formatUSD(realizedReturn, true),
-    roi: roi.toFixed(2) + '%',
+    purchases: summary.totalBuyCost,
+    sales: summary.totalSellProfits,
+    costBasis: summary.costBasis,
+    valueOfHoldings: summary.valueOfHoldings,
+    totalPLatCurrentPrice: summary.profitLoss,
+    netCashHoldings,
+    netContributions,
+    accountValue,
+    realizedReturn,
+    roi,
     inGreen: summary.profitLoss > 0,
-  };
+  }
+
+  // return {
+  //   purchases: formatUSD(summary.totalBuyCost, true),
+  //   sales: formatUSD(summary.totalSellProfits, true),
+  //   costBasis: formatUSD(summary.costBasis, true),
+  //   valueOfHoldings: formatUSD(summary.valueOfHoldings, true),
+  //   totalPLatCurrentPrice: formatUSD(summary.profitLoss, true),
+  //   netCashHoldings: formatUSD(netCashHoldings, true),
+  //   netContributions: formatUSD(netContributions, true),
+  //   accountValue: formatUSD(accountValue, true),
+  //   realizedReturn: formatUSD(realizedReturn, true),
+  //   roi: roi.toFixed(2) + '%',
+  //   inGreen: summary.profitLoss > 0,
+  // };
 }
 
 export default async function handler(

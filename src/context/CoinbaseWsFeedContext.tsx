@@ -11,9 +11,9 @@ class CoinbaseWsFeed extends EventEmitter {
 
   unitsSubscribedMap: { [key: string]: { lastCalled: Date | null }} = {};
 
-  timeout = 5000;
+  timeout = 2500;
 
-  constructor(timeout: number = 5000) {
+  constructor(timeout: number = 2500) {
     super();
     this.ws = null;
     this.timeout = timeout
@@ -116,7 +116,6 @@ class CoinbaseWsFeed extends EventEmitter {
     }
     const lastCalled = this.unitsSubscribedMap[product_id].lastCalled;
     if (!lastCalled || new Date().getTime() - lastCalled.getTime() > this.timeout) {
-      console.log(`Emitting event for ${data.product_id}`);
       this.emit(product_id, data);
       this.unitsSubscribedMap[product_id].lastCalled = new Date();
     } 
@@ -186,9 +185,8 @@ export const usePriceFeed = (product_id: string) => {
     };
 
     const removeSubscription = addSubscription(product_id, onPriceChangeCb);
-    return () => removeSubscription('usePriceFeed');
+    return () => removeSubscription();
   }, [addSubscription, product_id]);
-
 
   return { price, loading };
 };

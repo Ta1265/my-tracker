@@ -3,71 +3,97 @@ import React from 'react';
 import { css, keyframes } from '@emotion/react';
 
 const flashGreen = keyframes`
-  0% { opacity: .5; transform: translateY(-100%); background-color: rgba(39, 173, 117, 0.5); color: white; }
-  50% { opacity: .75; transform: translateY(-50%); background-color: rgba(39, 173, 117, 0.5); color: white; }
-  100% { opacity: 1; transform: translateY(0); background-color: inherit; color: inherit; }
+  0% { opacity: .5; background-color: rgba(39, 173, 117, 0.5); color: white; }
+  50% { opacity: .75; background-color: rgba(39, 173, 117, 0.5); color: white; }
+  100% { opacity: 1; background-color: inherit; color: inherit; }
 `;
 
 const flashRed = keyframes`
-  0% { opacity: .5; transform: translateY(100%); background-color: rgba(240, 97, 109, 0.5); color: white; }
-  50% { opacity: .75; transform: translateY(50%); background-color: rgba(240, 97, 109, 0.5); color: white; }
-  100% { opacity: 1;  transform: translateY(0); background-color: inherit; color: inherit; }
+  0% { opacity: .5; background-color: rgba(240, 97, 109, 0.5); color: white; }
+  50% { opacity: .75; background-color: rgba(240, 97, 109, 0.5); color: white; }
+  100% { opacity: 1; background-color: inherit; color: inherit; }
 `;
 
 const animateOut = keyframes`
-  0% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-100%); visibility: none; }
+  0% { opacity: 1; visibility: visible; }
+  100% { opacity: 0; ; visibility: none; }
 `;
 
-const TickerDisplay: React.FC<{ cur: number; format: 'USD' | 'PERCENTAGE', showArrow?: boolean }> = ({
-  cur,
-  format,
-  showArrow = true,
-}) => {
+const TickerDisplay: React.FC<{
+  cur: number;
+  format: 'USD' | 'PERCENTAGE';
+  showArrow?: boolean;
+  fracDigits?: number;
+  shouldAnimate?: boolean;
+  constantArrow?: boolean;
+}> = ({ cur, format, showArrow = true, fracDigits, shouldAnimate = true, constantArrow = false }) => {
   const prevRef = React.useRef<number | null>(cur);
   const prev = prevRef.current || cur;
   prevRef.current = cur;
 
-  const formattedCur = format === 'USD' ? cur.toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }) : cur.toFixed(2);
+  if (!fracDigits && format === 'USD') {
+    if (cur < 100000) {
+      const integerDigits = Math.floor(cur).toString().length;
+      fracDigits = Math.max(6 - integerDigits, 0);
+    }
+  }
+  if (!fracDigits && format === 'PERCENTAGE') {
+    fracDigits = 2;
+  }
+
+  const formattedCur =
+    format === 'USD'
+      ? cur.toLocaleString('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          minimumFractionDigits: fracDigits,
+          maximumFractionDigits: fracDigits,
+        })
+      : cur.toFixed(fracDigits);
 
   const formattedPrev =
     format === 'USD'
       ? prev.toLocaleString('en-US', {
           style: 'currency',
           currency: 'USD',
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
+          minimumFractionDigits: fracDigits,
+          maximumFractionDigits: fracDigits,
         })
-      : prev.toFixed(2);
+      : prev.toFixed(fracDigits);
 
   const color = cur > prev ? '#27AD75' : '#F0616D';
   const flash = cur > prev ? flashGreen : flashRed;
 
-  const shouldFlash = cur !== prev;
-  
+  let shouldFlash = shouldAnimate && cur !== prev;
+
+  const flashFromIndex =
+    shouldFlash && formattedPrev.split('').findIndex((char, index) => char !== formattedCur[index]);
+ 
+  let shouldAnimateArrow: boolean = false
+  // if (typeof flashFromIndex === 'number') {
+    shouldAnimateArrow = shouldFlash;
+  // }
+  const animation = `${constantArrow ? '' : `${animateOut} 2s ease-out forwards`}`;
+
   return (
     <>
-      {showArrow && (
+      {(showArrow || constantArrow) && (
         <span
           key={`${cur}-${prev}`}
           css={css`
             font-family: 'Roboto Mono', monospace;
-            animation: ${animateOut} 2s ease-out forwards;
+            animation: ${animateOut} 2s ease-out forwards; 
             color: ${color};
-            visibility: ${shouldFlash ? 'visible' : 'hidden'};
+            visibility: ${constantArrow || shouldAnimateArrow ? 'visible' : 'hidden'};
+            white-space: nowrap;
           `}
-
         >
           {cur > prev ? '▲ ' : '▼ '}
         </span>
       )}
       {formattedCur.split('').map((char, index) => {
-        const shouldDigitFlash = shouldFlash && formattedPrev.split('').some((_, i) => i <= index && formattedCur[i] !== formattedPrev[i]);
+        // const shouldDigitFlash = shouldFlash && formattedPrev.split('').some((_, i) => i <= index && formattedCur[i] !== formattedPrev[i]);
+        const shouldDigitFlash = flashFromIndex && flashFromIndex <= index;
         return (
           <span
             key={`percent-${index}-${char}`}

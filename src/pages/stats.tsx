@@ -7,7 +7,11 @@ export default function Stats() {
   return (
     <>
       <div className="mx-auto">
-        <div className="flex justify-center py-3 sm:py-4">
+        <div className="flex justify-center py-2"
+        style={{
+          maxWidth: '900px',
+          width: '100%',
+        }}>
           <SummaryTable />
         </div>
       </div>

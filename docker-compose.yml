@@ -39,7 +39,7 @@ services:
       - portfolio-db
     container_name: next-app
     build:
-      target: 'prod' # prod or dev
+      target: 'dev' # prod or dev
       context: .
       dockerfile: Dockerfile
     # Set environment variables directly in the docker-compose file

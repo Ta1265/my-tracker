@@ -12,31 +12,9 @@ interface UnitNetMap {
   };
 }
 
-const formatSummaries = (
-  stats: Awaited<ReturnType<typeof DBService.getCoinSummaries>>,
-  unitNetMap: UnitNetMap,
-): CoinSummaryResp[] => 
-  stats.map((stat) => ({
-    productName: stat.productName,
-    coinName: stat.coinName,
-    avgPurchasePrice: formatUSD(stat.avgPurchasePrice),
-    avgSellPrice: formatUSD(stat.avgSellPrice),
-    holdings: stat.holdings.toFixed(4),
-    valueOfHoldings: formatUSD(stat.valueOfHoldings),
-    profitLossAtCurrentPrice: formatUSD(stat.profitLossAtCurrentPrice),
-    percentPL: stat.percentPL.toFixed(1) + '%',
-    currentPrice: formatUSD(stat.currentPrice),
-    breakEvenPrice: formatUSD(stat.breakEvenPrice),
-    inGreen: stat.profitLossAtCurrentPrice > 0,
-    totalBuyCost: stat.totalBuyCost,
-    totalSellProfits: stat.totalSellProfits,
-    costBasis: stat.totalBuyCost - stat.totalSellProfits,
-    netContributions: unitNetMap[stat.productName]?.netContributions || 0,
-  }));
-
-async function getNetCashFlowAndContributions(userId: number) {
+async function getNetCashFlowAndContributions(userId: number, unit?: string): Promise<UnitNetMap> {
   // Calculate net cash holdings and total contributions assuming reinvested gains (FIFO by date)
-  const transactions = await DBService.getBuySellTotalFiFo(userId);
+  const transactions = await DBService.getBuySellTotalFiFo(userId, unit);
 
   const unitNetMap: UnitNetMap = {};
 
@@ -83,7 +61,26 @@ export default async function handler(
   const unitSummaries = await DBService.getCoinSummaries(userId, unit);
   const unitNetMap = await getNetCashFlowAndContributions(userId, unit);
 
-  const formatted = formatSummaries(unitSummaries, unitNetMap);
+  const formatted = unitSummaries.map((unitSummary): CoinSummaryResp => ({
+    productName: unitSummary.productName,
+    coinName: unitSummary.coinName,
+    avgPurchasePrice: unitSummary.avgPurchasePrice,
+    avgSellPrice: unitSummary.avgSellPrice,
+    holdings: unitSummary.holdings,
+    valueOfHoldings: unitSummary.valueOfHoldings,
+    profitLossAtCurrentPrice: unitSummary.profitLossAtCurrentPrice,
+    percentPL: unitSummary.percentPL,
+    currentPrice: unitSummary.currentPrice,
+    breakEvenPrice: unitSummary.breakEvenPrice,
+    inGreen: unitSummary.profitLossAtCurrentPrice > 0,
+    totalBuyCost: unitSummary.totalBuyCost,
+    totalSellProfits: unitSummary.totalSellProfits,
+    costBasis: unitSummary.totalBuyCost - unitSummary.totalSellProfits,
+    netContributions: unitNetMap[unitSummary.productName]?.netContributions || 0,
+    netCashHoldings: unitNetMap[unitSummary.productName]?.netCashHoldings || 0,
+  }));
+
+
 
   return res.status(200).json(formatted);
 }

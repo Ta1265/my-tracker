@@ -22,10 +22,10 @@ const TableComponent: React.FC<TableComponentProps> = ({ columns, data }) => {
     <div className="flex h-screen items-center justify-center">
       <table {...getTableProps()} className="w-full table-auto border-collapse">
         <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
+          {headerGroups.map((headerGroup, i) => (
+            <tr {...headerGroup.getHeaderGroupProps()} key={`headerGroup-${i}`}>
               {headerGroup.headers.map((column) => (
-                <th {...column.getHeaderProps()} className="border p-2">
+                <th {...column.getHeaderProps()} className="border p-2" key={column.id}>
                   {column.render('Header')}
                 </th>
               ))}
@@ -40,12 +40,10 @@ const TableComponent: React.FC<TableComponentProps> = ({ columns, data }) => {
                 <tr
                   {...row.getRowProps()}
                   onClick={() => handleRowClick(row)}
-                  className={`cursor-pointer ${
-                    selectedRow === row.id ? 'bg-gray-200' : ''
-                  }`}
+                  className={`cursor-pointer ${selectedRow === row.id ? 'bg-gray-200' : ''}`}
                 >
-                  {row.cells.map((cell) => (
-                    <td {...cell.getCellProps()} className="border p-2">
+                  {row.cells.map((cell, i) => (
+                    <td {...cell.getCellProps()} className="border p-2" key={i}>
                       {cell.render('Cell')}
                     </td>
                   ))}

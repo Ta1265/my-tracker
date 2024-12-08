@@ -30,10 +30,10 @@ const TopNav: React.FC<{}> = ({}) => {
         border-gray-700
         p-1
         sm:p-2
-        md:p-6
-        lg:p-6
-        lg:text-2xl
-        xl:p-6
+        md:p-3
+        lg:p-3
+        lg:text-xl
+        xl:p-3
         bg-black
       "
         style={{

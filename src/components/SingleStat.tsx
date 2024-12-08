@@ -2,6 +2,8 @@ import React from 'react';
 import Skeleton from '@mui/joy/Skeleton';
 import { useQuery } from '@tanstack/react-query';
 import type { CoinSummaryResp } from '../../types/global';
+import { usePriceFeed } from '../context/CoinbaseWsFeedContext';
+import TickerDisplay from './TickerDisplay';
 
 const StatDisplay: React.FC<{
   label: string;
@@ -9,21 +11,24 @@ const StatDisplay: React.FC<{
   content: React.ReactNode;
 }> = ({ label, isPending, content }) => {
   return (
-    <div className="w-[120px] px-2 py-2 text-center md:basis-1/5">
+    <div className="w-auto px-2 px-6 py-2 w-[150px]">
       <div className="flex-col">
-        <div className="py-1 font-semibold underline decoration-dotted">{label}</div>
-        <div className="font-light text-white">
-          {isPending ? (
-            <Skeleton
-              width={window.innerWidth < 768 ? 120 : 150}
-              height={40}
-              loading={true}
-              variant="rectangular"
-            />
-          ) : (
-            content
-          )}
-        </div>
+        <div className="py-1 text-center font-semibold underline decoration-dotted">{label}</div>
+          <Skeleton
+            width={140}
+            height={40}
+            loading={isPending}
+            variant="rectangular"
+          >
+          <div
+            className="font-light text-white"
+            style={{
+              fontFamily: 'Roboto Mono, monospace',
+            }}
+          >
+            {content}
+          </div>
+          </Skeleton>
       </div>
     </div>
   );
@@ -34,9 +39,10 @@ const SingleStat: React.FC<{
   priceChange: number | null;
   timeFrame: TimeFrame;
   timeFrameStartPrice: number;
-}> = ({ unit, priceChange, timeFrame, timeFrameStartPrice }) => {
+  loading?: boolean
+}> = ({ unit, priceChange, timeFrame, timeFrameStartPrice, loading = false }) => {
   const {
-    isPending,
+    isPending: summaryLoading,
     data: coinSummary,
     isError,
     error,
@@ -58,71 +64,67 @@ const SingleStat: React.FC<{
     },
   });
 
+  const isPending = summaryLoading || loading
+
+  const { price: priceFeed } = usePriceFeed(`${unit}-USD`);
+
   if (isError) {
     console.error(error);
     return <div>Error Loading Portfolio Summary.</div>;
   }
+  
+  const netCashHoldings = coinSummary?.netCashHoldings || 0; 
+  const price = priceFeed || 0;
+  const holdings = coinSummary?.holdings || 0;
+  const costBasis = coinSummary?.costBasis || 0;
+  const netContributions = coinSummary?.netContributions || 0;
+
+  const valueOfCurHoldings = price * holdings;
+
+  const curPl = valueOfCurHoldings - costBasis;
+  const roi = (curPl / netContributions) * 100;
+  const ror = (curPl / costBasis) * 100;
+
+  const breakEvenPrice = costBasis < 1 ? 0 : costBasis / holdings;
 
   return (
     <div
       className="
         text-grey-700 
-        flex 
+        justify-space-evenly
+        text-md
+        flex
+        flex-row 
         flex-wrap 
-        text-center 
-        text-xs 
+        text-center
         text-gray-500
         dark:text-gray-400
-        md:justify-between
-        md:text-base
-        lg:text-lg
       "
     >
       <StatDisplay
-        label="Holdings"
+        label="Coins Held"
         isPending={isPending}
-        content={
-          <div className="text-center">
-            <span>{coinSummary?.valueOfHoldings}</span>
-            <br></br>
-            <span className="">{coinSummary?.holdings}</span>
-          </div>
-        }
+        content={<span className="">{coinSummary?.holdings.toFixed(4)}</span>}
       />
       <StatDisplay
-        label="AVG. Buy / Sell"
+        label="Value"
         isPending={isPending}
-        content={
-          <div className="grid-rows-2 text-center">
-            <div>{coinSummary?.avgPurchasePrice}</div>
-            <div>{coinSummary?.avgSellPrice}</div>
-          </div>
-        }
+        content={<TickerDisplay cur={valueOfCurHoldings} format={'USD'} />}
       />
-
       <StatDisplay
-        label="Break Even"
-        isPending={isPending}
-        content={<div>{coinSummary?.breakEvenPrice}</div>}
-      />
-
-      <StatDisplay
-        label="P/L All Time"
+        label=" Total P/L"
         isPending={isPending}
         content={
           <div
             className="flex-col"
             style={{
-              color: coinSummary?.inGreen ? '#27AD75' : '##F0616D',
+              color: curPl > 0 ? '#27AD75' : '##F0616D',
             }}
           >
-            <span>{coinSummary?.profitLossAtCurrentPrice} </span>
-            <br />
-            <span className=""> {coinSummary?.percentPL}</span>
+            <TickerDisplay cur={curPl} format={'USD'} />
           </div>
         }
       />
-
       <StatDisplay
         label={`P/L ${(() => {
           if (timeFrame === 'h') return '1 Hour';
@@ -148,19 +150,117 @@ const SingleStat: React.FC<{
               color: !priceChange || priceChange < 0 ? '#F0616D' : '#27AD75',
             }}
           >
-            {(() => {
-              if (!timeFrameStartPrice) return '...';
-              if (!coinSummary?.holdings || !coinSummary?.valueOfHoldings) return '...';
-              const holdings = parseFloat(coinSummary?.holdings);
-              const currentValue = parseFloat(coinSummary?.valueOfHoldings?.replace(/[$,]/g, ''));
-              const prevValue = holdings * timeFrameStartPrice;
-              const profitLoss = currentValue - prevValue;
-              return profitLoss.toLocaleString('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                maximumFractionDigits: 2,
-              });
-            })()}
+            <TickerDisplay
+              cur={(() => {
+                const prevValue = holdings * (timeFrameStartPrice || 0);
+                return valueOfCurHoldings - prevValue;
+              })()}
+              format={'USD'}
+            />
+          </div>
+        }
+      />
+
+      <StatDisplay
+        label=" ROI"
+        isPending={isPending}
+        content={
+          <div style={{ color: roi > 0 ? '#27AD75' : '#F0616D' }}>
+            <TickerDisplay cur={roi} format={'PERCENTAGE'} />
+          </div>
+        }
+      />
+      <StatDisplay
+        label=" ROR"
+        isPending={isPending}
+        content={
+          <div style={{ color: roi > 0 ? '#27AD75' : '#F0616D' }}>
+            <TickerDisplay cur={ror} format={'PERCENTAGE'} />
+          </div>
+        }
+      />
+
+      <StatDisplay
+        label="Cost Basis"
+        isPending={isPending}
+        content={
+          <div>
+            {coinSummary?.costBasis.toLocaleString('en-US', {
+              style: 'currency',
+              currency: 'USD',
+              maximumFractionDigits: 2,
+              minimumFractionDigits: 2,
+            })}
+          </div>
+        }
+      />
+      <StatDisplay
+        label="Break Even"
+        isPending={isPending}
+        content={
+          <div>
+            {breakEvenPrice.toLocaleString('en-US', {
+              style: 'currency',
+              currency: 'USD',
+              maximumFractionDigits: 2,
+              minimumFractionDigits: 2,
+            })}
+          </div>
+        }
+      />
+      <StatDisplay
+        label="AVG. Buy"
+        isPending={isPending}
+        content={
+          <div>
+            {coinSummary?.avgPurchasePrice.toLocaleString('en-US', {
+              style: 'currency',
+              currency: 'USD',
+              maximumFractionDigits: 2,
+              minimumFractionDigits: 2,
+            })}
+          </div>
+        }
+      />
+      <StatDisplay
+        label="AVG. Sell"
+        isPending={isPending}
+        content={
+          <div>
+            {coinSummary?.avgSellPrice.toLocaleString('en-US', {
+              style: 'currency',
+              currency: 'USD',
+              maximumFractionDigits: 2,
+              minimumFractionDigits: 2,
+            })}
+          </div>
+        }
+      />
+      <StatDisplay
+        label="Net Contrib."
+        isPending={isPending}
+        content={
+          <div>
+            {coinSummary?.netContributions.toLocaleString('en-US', {
+              style: 'currency',
+              currency: 'USD',
+              maximumFractionDigits: 2,
+              minimumFractionDigits: 2,
+            })}
+          </div>
+        }
+      />
+      <StatDisplay
+        label="Net cash"
+        isPending={isPending}
+        content={
+          <div>
+            {netCashHoldings.toLocaleString('en-US', {
+              style: 'currency',
+              currency: 'USD',
+              maximumFractionDigits: 2,
+              minimumFractionDigits: 2,
+            })}
           </div>
         }
       />

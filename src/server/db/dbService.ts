@@ -37,6 +37,7 @@ async function getCoinSummaries(userId: number, unit?: string): Promise<CoinSumm
       COALESCE(stats.total_sell_profits / stats.total_sell_quantity,0) AS avgSellPrice,
       COALESCE((stats.latestExchangeRate.rate * (stats.total_buy_quantity - stats.total_sell_quantity)),0) AS valueOfHoldings,
       COALESCE((stats.total_sell_profits - (-1 * stats.total_buy_cost) + (stats.latestExchangeRate.rate * (stats.total_buy_quantity - stats.total_sell_quantity))),0) AS profitLossAtCurrentPrice,
+      COALESCE((stats.total_sell_profits - (-1 * stats.total_buy_cost) + (stats.latestExchangeRate.rate * (stats.total_buy_quantity - stats.total_sell_quantity))),0) AS profitLossAtCurrentPrice,
       COALESCE((-1 * ((stats.total_sell_profits - (-1 * stats.total_buy_cost)) / (stats.total_buy_quantity - stats.total_sell_quantity))),0) AS breakEvenPrice,
       COALESCE(((stats.total_sell_profits - (-1 * stats.total_buy_cost) + (stats.latestExchangeRate.rate * (stats.total_buy_quantity - stats.total_sell_quantity))) / (-1 * stats.total_buy_cost)) * 100, 0) AS percentPL
     FROM (
@@ -123,11 +124,12 @@ async function getPortfolioSummary(userId: number) {
 }
 
 
-async function getBuySellTotalFiFo(userId: number) {
+async function getBuySellTotalFiFo(userId: number, unit?: string) {
   return db.$queryRaw<[{ unit: string, side: 'BUY' | 'SELL'; total: number }]>`
     SELECT unit, side, ABS(total) as total
     FROM PORTFOLIO.Transaction 
     WHERE userId = ${userId}
+    ${unit ? Prisma.sql`AND unit = ${unit}` : Prisma.empty}
     ORDER BY date ASC
   `;
 }

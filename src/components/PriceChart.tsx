@@ -19,6 +19,10 @@ import { useFetchPriceHistory } from '../_hooks/useFetchPriceHistory';
 import Box from '@mui/joy/Box';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
+import { usePriceFeed } from '../context/CoinbaseWsFeedContext';
+import TickerDisplay from './TickerDisplay';
+import Grid from '@mui/material/Grid';
+import Skeleton from '@mui/joy/Skeleton';
 
 const VerticalLiner = {
   id: 'verticalLiner',
@@ -27,13 +31,13 @@ const VerticalLiner = {
     color: 'grey',
     dash: [5, 5],
   },
-  afterInit: (chart, args, opts) => {
+  afterInit: (chart: any, args: any, opts: any) => {
     chart.verticalLiner = {
       x: 0,
       y: 0,
     };
   },
-  afterEvent: (chart, { inChartArea, event }) => {
+  afterEvent: (chart: any, { inChartArea, event }: { inChartArea: any; event: any }) => {
     chart.verticalLiner = {
       x: event.x,
       y: chart?.tooltip?.caretY || event.y,
@@ -41,7 +45,7 @@ const VerticalLiner = {
     };
     chart.draw();
   },
-  beforeDatasetsDraw: (chart, args, opts) => {
+  beforeDatasetsDraw: (chart: any, args: any, opts: any) => {
     const { ctx } = chart;
     const { top, bottom, left, right } = chart.chartArea;
     const x = chart.verticalLiner?.x;
@@ -159,15 +163,25 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
   const [tfSettings, setTfSettings] = useState<TimeFrameSettings>(
     timeFrameSettingsMap[timeFrame],
   );
-  
-
+  const { price: priceFeed } = usePriceFeed(`${unit}-USD`);
   const { currentPrice } = useFetchCurrentPrice(unit, timeFrame);
+  const showPrice = priceFeed || parseFloat(currentPrice || '0');
+
 
   const {
     priceData,
     priceChange,
     isLoading: priceHistoryLoading,
   } = useFetchPriceHistory(productFullName, timeFrame);
+
+  const startPrice = priceData[0][1];
+
+  const thePrice = hoveringChart ? parseFloat(hoverPrice?.replace(/[$,]/g, '') || '0') : showPrice;
+
+  const priceDiff = thePrice - startPrice;
+  const pc = priceDiff / showPrice;
+
+
 
 
   useEffect(() => {
@@ -180,29 +194,58 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
 
   return (
     <>
-      <div
-        className="text-md flex p-1 sm:text-2xl items-center"
-      >
-        <div className="">
-          <span className="capitalize">
-            {productFullName} ({unit}){' '}
-          </span>
-          <span
-            className="px-1"
-            style={{
-              ...(priceChange > 0
-                ? { color: '#27AD75' }
-                : { color: '#F0616D' }),
-            }}
-          >
-            {priceChange > 0 ? '▲' : '▼'} {(priceChange * 100).toFixed(2)} %
-          </span>
-        </div>
-        <div className="px-3">{hoveringChart ? hoverPrice : currentPrice}</div>
-        <div className="flex-grow text-center"></div>
-        <Select
-          // className="ml-auto rounded-md bg-gray-700 px-4 py-2 text-sm text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-          className="
+      <div className="flex py-2">
+        <Grid container spacing={0} direction="column" className="text-md sm:text-xl">
+          <Grid item className="capitalize">
+            <span>
+              {productFullName} ({unit}){' '}
+            </span>
+          </Grid>
+          <Grid item>
+            <Grid container spacing={1} direction="row">
+              <Grid item>
+                <Skeleton loading={priceHistoryLoading} variant="rectangular">
+                  <span
+                    style={{
+                      ...(pc > 0 ? { color: '#27AD75' } : { color: '#F0616D' }),
+                    }}
+                  >
+                    {pc > 0 ? '▲' : '▼'}
+                  </span>
+                  <TickerDisplay
+                    cur={thePrice}
+                    format={'USD'}
+                    shouldAnimate={!hoveringChart}
+                    constantArrow={false}
+                    showArrow={false}
+                  />
+                </Skeleton>
+              </Grid>
+              <Grid
+                item
+                style={{
+                  ...(pc > 0 ? { color: '#27AD75' } : { color: '#F0616D' }),
+                }}
+              >
+                <Skeleton loading={priceHistoryLoading} variant="rectangular">
+                  {'('}
+                  <TickerDisplay
+                    cur={pc * 100}
+                    format={'PERCENTAGE'}
+                    shouldAnimate={!hoveringChart}
+                    constantArrow={false}
+                    showArrow={false}
+                  />
+                  {')'}
+                </Skeleton>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+        <div className="flex-grow text-center">
+          <Select
+            // className="ml-auto rounded-md bg-gray-700 px-4 py-2 text-sm text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+            className="
             hover:border-grey-700
             font-b
             ml-auto
@@ -211,36 +254,42 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
             py-2
             text-white
             dark:bg-black
+            text-xl sm:text-xl
 
           "
-          onChange={(
-            event: React.SyntheticEvent | null,
-            newValue: 'h' | 'd' | 'w' | 'm' | '3m' | '6m' | 'y' | 'all',
-          ) => {
-            setTimeFrame(newValue);
-          }}
-          defaultValue={timeFrame}
-          sx={{
-            border: 0,
-            
-            fontSize: window.innerWidth < 768 ? '1rem' : '1.5rem',
-          }}
-        >
-          <Option value="h"> Hour</Option>
-          <Option value="d"> Day</Option>
-          <Option value="w"> Week</Option>
-          <Option value="m"> Month</Option>
-          <Option value="3m"> 3 Month</Option>
-          <Option value="6m"> 6 Month</Option>
-          <Option value="y"> 1 Year</Option>
-          <Option value="all"> All Time</Option>
-        </Select>
+            onChange={(
+              event: React.SyntheticEvent | null,
+              newValue: 'h' | 'd' | 'w' | 'm' | '3m' | '6m' | 'y' | 'all',
+            ) => {
+              setTimeFrame(newValue);
+            }}
+            defaultValue={timeFrame}
+            sx={{
+              border: 0,
+              fontSize: {
+                sm: '20px',
+                md: '20px',
+                lg: '24px',
+              }
+            }}
+          >
+            <Option value="h"> Hour</Option>
+            <Option value="d"> Day</Option>
+            <Option value="w"> Week</Option>
+            <Option value="m"> Month</Option>
+            <Option value="3m"> 3 Month</Option>
+            <Option value="6m"> 6 Month</Option>
+            <Option value="y"> 1 Year</Option>
+            <Option value="all"> All Time</Option>
+          </Select>
+        </div>
       </div>
       {/* <Box width={900} height={337}> */}
       <Box
-        className="max-h-400 h-max-content lg:max-h-450 mx-auto w-full"
+        className="mx-auto flex w-full items-center justify-center"
         style={{
           touchAction: 'none',
+          maxHeight: '450px',
         }}
       >
         {/* <Skeleton
@@ -270,7 +319,7 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
                 display: true,
                 text: tfSettings.titleText,
                 font: {
-                  size: 14,
+                  size: 12,
                 },
               },
               tooltip: {
@@ -283,8 +332,7 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
                 },
                 caretPadding: 50,
                 callbacks: {
-                  title: (context) =>
-                    moment(context[0].label).format('MMM D, YYYY h:mm a'),
+                  title: (context) => moment(context[0].label).format('MMM D, YYYY h:mm a'),
                   label: (context) => {
                     setHoverPrice(
                       hoveringChart
@@ -374,9 +422,8 @@ const PriceChart: React.FC<{ unit: string; productFullName: string }> = ({
         unit={unit}
         priceChange={priceChange}
         timeFrame={timeFrame}
-        timeFrameStartPrice={
-          priceData[0] ? (priceData[0][1] ? priceData[0][1] : 0) : 0
-        }
+        timeFrameStartPrice={priceData[0] ? (priceData[0][1] ? priceData[0][1] : 0) : 0}
+        loading={priceHistoryLoading}
       />
     </>
   );

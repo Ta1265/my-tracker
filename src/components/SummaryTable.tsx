@@ -3,15 +3,18 @@ import React from 'react';
 import Skeleton from '@mui/joy/Skeleton';
 import type { PortfolioSummary } from '../../types/global';
 import { useQuery } from '@tanstack/react-query';
+import TickerDisplay from './TickerDisplay';
 
 const InfoTable: React.FC<{
   rows: {
     label: string;
     sign: string;
-    value: any;
+    value: number;
     end?: boolean;
+    type?: 'PERCENTAGE' | 'USD';
   }[];
 }> = ({ rows }) => {
+
   return (
     <div
       className="
@@ -38,13 +41,20 @@ const InfoTable: React.FC<{
           dark:text-gray-400
         "
         >
-          {rows.map((row: any) => (
+          {rows.map((row: any) => { 
+            const val = row.type === 'PERCENTAGE' ? `${row.value.toFixed(2)}%` : row.value.toLocaleString('en-US', {
+              style: 'currency',
+              currency: 'USD',
+              maximumFractionDigits: 0,
+              minimumFractionDigits: 0,
+            });
+            return (
             <tr key={row.label} className={row.end ? 'border-t' : ''}>
               <td className="pr-4 text-right">{row.label}</td>
               <td>{row.sign}</td>
-              <td>{row.value}</td>
+              <td>{val}</td>
             </tr>
-          ))}
+          );})}
         </tbody>
       </table>
     </div>
@@ -57,7 +67,7 @@ const TotalTd: React.FC<{ content: React.ReactNode; isPending: boolean; inGreen:
   inGreen,
 }) => {
   return (
-    <td className="text-center" style={{ color: inGreen ? '#27AD75' : '#F0616D' }}>
+    <td className="text-center px-5" style={{ color: inGreen ? '#27AD75' : '#F0616D' }}>
       {isPending ? (
         <Skeleton
           variant="rectangular"
@@ -85,13 +95,14 @@ const SummaryTable: React.FC<{}> = () => {
       }
       return resp.json();
     },
+    refetchInterval: 5000,
   });
 
   const [showBreakdown, setShowBreakdown] = React.useState(false);
 
   const inGreen = data?.inGreen || false;
 
-  const isLoading = isPending || isRefetching;
+  const isLoading = isPending;
 
   if (isError || isRefetchError) {
     console.error(error);
@@ -152,7 +163,7 @@ const SummaryTable: React.FC<{}> = () => {
               value: data?.totalPLatCurrentPrice,
             },
             { label: 'Net Contrib.:', sign: '÷', value: data?.netContributions },
-            { end: true, label: 'ROI:', sign: '', value: data?.roi },
+            { end: true, label: 'ROI:', sign: '', value: data?.roi, type: 'PERCENTAGE' },
           ]}
         />
       </div>
@@ -160,47 +171,144 @@ const SummaryTable: React.FC<{}> = () => {
   }
 
   return (
-    <table className="table-auto cursor-pointer" onClick={() => setShowBreakdown(!showBreakdown)}>
-      <thead
-        className="
-          text-gray-700
-          text-gray-700
-          dark:text-gray-400
-          sm:text-xl
-          md:text-2xl
-          lg:text-2xl
-          "
-      >
-        <tr>
-          <th className="px-5 py-2 text-center">Total Value</th>
-
-          <th className="px-5 py-2 text-center">Total P/L</th>
-          <th className="px-5 py-2 text-center" style={{ visibility: 'hidden' }}>
-            Total P/L
-          </th>
-        </tr>
-      </thead>
-      <tbody className="sm:text-lg md:text-xl lg:text-2xl">
-        <tr>
-          <TotalTd isPending={isLoading} inGreen={inGreen} content={<>{data?.accountValue}</>} />
-          <TotalTd
-            isPending={isLoading}
-            inGreen={inGreen}
-            content={<>{data?.totalPLatCurrentPrice}</>}
-          />
-          <TotalTd
-            isPending={isLoading}
-            inGreen={inGreen}
-            content={
-              <div style={{ whiteSpace: 'nowrap' }}>
-                {inGreen ? '▲' : '▼'} {data?.roi}
-              </div>
-            }
-          />
-        </tr>
-      </tbody>
-    </table>
+    <div
+      className="
+        text-grey-700 
+        justify-space-between
+        text-md
+        flex
+        flex-row 
+      "
+      onClick={() => setShowBreakdown(!showBreakdown)}
+    >
+      <div className="flex flex-col px-3">
+        <div className="py-1 text-center font-bold">Total Value </div>
+        <Skeleton loading={isPending} variant="rectangular">
+          <div
+            className="text-left"
+            style={{
+              color: inGreen ? '#27AD75' : '#F0616D',
+            }}
+          >
+            <TickerDisplay cur={data?.valueOfHoldings || 0} format={'USD'} fracDigits={2} />
+          </div>
+        </Skeleton>
+      </div>
+      <div className="flex flex-col px-3">
+        <div className="py-1 text-left font-bold">Total P/L </div>
+        <Skeleton loading={isPending} variant="rectangular">
+          <div
+            className="text-left"
+            style={{
+              color: inGreen ? '#27AD75' : '#F0616D',
+            }}
+          >
+            <span className="flex flex-row">
+              <span>
+                <TickerDisplay
+                  cur={data?.totalPLatCurrentPrice || 0}
+                  format={'USD'}
+                  fracDigits={2}
+                  showArrow={false}
+                />
+              </span>
+              <span>&nbsp;</span>
+              <span>
+                {'('}
+                <TickerDisplay
+                  cur={data?.roi || 0}
+                  format={'PERCENTAGE'}
+                  fracDigits={2}
+                  showArrow={false}
+                />
+                {')'}
+              </span>
+            </span>
+          </div>
+        </Skeleton>
+      </div>
+    </div>
   );
+
+  // return (
+  //   <table
+  //     className="
+  //       sm:text-md 
+  //       table-auto
+  //       cursor-pointer 
+  //       md:text-lg 
+  //       lg:text-xl
+  //   "
+  //     onClick={() => setShowBreakdown(!showBreakdown)}
+  //   >
+  //     <thead
+  //       className="
+  //         text-gray-700
+  //         text-gray-700
+  //         dark:text-gray-400
+  //         "
+  //     >
+  //       <tr>
+  //         <th className="px-5 py-2 text-center">Total Value</th>
+  //         <th className="px-5 py-2 text-left">Total P/L</th>
+  //         {/* <th className="px-5 py-2 text-center" style={{ visibility: 'hidden' }}>
+  //           Total P/L
+  //         </th> */}
+  //       </tr>
+  //     </thead>
+  //     <tbody className="">
+  //       <tr className="text-left">
+  //         <TotalTd
+  //           isPending={isLoading}
+  //           inGreen={inGreen}
+  //           content={
+  //             <TickerDisplay cur={data?.valueOfHoldings || 0} format={'USD'} fracDigits={2} />
+  //           }
+  //         />
+  //         <TotalTd
+  //           isPending={isLoading}
+  //           inGreen={inGreen}
+  //           content={
+  //             <span className="flex flex-row">
+  //               <span>
+  //                 <TickerDisplay
+  //                   cur={data?.totalPLatCurrentPrice || 0}
+  //                   format={'USD'}
+  //                   fracDigits={2}
+  //                   showArrow={false}
+  //                 />
+  //               </span>
+  //               <span>&nbsp;</span>
+  //               <span>
+  //                 {'('}
+  //                 <TickerDisplay
+  //                   cur={data?.roi || 0}
+  //                   format={'PERCENTAGE'}
+  //                   fracDigits={2}
+  //                   showArrow={false}
+  //                 />
+  //                 {')'}
+  //               </span>
+  //             </span>
+  //           }
+  //         />
+  //         {/* <TotalTd
+  //           isPending={isLoading}
+  //           inGreen={inGreen}
+  //           content={
+  //             <>
+  //               <TickerDisplay
+  //                 cur={data?.roi || 0}
+  //                 format={'PERCENTAGE'}
+  //                 fracDigits={2}
+  //                 showArrow={false}
+  //               />
+  //             </>
+  //           } */}
+  //       </tr>
+  //     </tbody>
+  //   </table>
+  // );
 };
 
 export default SummaryTable; /* eslint-disable react/jsx-key */
