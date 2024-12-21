@@ -19,16 +19,18 @@ sudo rm /etc/nginx/sites-enabled/default # Remove the default Nginx site page
 
 sudo mkdir -p /etc/letsencrypt/live/tubesock.xyz/ # Create directory for SSL certificate files
 
+
+if [ ! -f /etc/ssl/certs/dhparam.pem ]; then
+  echo "Generating new Diffie-Hellman group"
+  # Generate group to use for DHE ciphersuites
+  sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+fi
+
 if [ ! -f /etc/letsencrypt/live/tubesock.xyz/fullchain.pem ] || [ ! -f /etc/letsencrypt/live/tubesock.xyz/privkey.pem ]; then
   # Map all HTTP requests for .well-known/acme-challenge
   sudo mkdir -p /var/lib/letsencrypt/.well-known/acme-challenge/
   sudo chown -R nginx:nginx /var/lib/letsencrypt/
 
-  if [ ! -f /etc/ssl/certs/dhparam.pem]; then
-    echo "Generating new Diffie-Hellman group"
-    # Generate group to use for DHE ciphersuites
-    sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
-  fi
 
   echo "Copying Nginx with HTTP configuration file to serve .well-known/acme-challenge"
   sudo cp nginx/nginx-certbot.conf /etc/nginx/nginx.conf # Copy the Nginx configuration file
