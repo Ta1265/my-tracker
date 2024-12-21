@@ -9,6 +9,7 @@
 # ################
 
 echo "Installing Nginx and certbot"
+
 sudo yum update
 sudo sudo yum install -y certbot # install cert bot for Let's Encrypt
 
@@ -16,48 +17,46 @@ sudo yum install -y nginx # Install Nginx, -y to answer yes to all prompts
 
 sudo rm /etc/nginx/sites-enabled/default # Remove the default Nginx site page
 
+sudo mkdir -p /etc/letsencrypt/live/tubesock.xyz/ # Create directory for SSL certificate files
 
-# Create empty files for SSL certificate files so that Nginx can start
-sudo mkdir -p /etc/letsencrypt/live/tubesock.xyz # Create directory for SSL certificate files
-sudo touch /etc/letsencrypt/live/tubesock.xyz/fullchain.pem
-sudo touch /etc/letsencrypt/live/tubesock.xyz/privkey.pem
-sudo touch /etc/letsencrypt/live/tubesock.xyz/chain.pem
+if [ ! -f /etc/letsencrypt/live/tubesock.xyz/fullchain.pem ] || [ ! -f /etc/letsencrypt/live/tubesock.xyz/privkey.pem ]; then
+  # Map all HTTP requests for .well-known/acme-challenge
+  sudo mkdir -p /var/lib/letsencrypt/.well-known/acme-challenge/
+  sudo chown -R nginx:nginx /var/lib/letsencrypt/
 
-# Generate place holder SSL certificate files
-sudo openssl req -x509 -nodes -days 365 \
-  -newkey rsa:2048 \
-  -keyout /etc/letsencrypt/live/tubesock.xyz/privkey.pem \
-  -out /etc/letsencrypt/live/tubesock.xyz/fullchain.pem \
-  -subj "/CN=tubesock.xyz"
+  if [! -f /etc/ssl/certs/dhparam.pem]; then
+    echo "Generating new Diffie-Hellman group"
+    # Generate group to use for DHE ciphersuites
+    sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+  fi
 
-sudo cp /etc/letsencrypt/live/tubesock.xyz/fullchain.pem /etc/letsencrypt/live/tubesock.xyz/chain.pem
+  sudo cp nginx/nginx-certbot.conf /etc/nginx/nginx.conf # Copy the Nginx configuration file
 
+  echo "Starting Nginx before running certbot" 
+  sudo systemctl start nginx
+  sudo systemctl reload nginx
+
+  echo "Running certbot to generate SSL certificate"
+  # Run certbot to generate SSL certificate, using --webroot plugin to bind to port 80
+  sudo certbot certonly \
+    --agree-tos \
+    --register-unsafely-without-email \
+    --webroot \
+    -w /var/lib/letsencrypt/ \
+    -d tubesock.xyz \
+    -d www.tubesock.xyz
+fi
+
+
+
+echo "Copying Nginx with SLL configuration file"
 sudo cp nginx/nginx.conf /etc/nginx/nginx.conf # Copy the Nginx configuration file
 
-echo "Generating Diffie-Hellman group"
-# Generate group to use for DHE ciphersuites
-sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
-
-# Map all HTTP requests for .well-known/acme-challenge
-sudo mkdir -p /var/lib/letsencrypt/.well-known
-sudo chgrp nginx /var/lib/letsencrypt
-sudo chmod g+s /var/lib/letsencrypt
-
-# sudo systemctl stop nginx || true # Stop nginx if it is running, to allow certbot to bind to port 80 with --webroot plugin
-
-echo "Running certbot to generate SSL certificate"
-# Run certbot to generate SSL certificate, using --webroot plugin to bind to port 80
-sudo certbot certonly \
-  --agree-tos \
-  --register-unsafely-without-email \
-  --webroot \
-  -w /var/lib/letsencrypt/ \
-  -d tubesock.xyz \
-  -d www.tubesock.xyz
-
-# echo "Starting Nginx" 
 sudo systemctl start nginx
 sudo systemctl reload nginx
+
+sudo nginx -t
+# sudo systemctl stop nginx || true # Stop nginx if it is running, to allow certbot to bind to port 80 with --webroot plugin
 
 echo "Setup complete"
  
