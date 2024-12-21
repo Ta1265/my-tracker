@@ -31,13 +31,30 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
+
             sudo docker stop app || true
             sudo docker rm app || true
+            sudo docker stop redis || true
+            sudo docker rm redis || true           
             sudo docker system prune -a -f || true
+
+            sudo docker network create portfolio-network || true
+
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/my-tracker:latest
             sudo docker run -d -p 3000:3000 \
-            -e NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }} \
-            -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
-            -e NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }} \
-            --name app ${{ secrets.DOCKER_USERNAME }}/my-tracker:latest
+              --network portfolio-network \
+              -e NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }} \
+              -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+              -e NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }} \
+              --name app ${{ secrets.DOCKER_USERNAME }}/my-tracker:latest
+
+            mkdir -p /var/lib/redis-data
+
+            sudo docker run -d \
+              --network portfolio-network \
+              --name redis \
+              --restart unless-stopped \
+              -p 6379:6379 \
+              -v redis-volume:/var/lib/redis-data \
+              redis:latest
     
