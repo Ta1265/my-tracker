@@ -1,4 +1,4 @@
-version: '3'
+# version: '3'
 
 # Define a network, which allows containers to communicate
 # with each other, by using their container name as a hostname
@@ -8,6 +8,7 @@ networks:
 
 volumes:
   mysql-volume:
+  redis-volume:
 
 services:
   portfolio-db:
@@ -39,7 +40,7 @@ services:
       - portfolio-db
     container_name: next-app
     build:
-      target: 'dev' # prod or dev
+      target: ${TARGET:-prod}  # prod or dev
       context: .
       dockerfile: Dockerfile
     # Set environment variables directly in the docker-compose file
@@ -61,28 +62,17 @@ services:
           - next-app
 
   # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  # portfolio-next-app-dev:
-  #   depends_on:
-  #     - portfolio-db
-  #   container_name: portfolio-next-app-dev
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.dev
-  #   # Set environment variables directly in the docker-compose file
-  #   environment:
-  #     ENV_VARIABLE: ${ENV_VARIABLE}
-  #     NEXT_PUBLIC_ENV_VARIABLE: ${NEXT_PUBLIC_ENV_VARIABLE}
-  #   # Set envrionment variables based on the .env file
-  #   env_file:
-  #     - .env
-  #   volumes:
-  #     - ./src:/app/src
-  #     - ./public:/app/public
-  #   restart: unless-stopped
-  #   ports:
-  #     - 3000:3000
-  #   networks:
-  #     portfolio-network:
-  #       aliases:
-  #         - portfolio-next-app-dev
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-volume:/data
+    networks:
+      portfolio-network:
+        aliases:
+          - redis
   # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

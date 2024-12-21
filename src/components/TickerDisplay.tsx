@@ -1,6 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import React from 'react';
 import { css, keyframes } from '@emotion/react';
+import AnimatingNumber from './AnimatingNumber';
 
 const flashGreen = keyframes`
   0% { opacity: .5; background-color: rgba(39, 173, 117, 0.5); color: white; }
@@ -19,21 +20,21 @@ const animateOut = keyframes`
   100% { opacity: 0; ; visibility: none; }
 `;
 
-const TickerDisplay: React.FC<{
-  cur: number;
-  format: 'USD' | 'PERCENTAGE';
-  showArrow?: boolean;
-  fracDigits?: number;
-  shouldAnimate?: boolean;
-  constantArrow?: boolean;
-}> = ({ cur, format, showArrow = true, fracDigits, shouldAnimate = true, constantArrow = false }) => {
-  const prevRef = React.useRef<number | null>(cur);
-  const prev = prevRef.current || cur;
-  prevRef.current = cur;
+
+const usePrevious = (value: number) => {
+  const ref = React.useRef<number>(0);
+  React.useEffect(() => {
+    ref.current = value;
+  }, [value]);
+  return ref.current;
+}
+
+const formatValue = (val: number| null | undefined, format: 'USD' | 'PERCENTAGE', fracDigits?: number) => {
+  const value = val || 0;
 
   if (!fracDigits && format === 'USD') {
-    if (cur < 100000) {
-      const integerDigits = Math.floor(cur).toString().length;
+    if (value < 100000) {
+      const integerDigits = Math.floor(value).toString().length;
       fracDigits = Math.max(6 - integerDigits, 0);
     }
   }
@@ -41,64 +42,74 @@ const TickerDisplay: React.FC<{
     fracDigits = 2;
   }
 
-  const formattedCur =
-    format === 'USD'
-      ? cur.toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD',
-          minimumFractionDigits: fracDigits,
-          maximumFractionDigits: fracDigits,
-        })
-      : cur.toFixed(fracDigits);
+  if (format === 'USD') {
+    return value.toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: fracDigits,
+      maximumFractionDigits: fracDigits,
+    });
+  }
+  return value.toFixed(fracDigits);
+}
 
-  const formattedPrev =
-    format === 'USD'
-      ? prev.toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD',
-          minimumFractionDigits: fracDigits,
-          maximumFractionDigits: fracDigits,
-        })
-      : prev.toFixed(fracDigits);
 
-  const color = cur > prev ? '#27AD75' : '#F0616D';
-  const flash = cur > prev ? flashGreen : flashRed;
+const Ticker: React.FC<{
+  value: number;
+  format: 'USD' | 'PERCENTAGE';
+  showArrow?: boolean;
+  fracDigits?: number;
+}> = ({ value, format, showArrow = false, fracDigits }) => {
+  const prev = usePrevious(value);
+  const formattedCur = formatValue(value, format, fracDigits);
+  const formattedPrev = formatValue(prev, format, fracDigits);
 
-  let shouldFlash = shouldAnimate && cur !== prev;
+  let color = 'none';
+  let flash = '';
+  if (value > prev) {
+    color = '#27AD75';
+    flash = flashGreen;
+  }
+  if (value < prev) {
+    color = '#F0616D';
+    flash = flashRed;
+  }
+
+  let shouldFlash = value !== prev;
 
   const flashFromIndex =
     shouldFlash && formattedPrev.split('').findIndex((char, index) => char !== formattedCur[index]);
- 
-  let shouldAnimateArrow: boolean = false
-  // if (typeof flashFromIndex === 'number') {
+
+  let shouldAnimateArrow: boolean = false;
+  if (typeof flashFromIndex === 'number') {
     shouldAnimateArrow = shouldFlash;
-  // }
-  const animation = `${constantArrow ? '' : `${animateOut} 2s ease-out forwards`}`;
+  }
 
   return (
-    <>
-      {(showArrow || constantArrow) && (
+    <span
+      className="ticker-font"
+    >
+      {showArrow && (
         <span
-          key={`${cur}-${prev}`}
+          key={`${value}-${prev}`}
           css={css`
-            font-family: 'Roboto Mono', monospace;
-            animation: ${animateOut} 2s ease-out forwards; 
+            animation: ${animateOut} 2s ease-out forwards;
             color: ${color};
-            visibility: ${constantArrow || shouldAnimateArrow ? 'visible' : 'hidden'};
+            visibility: ${shouldAnimateArrow ? 'visible' : 'hidden'};
             white-space: nowrap;
           `}
         >
-          {cur > prev ? '▲ ' : '▼ '}
+          {value > prev ? '▲ ' : '▼ '}
         </span>
       )}
+
+      {/* <AnimatingNumber value={value} format={format} fracDigits={fracDigits} showArrow={false} /> */}
       {formattedCur.split('').map((char, index) => {
-        // const shouldDigitFlash = shouldFlash && formattedPrev.split('').some((_, i) => i <= index && formattedCur[i] !== formattedPrev[i]);
         const shouldDigitFlash = flashFromIndex && flashFromIndex <= index;
         return (
           <span
             key={`percent-${index}-${char}`}
             css={css`
-              font-family: 'Roboto Mono', monospace;
               animation: ${shouldDigitFlash ? flash : 'none'} 1s ease-in-out;
             `}
           >
@@ -107,8 +118,31 @@ const TickerDisplay: React.FC<{
         );
       })}
       {format === 'PERCENTAGE' && <span>%</span>}
-    </>
+    </span>
   );
 };
+
+interface TickerProps {
+  value: number;
+  format: 'USD' | 'PERCENTAGE';
+  fracDigits?: number;
+  showArrow?: boolean;
+}
+
+interface TickerDisplayProps extends TickerProps {
+  type?: 'flash' | 'animate';
+}
+
+
+const TickerDisplay: React.FC<TickerDisplayProps> = ({ type = 'flash', ...restProps }) => {
+  if (type === 'animate') {
+    return <AnimatingNumber {...restProps} />;
+  }
+  return <Ticker {...restProps} />;
+};
+
+const TickerDisplayMemo = React.memo(TickerDisplay, (prevProps, nextProps) => {
+  return prevProps.type === nextProps.type;
+});
 
 export default TickerDisplay;

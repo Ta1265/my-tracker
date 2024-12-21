@@ -37,7 +37,6 @@ async function getCoinSummaries(userId: number, unit?: string): Promise<CoinSumm
       COALESCE(stats.total_sell_profits / stats.total_sell_quantity,0) AS avgSellPrice,
       COALESCE((stats.latestExchangeRate.rate * (stats.total_buy_quantity - stats.total_sell_quantity)),0) AS valueOfHoldings,
       COALESCE((stats.total_sell_profits - (-1 * stats.total_buy_cost) + (stats.latestExchangeRate.rate * (stats.total_buy_quantity - stats.total_sell_quantity))),0) AS profitLossAtCurrentPrice,
-      COALESCE((stats.total_sell_profits - (-1 * stats.total_buy_cost) + (stats.latestExchangeRate.rate * (stats.total_buy_quantity - stats.total_sell_quantity))),0) AS profitLossAtCurrentPrice,
       COALESCE((-1 * ((stats.total_sell_profits - (-1 * stats.total_buy_cost)) / (stats.total_buy_quantity - stats.total_sell_quantity))),0) AS breakEvenPrice,
       COALESCE(((stats.total_sell_profits - (-1 * stats.total_buy_cost) + (stats.latestExchangeRate.rate * (stats.total_buy_quantity - stats.total_sell_quantity))) / (-1 * stats.total_buy_cost)) * 100, 0) AS percentPL
     FROM (
@@ -105,7 +104,7 @@ async function getPortfolioSummary(userId: number) {
         FROM
           PORTFOLIO.Transaction as trans
         WHERE
-          trans.userId = 1
+          trans.userId = ${userId}
         GROUP BY unit 
       ) as _units
         JOIN (
@@ -133,6 +132,67 @@ async function getBuySellTotalFiFo(userId: number, unit?: string) {
     ORDER BY date ASC
   `;
 }
+
+async function getTimeFramePriceChange(
+  userId: number,
+  timeFrameStartPrices: [unit: string, startPrice: number][],
+) {
+  return db.$queryRaw<any>`
+    SELECT 
+      units.unit as unit,
+      (units.startPrice * units.holdings) - units.costBasis AS pastProfitLoss,
+      (units.currentPrice * units.holdings) - units.costBasis as currentProfitLoss,
+      units.startPrice as timeFrameStartPrice
+    FROM (
+        
+        SELECT
+          -- additional subquery to store costBasis and holdings in intermediate values
+          _units.unit,
+          timeFrame.startPrice as startPrice,
+          latestExchangeRate.rate as currentPrice,
+          _units.total_buy_cost - _units.total_sell_profits as costBasis,
+          _units.total_buy_quantity - _units.total_sell_quantity as holdings
+        FROM (
+          -- Aggregate by unit, join with latest exchange rate
+          SELECT
+            trans.unit,
+            SUM(CASE WHEN trans.side = 'BUY' THEN abs(trans.size) ELSE 0 END) AS total_buy_quantity,
+            SUM(CASE WHEN trans.side = 'SELL' THEN abs(trans.size) ELSE 0 END) AS total_sell_quantity,
+            SUM(CASE WHEN trans.side = 'BUY' THEN abs(trans.total) ELSE 0 END) AS total_buy_cost,
+            SUM(CASE WHEN trans.side = 'SELL' THEN abs(trans.total) ELSE 0 END) AS total_sell_profits
+          FROM
+            PORTFOLIO.Transaction as trans
+          WHERE
+            trans.userId = ${userId}
+          GROUP BY unit 
+        ) as _units
+        
+        JOIN (
+          SELECT unit, rate
+          FROM PORTFOLIO.ExchangeRate
+          WHERE date = (
+            SELECT MAX(date)
+            FROM PORTFOLIO.ExchangeRate
+          )
+        ) as latestExchangeRate
+        ON _units.unit = latestExchangeRate.unit
+        
+        LEFT JOIN (
+          ${timeFrameStartPrices.map(([unit, startPrice]) => Prisma.sql`SELECT ${unit} as unit, ${startPrice} as startPrice`)
+          .reduce((acc, curr) => Prisma.sql`${acc} UNION ALL ${curr}`)}
+          SELECT 'BTC' as unit, 100000 as startPrice
+          UNION ALL
+          SELECT 'ETH' as unit, 102 as startPrice
+          UNION ALL
+          SELECT 'ADA' as unit, 2 as startPrice
+        ) AS timeFrame
+        ON _units.unit = timeFrame.unit
+        
+        WHERE _units.unit IN ('BTC', 'ETH', 'ADA')
+    ) as units;
+  `;
+}
+
 
 const dbService = {
   getCoinSummaries,

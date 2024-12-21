@@ -1,31 +1,31 @@
 /** @jsxImportSource @emotion/react */
 import React, {} from 'react';
 import Box from '@mui/material/Box';
-import { usePriceFeed } from '../context/CoinbaseWsFeedContext';
-import TickerDisplay from './TickerDisplay';
-import type { CoinSummaryResp } from '../../types/global';
+import { usePriceFeed } from '../../context/CoinbaseWsFeedContext';
+import TickerDisplay from '../TickerDisplay';
+import type { CoinSummaryResp } from '../../../types/global';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
+import { useStatsTableContext } from '../../context/StatsTableContext';
+import { Skeleton } from '@mui/joy';
 
 
 interface Props {
   coinSummary: CoinSummaryResp;
-  selectedPlType: 'roi' | 'ror'
 }
 
-export const ProfitLossCell: React.FC<Props> = ({
-  coinSummary,
-  selectedPlType
-}) => {
+export const ProfitLossCell: React.FC<Props> = ({ coinSummary }) => {
   const {
     productName: unit,
     holdings,
     costBasis,
     profitLossAtCurrentPrice: backupProfitLossAtCurrentPrice,
-    netContributions, 
+    netContributions,
   } = coinSummary;
 
-  const { price } = usePriceFeed(`${unit}-USD`);
+  const { selectedPlType } = useStatsTableContext();
+
+  const { price, loading } = usePriceFeed(`${unit}-USD`);
 
   let curPl: number;
   if (!price) {
@@ -37,33 +37,36 @@ export const ProfitLossCell: React.FC<Props> = ({
   let percentPL: number;
   if (selectedPlType === 'ror') {
     // Rate of Return
-    percentPL = ((curPl / costBasis) * 100);
+    percentPL = (curPl / costBasis) * 100;
   } else {
     // Return on Investment
-    percentPL = ((curPl / netContributions) * 100);
+    percentPL = (curPl / netContributions) * 100;
   }
 
   const color = curPl > 0 ? '#27AD75' : '#F0616D';
 
   return (
-    <Box className="text-left" style={{ color, fontFamily: 'Roboto Mono, monospace' }}>
-      <span>
-        <TickerDisplay cur={curPl} format={'USD'} fracDigits={2} />
-      </span>
-      <br></br>
-      <span style={{ visibility: 'hidden' }}> ▲ </span>
-      <span className="text-xl text-xs md:text-base lg:text-base xl:text-sm">
-        <TickerDisplay cur={percentPL} format={'PERCENTAGE'} showArrow={false} />
-      </span>
+    <Box style={{ color }}>
+      <Skeleton variant="rectangular" overlay={true} loading={loading}>
+        <span>
+          <TickerDisplay value={curPl} format={'USD'} fracDigits={2} showArrow />
+        </span>
+        <br></br>
+        <span style={{ visibility: 'hidden' }}>{'▲▲'}</span>
+        <span className="text-right">
+          <TickerDisplay value={percentPL} format={'PERCENTAGE'} />
+        </span>
+      </Skeleton>
     </Box>
   );
 };
 
 
 export const ProfitLossFilter: React.FC<{
-  selectedPlType: 'roi' | 'ror';
-  setSelectedPlType: (newValue: 'roi' | 'ror') => void;
-}> = ({ selectedPlType, setSelectedPlType }) => {
+  // selectedPlType: 'roi' | 'ror';
+  // setSelectedPlType: (newValue: 'roi' | 'ror') => void;
+}> = () => {
+  const { selectedPlType, setSelectedPlType } = useStatsTableContext();
   return (
     <div
       style={{
@@ -95,5 +98,14 @@ export const ProfitLossFilter: React.FC<{
         <Option value="ror">Rate of Return</Option>
       </Select>
     </div>
+  );
+};
+
+export const ProfitLossHeader: React.FC = () => {
+  const { selectedPlType } = useStatsTableContext();
+  return (
+    <>
+      TOTAL - {selectedPlType}
+    </>
   );
 };

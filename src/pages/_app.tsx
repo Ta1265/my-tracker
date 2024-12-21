@@ -5,7 +5,6 @@ import Layout from '../components/Layout';
 import { SessionProvider } from 'next-auth/react';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { createContext, useContext, useState } from 'react';
 import { ReloadProvider } from '../context/ReloadContext';
 import { SnackbarProvider } from '../context/SnackBarContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -15,7 +14,7 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        refetchOnWindowFocus: 'always',
+        // refetchOnWindowFocus: 'always',
       },
     },
   });

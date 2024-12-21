@@ -1,9 +1,10 @@
 
-FROM node:18-alpine AS base
+# FROM node:18-alpine AS base
+FROM node:18-bullseye AS base
 
 # 1. Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
+# RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json ./
 COPY package-lock.json ./
@@ -42,8 +43,10 @@ FROM base AS prod
 WORKDIR /app
 ENV NODE_ENV=production
 
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
+RUN addgroup --gid 1001 --system nodejs 
+RUN adduser --system nextjs -uid 1001
+
+# RUN adduser --disabled-password --gecos "" --uid 1001 --ingroup nodejs nextjs
 
 COPY --from=builder /app/public ./public
 
@@ -54,6 +57,7 @@ RUN chown nextjs:nodejs .next
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
 
 USER nextjs
 EXPOSE 3000

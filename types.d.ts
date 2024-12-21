@@ -63,4 +63,3 @@ type ExchangeRates = {
   [key: string]: number;
 };
 
-type TimeFrame = 'h' | 'd' | 'w' | 'm' | '3m' | '6m' | 'y' | 'all';

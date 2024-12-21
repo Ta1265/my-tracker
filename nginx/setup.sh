@@ -9,10 +9,10 @@
 ################
 
 echo "Installing Nginx and certbot"
-sudo apt-get update
-sudo sudo apt install -y certbot # install cert bot for Let's Encrypt
+sudo yum update
+sudo sudo yum install -y certbot # install cert bot for Let's Encrypt
 
-sudo apt-get install -y nginx # Install Nginx, -y to answer yes to all prompts
+sudo yum install -y nginx # Install Nginx, -y to answer yes to all prompts
 
 sudo rm /etc/nginx/sites-enabled/default # Remove the default Nginx site page
 

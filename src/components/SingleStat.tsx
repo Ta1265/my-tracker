@@ -2,8 +2,8 @@ import React from 'react';
 import Skeleton from '@mui/joy/Skeleton';
 import { useQuery } from '@tanstack/react-query';
 import type { CoinSummaryResp } from '../../types/global';
-import { usePriceFeed } from '../context/CoinbaseWsFeedContext';
 import TickerDisplay from './TickerDisplay';
+import { usePriceHistory } from '../context/PriceHistoryProvider';
 
 const StatDisplay: React.FC<{
   label: string;
@@ -11,19 +11,19 @@ const StatDisplay: React.FC<{
   content: React.ReactNode;
 }> = ({ label, isPending, content }) => {
   return (
-    <div className="w-auto px-2 px-6 py-2 w-[150px]">
+    <div className="px-2 px-6 py-2 w-[150px]">
       <div className="flex-col">
         <div className="py-1 text-center font-semibold underline decoration-dotted">{label}</div>
           <Skeleton
             width={140}
-            height={40}
+            height={24}
             loading={isPending}
             variant="rectangular"
           >
           <div
-            className="font-light text-white"
+            className="text-white"
             style={{
-              fontFamily: 'Roboto Mono, monospace',
+              // fontFamily: 'Roboto Mono, monospace',
             }}
           >
             {content}
@@ -34,13 +34,16 @@ const StatDisplay: React.FC<{
   );
 };
 
-const SingleStat: React.FC<{
-  unit: String;
-  priceChange: number | null;
-  timeFrame: TimeFrame;
-  timeFrameStartPrice: number;
-  loading?: boolean
-}> = ({ unit, priceChange, timeFrame, timeFrameStartPrice, loading = false }) => {
+const SingleStat: React.FC<{}> = () => {
+  const {
+    unit,
+    priceChange,
+    timeFrame,
+    startPrice: timeFrameStartPrice,
+    priceHistoryLoading: loading,
+    priceFeed,
+  } = usePriceHistory();
+
   const {
     isPending: summaryLoading,
     data: coinSummary,
@@ -64,16 +67,14 @@ const SingleStat: React.FC<{
     },
   });
 
-  const isPending = summaryLoading || loading
-
-  const { price: priceFeed } = usePriceFeed(`${unit}-USD`);
+  const isPending = summaryLoading || loading;
 
   if (isError) {
     console.error(error);
     return <div>Error Loading Portfolio Summary.</div>;
   }
-  
-  const netCashHoldings = coinSummary?.netCashHoldings || 0; 
+
+  const netCashHoldings = coinSummary?.netCashHoldings || 0;
   const price = priceFeed || 0;
   const holdings = coinSummary?.holdings || 0;
   const costBasis = coinSummary?.costBasis || 0;
@@ -109,7 +110,7 @@ const SingleStat: React.FC<{
       <StatDisplay
         label="Value"
         isPending={isPending}
-        content={<TickerDisplay cur={valueOfCurHoldings} format={'USD'} />}
+        content={<TickerDisplay value={valueOfCurHoldings} format={'USD'} showArrow />}
       />
       <StatDisplay
         label=" Total P/L"
@@ -121,7 +122,7 @@ const SingleStat: React.FC<{
               color: curPl > 0 ? '#27AD75' : '##F0616D',
             }}
           >
-            <TickerDisplay cur={curPl} format={'USD'} />
+            <TickerDisplay value={curPl} format={'USD'} showArrow />
           </div>
         }
       />
@@ -151,11 +152,12 @@ const SingleStat: React.FC<{
             }}
           >
             <TickerDisplay
-              cur={(() => {
+              value={(() => {
                 const prevValue = holdings * (timeFrameStartPrice || 0);
                 return valueOfCurHoldings - prevValue;
               })()}
               format={'USD'}
+              showArrow
             />
           </div>
         }
@@ -166,7 +168,7 @@ const SingleStat: React.FC<{
         isPending={isPending}
         content={
           <div style={{ color: roi > 0 ? '#27AD75' : '#F0616D' }}>
-            <TickerDisplay cur={roi} format={'PERCENTAGE'} />
+            <TickerDisplay value={roi} format={'PERCENTAGE'} showArrow/>
           </div>
         }
       />
@@ -175,7 +177,7 @@ const SingleStat: React.FC<{
         isPending={isPending}
         content={
           <div style={{ color: roi > 0 ? '#27AD75' : '#F0616D' }}>
-            <TickerDisplay cur={ror} format={'PERCENTAGE'} />
+            <TickerDisplay value={ror} format={'PERCENTAGE'} showArrow />
           </div>
         }
       />

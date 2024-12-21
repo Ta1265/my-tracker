@@ -1,7 +1,7 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/joy/Tooltip';
-import type { CoinSummaryResp } from '../../types/global';
+import type { CoinSummaryResp } from '../../../types/global';
 
 
 export const CostBasisCell: React.FC<{
@@ -10,10 +10,7 @@ export const CostBasisCell: React.FC<{
 
   return (
     <Box
-      className="text-left"
-      style={{
-        fontFamily: 'Roboto Mono, monospace',
-      }}
+      className="text-left ticker-font"
     >
       <Tooltip title="Cost Basis">
         <>

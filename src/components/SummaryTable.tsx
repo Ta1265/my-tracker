@@ -1,9 +1,11 @@
 /* eslint-disable react/jsx-key */
 import React from 'react';
 import Skeleton from '@mui/joy/Skeleton';
-import type { PortfolioSummary } from '../../types/global';
+import type { PortfolioSummary, TimeFrameTotalPlResp } from '../../types/global';
 import { useQuery } from '@tanstack/react-query';
 import TickerDisplay from './TickerDisplay';
+import { DeltaSelectFilterMemo } from './stats-table/DeltaColumn';
+import { useStatsTableContext } from '../context/StatsTableContext';
 
 const InfoTable: React.FC<{
   rows: {
@@ -67,7 +69,7 @@ const TotalTd: React.FC<{ content: React.ReactNode; isPending: boolean; inGreen:
   inGreen,
 }) => {
   return (
-    <td className="text-center px-5" style={{ color: inGreen ? '#27AD75' : '#F0616D' }}>
+    <td className="px-5 text-center" style={{ color: inGreen ? '#27AD75' : '#F0616D' }}>
       {isPending ? (
         <Skeleton
           variant="rectangular"
@@ -85,11 +87,15 @@ const TotalTd: React.FC<{ content: React.ReactNode; isPending: boolean; inGreen:
   );
 };
 
-const SummaryTable: React.FC<{}> = () => {
-  const { isPending, isRefetching, isRefetchError, isError, data, error } = useQuery({
+const SummaryTable: React.FC<{
+}> = () => {
+
+  const { selectedTimeFrame } = useStatsTableContext();
+
+  const { isPending, isError, data, error } = useQuery({
     queryKey: ['portfolio'],
     queryFn: async ({ signal }): Promise<PortfolioSummary> => {
-      const resp = await fetch('/api/summary/portfolio', { signal })
+      const resp = await fetch('/api/summary/portfolio', { signal });
       if (!resp.ok) {
         throw new Error('Network response error');
       }
@@ -98,13 +104,31 @@ const SummaryTable: React.FC<{}> = () => {
     refetchInterval: 5000,
   });
 
+  const { data: timeFramePlResp, isLoading: timeFramePlLoading} = useQuery({
+    queryKey: ['time-frame-total-pl', selectedTimeFrame],
+    queryFn: async ({ signal }): Promise<TimeFrameTotalPlResp> => {
+      const resp = await fetch(`/api/time-frame-total-pl/${selectedTimeFrame}`, { signal });
+      if (!resp.ok) {
+        throw new Error('Network response error');
+      }
+      return resp.json();
+    },
+    refetchInterval: 5000,
+  });
+
+  const currentTotalValue = timeFramePlResp?.currentTotalValue || 0;
+  const pastTotalValue = timeFramePlResp?.pastTotalValue || 0;
+
+  const timeFramePl = currentTotalValue - pastTotalValue;
+  const timeFramePercentPl = timeFramePl / (pastTotalValue || 1) * 100;
+
   const [showBreakdown, setShowBreakdown] = React.useState(false);
 
   const inGreen = data?.inGreen || false;
 
   const isLoading = isPending;
 
-  if (isError || isRefetchError) {
+  if (isError) {
     console.error(error);
     return <div>Error Loading Portfolio Summary.</div>;
   }
@@ -178,11 +202,13 @@ const SummaryTable: React.FC<{}> = () => {
         text-md
         flex
         flex-row 
+        flex-wrap
+        justify-center
       "
-      onClick={() => setShowBreakdown(!showBreakdown)}
+      // onClick={() => setShowBreakdown(!showBreakdown)}
     >
-      <div className="flex flex-col px-3">
-        <div className="py-1 text-center font-bold">Total Value </div>
+      <div className="flex flex-col px-3" onClick={() => setShowBreakdown(!showBreakdown)}>
+        <div className="flex-basis-1/3 py-1 text-center font-bold">Total Value </div>
         <Skeleton loading={isPending} variant="rectangular">
           <div
             className="text-left"
@@ -190,13 +216,22 @@ const SummaryTable: React.FC<{}> = () => {
               color: inGreen ? '#27AD75' : '#F0616D',
             }}
           >
-            <TickerDisplay cur={data?.valueOfHoldings || 0} format={'USD'} fracDigits={2} />
+            <TickerDisplay
+              value={data?.valueOfHoldings || 0}
+              format={'USD'}
+              fracDigits={2}
+              showArrow
+              type={'animate'}
+            />
           </div>
         </Skeleton>
       </div>
-      <div className="flex flex-col px-3">
+      <div
+        className="flex-basis-2/3 flex flex-col px-3"
+        onClick={() => setShowBreakdown(!showBreakdown)}
+      >
         <div className="py-1 text-left font-bold">Total P/L </div>
-        <Skeleton loading={isPending} variant="rectangular">
+        <Skeleton loading={isPending} variant="rectangular" overlay>
           <div
             className="text-left"
             style={{
@@ -206,20 +241,20 @@ const SummaryTable: React.FC<{}> = () => {
             <span className="flex flex-row">
               <span>
                 <TickerDisplay
-                  cur={data?.totalPLatCurrentPrice || 0}
+                  value={data?.totalPLatCurrentPrice || 0}
                   format={'USD'}
                   fracDigits={2}
-                  showArrow={false}
+                  type={'animate'}
                 />
               </span>
               <span>&nbsp;</span>
               <span>
                 {'('}
                 <TickerDisplay
-                  cur={data?.roi || 0}
+                  value={data?.roi || 0}
                   format={'PERCENTAGE'}
                   fracDigits={2}
-                  showArrow={false}
+                  type={'animate'}
                 />
                 {')'}
               </span>
@@ -227,88 +262,45 @@ const SummaryTable: React.FC<{}> = () => {
           </div>
         </Skeleton>
       </div>
+
+      <div className="flex-basis-1/3 flex flex-col px-3">
+        <div className="flex max-h-[32px] flex-row items-center py-1 text-center font-bold capitalize">
+          <span style={{ visibility: 'hidden' }}> ▲ </span>
+          DELTA - {selectedTimeFrame}
+          <DeltaSelectFilterMemo />
+        </div>
+        <Skeleton loading={timeFramePlLoading} variant="rectangular">
+          <div
+            className=""
+            style={{
+              color: timeFramePl > 0 ? '#27AD75' : '#F0616D',
+            }}
+          >
+            <span>
+              <TickerDisplay
+                value={timeFramePl}
+                format={'USD'}
+                fracDigits={2}
+                type={'animate'}
+                showArrow
+              />
+            </span>
+            <span>&nbsp;</span>
+            <span>
+              {'('}
+              <TickerDisplay
+                value={timeFramePercentPl}
+                format={'PERCENTAGE'}
+                fracDigits={2}
+                type={'animate'}
+              />
+              {')'}
+            </span>
+          </div>
+        </Skeleton>
+      </div>
     </div>
   );
-
-  // return (
-  //   <table
-  //     className="
-  //       sm:text-md 
-  //       table-auto
-  //       cursor-pointer 
-  //       md:text-lg 
-  //       lg:text-xl
-  //   "
-  //     onClick={() => setShowBreakdown(!showBreakdown)}
-  //   >
-  //     <thead
-  //       className="
-  //         text-gray-700
-  //         text-gray-700
-  //         dark:text-gray-400
-  //         "
-  //     >
-  //       <tr>
-  //         <th className="px-5 py-2 text-center">Total Value</th>
-  //         <th className="px-5 py-2 text-left">Total P/L</th>
-  //         {/* <th className="px-5 py-2 text-center" style={{ visibility: 'hidden' }}>
-  //           Total P/L
-  //         </th> */}
-  //       </tr>
-  //     </thead>
-  //     <tbody className="">
-  //       <tr className="text-left">
-  //         <TotalTd
-  //           isPending={isLoading}
-  //           inGreen={inGreen}
-  //           content={
-  //             <TickerDisplay cur={data?.valueOfHoldings || 0} format={'USD'} fracDigits={2} />
-  //           }
-  //         />
-  //         <TotalTd
-  //           isPending={isLoading}
-  //           inGreen={inGreen}
-  //           content={
-  //             <span className="flex flex-row">
-  //               <span>
-  //                 <TickerDisplay
-  //                   cur={data?.totalPLatCurrentPrice || 0}
-  //                   format={'USD'}
-  //                   fracDigits={2}
-  //                   showArrow={false}
-  //                 />
-  //               </span>
-  //               <span>&nbsp;</span>
-  //               <span>
-  //                 {'('}
-  //                 <TickerDisplay
-  //                   cur={data?.roi || 0}
-  //                   format={'PERCENTAGE'}
-  //                   fracDigits={2}
-  //                   showArrow={false}
-  //                 />
-  //                 {')'}
-  //               </span>
-  //             </span>
-  //           }
-  //         />
-  //         {/* <TotalTd
-  //           isPending={isLoading}
-  //           inGreen={inGreen}
-  //           content={
-  //             <>
-  //               <TickerDisplay
-  //                 cur={data?.roi || 0}
-  //                 format={'PERCENTAGE'}
-  //                 fracDigits={2}
-  //                 showArrow={false}
-  //               />
-  //             </>
-  //           } */}
-  //       </tr>
-  //     </tbody>
-  //   </table>
-  // );
 };
 
 export default SummaryTable; /* eslint-disable react/jsx-key */

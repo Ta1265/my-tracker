@@ -30,3 +30,26 @@ export type CoinSummaryResp = {
   netContributions: number;
   netCashHoldings: number;
 };
+
+type PriceHistoryResp = {
+  prices: Array<[unixTimestamp: number, openPrice: number, closePrice: number]>;
+  price_change: number;
+  usd_price_change: number;
+};
+
+interface TimeFramePlByUnitResp {
+  [unit: string]: {
+    pastPl: number;
+    curPl: number;
+    timeFrameStartPrice: number;
+  }
+}
+
+interface TimeFrameTotalPlResp {
+  totalPastPl: number;
+  totalCurPl: number;
+  pastTotalValue: number;
+  currentTotalValue: number;
+}
+
+export type TimeFrame = 'h' | 'd' | 'w' | 'm' | '3m' | '6m' | 'y' | 'all';

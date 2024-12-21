@@ -1,8 +1,8 @@
 import React from 'react';
-import { usePriceFeed } from '../context/CoinbaseWsFeedContext';
-import TickerDisplay from './TickerDisplay';
+import { usePriceFeed } from '../../context/CoinbaseWsFeedContext';
+import TickerDisplay from '../TickerDisplay';
 import Box from '@mui/material/Box';
-import type { CoinSummaryResp } from '../../types/global';
+import type { CoinSummaryResp } from '../../../types/global';
 
 interface Props {
   coinSummary: CoinSummaryResp;
@@ -44,14 +44,15 @@ export const HoldingsCell: React.FC<Props> = ({ coinSummary }) => {
 
   return (
     <Box
-      className="text-left"
+      className="text-left ticker-font"
       style={{
-        fontFamily: 'Roboto Mono, monospace',
+        // fontFamily: 'Roboto Mono, monospace',
       }}
     >
-      <TickerDisplay cur={valueOfHoldings} format={'USD'} fracDigits={2} />
+      <TickerDisplay value={valueOfHoldings} format={'USD'} fracDigits={2} showArrow />
       <br></br>
       <span style={{ visibility: 'hidden' }}> ▲ </span>
+      <span className="text-xs">{coinSummary.productName} </span>
       <span className="">{roundedHoldings}</span>
     </Box>
   );
