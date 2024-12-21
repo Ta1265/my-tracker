@@ -24,7 +24,7 @@ sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
 
 # Map all HTTP requests for .well-known/acme-challenge
 sudo mkdir -p /var/lib/letsencrypt/.well-known
-sudo chgrp www-data /var/lib/letsencrypt
+sudo chgrp nginx /var/lib/letsencrypt
 sudo chmod g+s /var/lib/letsencrypt
 
 # sudo systemctl stop nginx || true # Stop nginx if it is running, to allow certbot to bind to port 80 with --webroot plugin
@@ -32,12 +32,12 @@ sudo chmod g+s /var/lib/letsencrypt
 echo "Running certbot to generate SSL certificate"
 # Run certbot to generate SSL certificate, using --webroot plugin to bind to port 80
 sudo certbot certonly \
-  --agree-tos \ 
+  --agree-tos \
   --register-unsafely-without-email \
-  --webroot \  # Use the webroot plugin to bind to port 80
-  -w /var/lib/letsencrypt/ \  # Specify the webroot directory
-  -d tubesock.xyz \  # Specify the domain name
-  -d www.tubesock.xyz \  # Specify the domain name
+  --webroot \
+  -w /var/lib/letsencrypt/ \
+  -d tubesock.xyz \
+  -d www.tubesock.xyz
 
 # echo "Starting Nginx" 
 # sudo systemctl start nginx
