@@ -214,11 +214,11 @@ const SummaryTable: React.FC<{
       "
       // onClick={() => setShowBreakdown(!showBreakdown)}
     >
-      <div className="flex flex-col px-3" onClick={() => setShowBreakdown(!showBreakdown)}>
-        <div className="flex-basis-1/3 py-1 text-center font-bold">Total Value </div>
-        <Skeleton loading={isPending} variant="rectangular">
+      <div className="flex flex-col px-3 min-w-[50px]" onClick={() => setShowBreakdown(!showBreakdown)}>
+        <div className="flex-basis-1/3 py-1 min-w-[50px] text-center font-bold">Total Value </div>
+        <Skeleton loading={isPending} variant="rectangular" overlay>
           <div
-            className="text-left"
+            className="text-left min-w-[50px]"
             style={{
               color: inGreen ? '#27AD75' : '#F0616D',
             }}
@@ -234,13 +234,13 @@ const SummaryTable: React.FC<{
         </Skeleton>
       </div>
       <div
-        className="flex-basis-2/3 flex flex-col px-3"
+        className="flex-basis-2/3 flex flex-col px-3 min-w-[50px]"
         onClick={() => setShowBreakdown(!showBreakdown)}
       >
-        <div className="py-1 text-left font-bold">Total P/L </div>
+        <div className="py-1 text-left font-bold min-w-[50px]">Total P/L </div>
         <Skeleton loading={isPending} variant="rectangular" overlay>
           <div
-            className="text-left"
+            className="text-left min-w-[50px]"
             style={{
               color: inGreen ? '#27AD75' : '#F0616D',
             }}
@@ -270,15 +270,15 @@ const SummaryTable: React.FC<{
         </Skeleton>
       </div>
 
-      <div className="flex-basis-1/3 flex flex-col px-3">
-        <div className="flex max-h-[28px] flex-row items-center text-center font-bold capitalize">
+      <div className="flex-basis-1/3 flex flex-col px-3 min-w-[50px]">
+        <div className="flex max-h-[28px] min-w-[50px] flex-row items-center text-center font-bold capitalize">
           <span style={{ visibility: 'hidden' }}> ▲ </span>
           P/L - {timeFrameDisplay[selectedTimeFrame]}
           <DeltaSelectFilterMemo />
         </div>
-        <Skeleton loading={timeFramePlLoading} variant="rectangular">
+        <Skeleton loading={timeFramePlLoading} variant="rectangular" overlay>
           <div
-            className=""
+            className="min-w-[50px]"
             style={{
               color: timeFramePl > 0 ? '#27AD75' : '#F0616D',
             }}
