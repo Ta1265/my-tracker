@@ -58,6 +58,7 @@ export default function StatsTableComponent({ data, columns}: TableComponentProp
       style={{
         maxWidth: '900px',
         maxHeight: `calc(100vh - var(--distance-to-top))`,
+        overscrollBehavior: 'none'// !important',
       }}
     >
       <Table

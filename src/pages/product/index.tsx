@@ -53,7 +53,7 @@ export default function Product() {
         scrollbar-thumb-gray-700
       "
     >
-      <div className="mx-auto h-full w-full" style={{ maxWidth: '910px' }}>
+      <div className="mx-auto h-full w-[99%]" style={{ maxWidth: '910px' }}>
         <PriceHistoryProvider coinName={productFullName} unit={unit}>
           <div className="mx-auto w-full" style={{ maxWidth: '900px' }}>
             <div className="flex py-2">

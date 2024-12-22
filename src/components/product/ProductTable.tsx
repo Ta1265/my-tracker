@@ -191,6 +191,7 @@ function TableComponent({ columns, data, loaded }: TableComponentProps) {
        "
       style={{
         maxWidth: '900px',
+        overscrollBehavior: 'none'// !important',
       }}
     >
       <Table
@@ -199,6 +200,7 @@ function TableComponent({ columns, data, loaded }: TableComponentProps) {
         style={{
           maxWidth: '900px',
           minWidth: '880px',
+          overscrollBehavior: 'none'// !important',
         }}
         variant="plain"
         size={screenWidth && screenWidth < 768 ? 'sm' : 'md'}
