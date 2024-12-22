@@ -11,6 +11,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         flex-col
         items-center
         h-screen
+        space-y-1
       "
         style={{
         }}

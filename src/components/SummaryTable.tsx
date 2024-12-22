@@ -203,7 +203,13 @@ const SummaryTable: React.FC<{
         flex
         flex-row 
         flex-wrap
-        justify-center
+        justify-left
+        md:justify-center
+        text-sm
+        sm:text-sm
+        md:text-md
+        lg:text-md
+        xl:text-md
       "
       // onClick={() => setShowBreakdown(!showBreakdown)}
     >
@@ -264,7 +270,7 @@ const SummaryTable: React.FC<{
       </div>
 
       <div className="flex-basis-1/3 flex flex-col px-3">
-        <div className="flex max-h-[32px] flex-row items-center py-1 text-center font-bold capitalize">
+        <div className="flex max-h-[28px] flex-row items-center text-center font-bold capitalize">
           <span style={{ visibility: 'hidden' }}> ▲ </span>
           DELTA - {selectedTimeFrame}
           <DeltaSelectFilterMemo />

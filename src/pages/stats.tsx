@@ -33,10 +33,7 @@ export default function Stats() {
         </div>
       </div>
 
-      <br />
-
-      <StatsTable 
-      />
+      <StatsTable/>
     </StatsTableProvider>
   );
 }

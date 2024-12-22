@@ -11,7 +11,7 @@ const StatDisplay: React.FC<{
   content: React.ReactNode;
 }> = ({ label, isPending, content }) => {
   return (
-    <div className="px-2 px-6 py-2 w-[150px]">
+    <div className="px-2 py-1 min-w-[100px] md:min-w-[140px]">
       <div className="flex-col">
         <div className="py-1 text-center font-semibold underline decoration-dotted">{label}</div>
           <Skeleton
@@ -21,7 +21,7 @@ const StatDisplay: React.FC<{
             variant="rectangular"
           >
           <div
-            className="text-white"
+            className="text-white whitespace-nowrap text-sm md:text-base"
             style={{
               // fontFamily: 'Roboto Mono, monospace',
             }}
@@ -93,13 +93,15 @@ const SingleStat: React.FC<{}> = () => {
       className="
         text-grey-700 
         justify-space-evenly
-        text-md
+        text-sm
+        md:text-base
         flex
         flex-row 
         flex-wrap 
         text-center
         text-gray-500
         dark:text-gray-400
+        justify-evenly
       "
     >
       <StatDisplay

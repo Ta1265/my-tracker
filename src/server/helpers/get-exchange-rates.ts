@@ -1,13 +1,9 @@
 import axios from 'axios';
 import { db } from '../db/db';
 import moment from 'moment';
-import Redis from 'ioredis';
+import redisClient from '../redisClient';
 import { type TimeFrame, type PriceHistoryResp } from '../../../types/global';
 
-const redis = new Redis({
-  host: 'redis',
-  port: 6379,
-})
 
 export const getExchangeRates = async () => {
   // fetch exchange rates from coinbase
@@ -65,7 +61,10 @@ const cacheExpirationForTimeFrame = {
   all: 1 * day,
 }
 
-const cacheMisses: any = {};
+const priceHistoryCacheTracker = {
+  hit: 0,
+  miss: 0,
+};
 
 
 export const getPriceHistoryForTimeFrame = async (coinName: string, timeFrame: TimeFrame): Promise<PriceHistoryResp> => {
@@ -81,23 +80,17 @@ export const getPriceHistoryForTimeFrame = async (coinName: string, timeFrame: T
 
   const cacheKey = `time-frame-pl-${timeFrame.toLowerCase()}-coinName-${coinName.toLowerCase()}`;
 
-  const cacheValue = await redis.get(cacheKey);
+  const cacheValue = await redisClient.get(cacheKey);
 
 
   if (cacheValue) {
-    console.log(
-      `getCoinPriceForTimeFrame cache hit ${cacheKey}, cacheMissTracker: ${JSON.stringify(cacheMisses, null, 2)}`,
-    );
+    priceHistoryCacheTracker.hit += 1;
+    console.log(`getCoinPriceForTimeFrame cache hit`, priceHistoryCacheTracker);
     return JSON.parse(cacheValue);
   }
 
-  console.log(`getCoinPriceForTimeFrame cache miss ${cacheKey}, cacheMiss tracker: ${JSON.stringify(cacheMisses, null, 2)}`);
-
-  if (!cacheMisses[cacheKey]) {
-    cacheMisses[cacheKey] = 1;
-  } else { 
-    cacheMisses[cacheKey] += 1;
-  }
+  priceHistoryCacheTracker.miss += 1;
+  console.log(`getCoinPriceForTimeFrame cache miss ${priceHistoryCacheTracker}`);
   
   const resp = await fetch(
     `https://price-api.crypto.com/price/v2/${timeFrame}/${coinName.toLowerCase()}`,
@@ -111,7 +104,7 @@ export const getPriceHistoryForTimeFrame = async (coinName: string, timeFrame: T
 
   const expiration = cacheExpirationForTimeFrame[timeFrame];
 
-  await redis.setex(
+  await redisClient.setex(
     cacheKey,
     expiration,
     JSON.stringify(res),

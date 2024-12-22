@@ -9,11 +9,9 @@ export const CoinColumnCell: React.FC<{
   return (
     <div
       className="flex items-center text-center"
-      // style={{
-      //   position: 'sticky',
-      //   background: 'inherit',
-      //   justifyContent: 'left',
-      // }}
+      style={{
+
+      }}
     >
       <Image
         src={`/${coinSummary.productName}-icon.png`}
@@ -21,7 +19,7 @@ export const CoinColumnCell: React.FC<{
         width={30}
         height={30}
       />
-      <span className="ml-2"> {coinSummary.coinName}</span>
+      <span className="ml-2 truncate whitespace-nowrap text-ellipsis"> {coinSummary.coinName}</span>
     </div>
   );
 };
