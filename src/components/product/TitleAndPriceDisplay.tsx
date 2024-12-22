@@ -36,7 +36,7 @@ export const TitleAndPriceDisplay: React.FC<{}> = () => {
   const arrowText = priceDiff > 0 ? '▲' : '▼';
 
   return (
-    <Grid container spacing={0} direction="column" className="text-md sm:text-xl">
+    <Grid container spacing={0} direction="column" className="text-base sm:text-xl">
       <Grid item className="capitalize">
         <span>
           {coinName} ({unit}){' '}

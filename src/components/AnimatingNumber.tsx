@@ -63,8 +63,11 @@ function TickerArrow({ value, showArrow }: { value: number, showArrow: boolean }
   if (!showArrow) return null;
 
   let color = 'none';
-  let arrow = ' ';
+  let arrow = '▲';
   const change = value - prev;
+
+  const hide = change === 0;
+
   if (showArrow && change > 0) {
     arrow = '▲';
     color = '#27AD75';
@@ -80,6 +83,7 @@ function TickerArrow({ value, showArrow }: { value: number, showArrow: boolean }
       {}
       <span style={{
         color,
+        visibility: hide ? 'visible' : 'hidden',
         animation: 'animateOut 2s ease-out forwards',
       }}>{arrow}&nbsp;</span>
     </div>

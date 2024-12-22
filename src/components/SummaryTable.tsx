@@ -35,7 +35,7 @@ const InfoTable: React.FC<{
       >
         <tbody
           className="
-          text-md
+          text-base
           justify-between
           px-2 
           py-2 
@@ -200,17 +200,14 @@ const SummaryTable: React.FC<{
       className="
         text-grey-700 
         justify-space-between
-        text-md
+        text-base
         flex
         flex-row 
         flex-wrap
         justify-left
         md:justify-center
         text-sm
-        sm:text-sm
-        md:text-md
-        lg:text-md
-        xl:text-md
+        md:text-base
       "
       // onClick={() => setShowBreakdown(!showBreakdown)}
     >
@@ -245,7 +242,7 @@ const SummaryTable: React.FC<{
               color: inGreen ? '#27AD75' : '#F0616D',
             }}
           >
-            <span className="flex flex-row">
+            <span className="flex flex-col md:flex-row">
               <span>
                 <TickerDisplay
                   value={data?.totalPLatCurrentPrice || 0}
@@ -254,8 +251,7 @@ const SummaryTable: React.FC<{
                   type={'animate'}
                 />
               </span>
-              <span>&nbsp;</span>
-              <span>
+              <span className="text-right text-xs md:text-base md:text-left">
                 {'('}
                 <TickerDisplay
                   value={data?.roi || 0}
@@ -271,14 +267,14 @@ const SummaryTable: React.FC<{
       </div>
 
       <div className="flex-basis-1/3 flex flex-col px-3 min-w-[50px]">
-        <div className="flex max-h-[28px] min-w-[50px] flex-row items-center text-center font-bold capitalize">
-          <span style={{ visibility: 'hidden' }}> ▲ </span>
+        <div className="flex max-h-[31.99px] min-w-[50px] flex-row items-center text-center font-bold capitalize">
+          <span style={{ visibility: 'hidden' }}>▲▲</span>
           P/L - {timeFrameDisplay[selectedTimeFrame]}
           <DeltaSelectFilterMemo />
         </div>
-        <Skeleton loading={timeFramePlLoading} variant="rectangular" overlay>
+        <Skeleton loading={timeFramePlLoading} variant="rectangular" width='115%' overlay>
           <div
-            className="min-w-[50px]"
+            className="min-w-[50px] flex flex-col md:flex-row"
             style={{
               color: timeFramePl > 0 ? '#27AD75' : '#F0616D',
             }}
@@ -292,8 +288,7 @@ const SummaryTable: React.FC<{
                 showArrow
               />
             </span>
-            <span>&nbsp;</span>
-            <span>
+            <span className="text-right text-xs md:text-base md:text-left">
               {'('}
               <TickerDisplay
                 value={timeFramePercentPl}
