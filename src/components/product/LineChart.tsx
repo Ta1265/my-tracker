@@ -87,6 +87,7 @@ export const LineChart: React.FC<Props> = () => {
   return (
     <>
       <Line
+        style={{ touchAction: 'none' }}
         onMouseLeave={() => setHoveringChart(false)}
         onMouseEnter={() => setHoveringChart(true)}
         options={{
