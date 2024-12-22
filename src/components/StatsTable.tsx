@@ -9,6 +9,7 @@ import { CostBasisCell } from './stats-table/CostBasisColumn';
 import { CoinColumnCell } from './stats-table/CoinColumn';
 import StatsTableComponent from './stats-table/StatsTableComponent';
 import { useCoinSummaries } from '../_hooks/useCoinSummaries';
+import Image from 'next/image';
 
 
 export default function StatsTable() {
@@ -17,8 +18,21 @@ export default function StatsTable() {
   const statsColumns: Column<CoinSummaryResp>[] = React.useMemo(
     () => [
       {
+        Header: ' ',
+        myWidth: '35px',
+        accessor: (row: CoinSummaryResp) => row,
+        Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
+          <Image
+            src={`/${cell.value.productName}-icon.png`}
+            alt={cell.value.productName}
+            width={30}
+            height={30}
+          />
+        ),
+      },
+      {
         Header: 'Coin',
-        // mywidth: '120px',
+        myWidth: '90px',
         accessor: (row: CoinSummaryResp) => row,
         Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
           <CoinColumnCell coinSummary={cell.value} />
@@ -31,7 +45,7 @@ export default function StatsTable() {
       },
       {
         Header: 'Holdings',
-        // width: '120px',
+        // myWidth: '120px',
         accessor: (row: CoinSummaryResp) => row,
         Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
           <HoldingsCell coinSummary={cell.value} />
@@ -57,7 +71,7 @@ export default function StatsTable() {
       },
       {
         Header: 'Current Price',
-        myWidth: '145px',
+        myWidth: '140px',
         accessor: (row: CoinSummaryResp) => row,
         Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
           <CurrentPrice coinSummary={cell.value} />
@@ -71,6 +85,7 @@ export default function StatsTable() {
       {
         Header: <DeltaHeaderMemo />,
         id: 'delta',
+        myWidth: '100px',
         accessor: (row: CoinSummaryResp) => row,
         Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
           <DeltaCellMemo coinSummary={cell.value} />

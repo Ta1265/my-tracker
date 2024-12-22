@@ -16,6 +16,7 @@ interface TableComponentProps {
 export default function StatsTableComponent({ data, columns}: TableComponentProps) {
   const router = useRouter();
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+  const [tableSize, setTableSize] = React.useState<'sm' | 'md'>('md');
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     { columns, data },
@@ -33,6 +34,8 @@ export default function StatsTableComponent({ data, columns}: TableComponentProp
 
       scrollContainer.style.setProperty('--distance-to-top', `${distanceToTop}px`);
     }
+
+    setTableSize(window.innerWidth < 768 ? 'sm' : 'md');
 
     setTimeout(() => {
       setLoaded(true);
@@ -62,7 +65,7 @@ export default function StatsTableComponent({ data, columns}: TableComponentProp
         className="table-fixed text-left"
         borderAxis="xBetween"
         variant="plain"
-        size={'md'}
+        size={tableSize || 'md'}
         stickyHeader={true}
         noWrap
         sx={{
@@ -72,14 +75,14 @@ export default function StatsTableComponent({ data, columns}: TableComponentProp
             position: 'sticky',
             left: 0,
             bgcolor: '#000',
-            width: '110px',
+            // width: '110px',
           },
           '& thead th': {
             bgcolor: '#000',
             borderBottomWidth: '3px',
             textAlign: 'left',
             verticalAlign: 'middle',
-            width: '110px',
+            // width: '110px',
           },
           '& tbody td': {
             textAlign: 'left',
@@ -95,7 +98,7 @@ export default function StatsTableComponent({ data, columns}: TableComponentProp
                   {...column.getHeaderProps()}
                   key={column.id}
                   style={{
-                    ...(column.myWidth ? { width: column.myWidth } : {}),
+                    ...(column.myWidth ? { width: column.myWidth } : { width: '110px'}),
                   }}
                 >
                   <span className="flex flex-row items-center">

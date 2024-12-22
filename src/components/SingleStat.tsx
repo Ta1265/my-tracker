@@ -5,6 +5,17 @@ import type { CoinSummaryResp } from '../../types/global';
 import TickerDisplay from './TickerDisplay';
 import { usePriceHistory } from '../context/PriceHistoryProvider';
 
+export const timeFrameDisplay = {
+  h: '1 Hour',
+  d: '24 Hour',
+  w: '7 Days',
+  m: '30 Days',
+  '3m': '3 Months',
+  '6m': '6 Months',
+  y: '1 Year',
+  all: 'All Time',
+};
+
 const StatDisplay: React.FC<{
   label: string;
   isPending: boolean;

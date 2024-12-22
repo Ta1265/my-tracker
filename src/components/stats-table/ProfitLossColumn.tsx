@@ -72,10 +72,12 @@ export const ProfitLossFilter: React.FC<{
       style={{
         display: 'flex',
         justifyContent: 'left',
+        padding: '0px',
+        width: '0px',
       }}
     >
       <Select
-        className="uppercase dark:text-gray-400"
+        className="uppercase dark:text-gray-400 p-0 w-[0px]"
         onChange={(event: React.SyntheticEvent | null, newValue: 'roi' | 'ror' | null) => {
           event?.preventDefault();
           if (newValue) {
@@ -105,7 +107,7 @@ export const ProfitLossHeader: React.FC = () => {
   const { selectedPlType } = useStatsTableContext();
   return (
     <>
-      TOTAL - {selectedPlType}
+      Total/{selectedPlType}
     </>
   );
 };

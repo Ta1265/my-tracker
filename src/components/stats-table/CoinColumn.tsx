@@ -1,6 +1,5 @@
 import React from 'react';
 import type { CoinSummaryResp } from '../../../types/global';
-import Image from 'next/image';
 
 export const CoinColumnCell: React.FC<{
   coinSummary: CoinSummaryResp;
@@ -13,13 +12,13 @@ export const CoinColumnCell: React.FC<{
 
       }}
     >
-      <Image
+      {/* <Image
         src={`/${coinSummary.productName}-icon.png`}
         alt={coinSummary.productName}
         width={30}
         height={30}
-      />
-      <span className="ml-2 truncate whitespace-nowrap text-ellipsis"> {coinSummary.coinName}</span>
+      /> */}
+      <span className="ml-2 truncate whitespace-nowrap text-ellipsis">{coinSummary.coinName}</span>
     </div>
   );
 };

@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import TickerDisplay from './TickerDisplay';
 import { DeltaSelectFilterMemo } from './stats-table/DeltaColumn';
 import { useStatsTableContext } from '../context/StatsTableContext';
+import { timeFrameDisplay } from './SingleStat';
 
 const InfoTable: React.FC<{
   rows: {
@@ -272,7 +273,7 @@ const SummaryTable: React.FC<{
       <div className="flex-basis-1/3 flex flex-col px-3">
         <div className="flex max-h-[28px] flex-row items-center text-center font-bold capitalize">
           <span style={{ visibility: 'hidden' }}> ▲ </span>
-          DELTA - {selectedTimeFrame}
+          P/L - {timeFrameDisplay[selectedTimeFrame]}
           <DeltaSelectFilterMemo />
         </div>
         <Skeleton loading={timeFramePlLoading} variant="rectangular">

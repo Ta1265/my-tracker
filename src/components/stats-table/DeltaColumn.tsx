@@ -66,10 +66,12 @@ export const DeltaSelectFilter: React.FC<{}> = ({}) => {
       style={{
         display: 'flex',
         justifyContent: 'center !important',
+        padding: '0px',
+        width: '0px',
       }}
     >
       <Select
-        className="uppercase dark:text-gray-400"
+        className="uppercase dark:text-gray-400 w-[0px]"
         onChange={(
           event: React.SyntheticEvent | null,
           newValue: 'h' | 'd' | 'w' | 'm' | '3m' | '6m' | 'y' | 'all' | null,
