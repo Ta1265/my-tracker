@@ -252,7 +252,8 @@ const SummaryTable: React.FC<{
                 />
               </span>
               <span className="text-right text-xs md:text-base md:text-left">
-                {'('}
+                &nbsp;
+                {`(`}
                 <TickerDisplay
                   value={data?.roi || 0}
                   format={'PERCENTAGE'}
@@ -267,14 +268,14 @@ const SummaryTable: React.FC<{
       </div>
 
       <div className="flex-basis-1/3 flex flex-col px-3 min-w-[50px]">
-        <div className="flex max-h-[31.99px] min-w-[50px] flex-row items-center text-center font-bold capitalize">
+        <div className="flex py-1 min-w-[50px] flex-row items-center text-center font-bold capitalize">
           <span style={{ visibility: 'hidden' }}>▲▲</span>
           P/L - {timeFrameDisplay[selectedTimeFrame]}
-          <DeltaSelectFilterMemo />
+          {/* <DeltaSelectFilterMemo /> */}
         </div>
-        <Skeleton loading={timeFramePlLoading} variant="rectangular" width='115%' overlay>
+        <Skeleton loading={timeFramePlLoading} variant="rectangular" overlay>
           <div
-            className="min-w-[50px] flex flex-col md:flex-row"
+            className="flex flex-col md:flex-row text-right md:text-left"
             style={{
               color: timeFramePl > 0 ? '#27AD75' : '#F0616D',
             }}
@@ -289,6 +290,7 @@ const SummaryTable: React.FC<{
               />
             </span>
             <span className="text-right text-xs md:text-base md:text-left">
+              &nbsp;
               {'('}
               <TickerDisplay
                 value={timeFramePercentPl}
