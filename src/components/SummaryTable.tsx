@@ -206,7 +206,7 @@ const SummaryTable: React.FC<{
         flex-wrap
         justify-left
         md:justify-center
-        text-sm
+        text-xs
         md:text-base
       "
       // onClick={() => setShowBreakdown(!showBreakdown)}
@@ -268,14 +268,15 @@ const SummaryTable: React.FC<{
       </div>
 
       <div className="flex-basis-1/3 flex flex-col px-3 min-w-[50px]">
-        <div className="flex py-1 min-w-[50px] flex-row items-center text-center font-bold capitalize">
-          <span style={{ visibility: 'hidden' }}>▲▲</span>
-          P/L - {timeFrameDisplay[selectedTimeFrame]}
-          {/* <DeltaSelectFilterMemo /> */}
+        <div className="flex py-1 min-w-[50px] max-h-[24px] md:max-h-[31.99px] flex-row items-center text-center font-bold capitalize">
+          <span className="pl-4">
+            P/L - {timeFrameDisplay[selectedTimeFrame]}
+          </span>
+            <DeltaSelectFilterMemo />
         </div>
         <Skeleton loading={timeFramePlLoading} variant="rectangular" overlay>
           <div
-            className="flex flex-col md:flex-row text-right md:text-left"
+            className="flex pr-7 md:pr-1 flex-col md:flex-row text-right md:text-left"
             style={{
               color: timeFramePl > 0 ? '#27AD75' : '#F0616D',
             }}

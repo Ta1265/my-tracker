@@ -68,38 +68,47 @@ export const ProfitLossFilter: React.FC<{
 }> = () => {
   const { selectedPlType, setSelectedPlType } = useStatsTableContext();
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'left',
-        padding: '0px',
-        width: '0px',
-      }}
-    >
-      <Select
-        className="uppercase dark:text-gray-400 p-0 w-[0px]"
-        onChange={(event: React.SyntheticEvent | null, newValue: 'roi' | 'ror' | null) => {
-          event?.preventDefault();
-          if (newValue) {
-            setSelectedPlType(newValue);
-          }
-        }}
-        defaultValue={selectedPlType}
-        renderValue={() => ``}
-        sx={{
-          border: 0,
-          textAlign: 'center',
-          fontSize: 'inherit',
-          backgroundColor: 'inherit',
-          '&:hover': {
-            backgroundColor: 'inherit',
-          }
+    <span>
+      <div
+        style={{
+          // display: 'flex',
+          // justifyContent: 'left',
+          // padding: '0px',
+          // width: '0px',
+
+          position: 'relative',
+          display: 'inline',
+          justifyContent: 'center !important',
+          padding: '0px',
+          width: '30px',
         }}
       >
-        <Option value="roi">Return on Investment</Option>
-        <Option value="ror">Rate of Return</Option>
-      </Select>
-    </div>
+        <Select
+          className="uppercase dark:text-gray-400"
+          onChange={(event: React.SyntheticEvent | null, newValue: 'roi' | 'ror' | null) => {
+            event?.preventDefault();
+            if (newValue) {
+              setSelectedPlType(newValue);
+            }
+          }}
+          defaultValue={selectedPlType}
+          renderValue={() => ``}
+          sx={{
+            padding: '0px',
+            border: 0,
+            textAlign: 'center',
+            fontSize: 'inherit',
+            backgroundColor: 'inherit',
+            '&:hover': {
+              backgroundColor: 'inherit',
+            },
+          }}
+        >
+          <Option value="roi">Return on Investment</Option>
+          <Option value="ror">Rate of Return</Option>
+        </Select>
+      </div>
+    </span>
   );
 };
 

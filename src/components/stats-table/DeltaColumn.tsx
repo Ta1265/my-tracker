@@ -62,48 +62,52 @@ export const DeltaSelectFilter: React.FC<{}> = ({}) => {
   const { selectedTimeFrame, setSelectedTimeFrame } = useStatsTableContext();
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center !important',
-        padding: '0px',
-        width: '0px',
-      }}
-    >
-      <Select
-        className="uppercase dark:text-gray-400 w-[0px]"
-        onChange={(
-          event: React.SyntheticEvent | null,
-          newValue: 'h' | 'd' | 'w' | 'm' | '3m' | '6m' | 'y' | 'all' | null,
-        ) => {
-          event?.preventDefault();
-          event?.stopPropagation();
-          if (newValue) {
-            setSelectedTimeFrame(newValue);
-          }
-        }}
-        defaultValue={selectedTimeFrame}
-        renderValue={() => ``}
-        sx={{
-          border: 0,
-          textAlign: 'center',
-          fontSize: 'inherit',
-          backgroundColor: 'inherit',
-          '&:hover': {
-            backgroundColor: 'inherit',
-          },
+    <span>
+      <div
+        style={{
+          position: 'relative',
+          display: 'inline',
+          justifyContent: 'center !important',
+          padding: '0px',
+          width: '30px',
         }}
       >
-        <Option value="h">HOUR</Option>
-        <Option value="d">DAY</Option>
-        <Option value="w">WEEK</Option>
-        <Option value="m">1 M</Option>
-        <Option value="3m">3 M</Option>
-        <Option value="6m">6 M</Option>
-        <Option value="y">1 Y</Option>
-        <Option value="all">ALL</Option>
-      </Select>
-    </div>
+        <Select
+          className="uppercase dark:text-gray-400"
+          onChange={(
+            event: React.SyntheticEvent | null,
+            newValue: 'h' | 'd' | 'w' | 'm' | '3m' | '6m' | 'y' | 'all' | null,
+          ) => {
+            event?.preventDefault();
+            event?.stopPropagation();
+            if (newValue) {
+              setSelectedTimeFrame(newValue);
+            }
+          }}
+          defaultValue={selectedTimeFrame}
+          renderValue={() => ``}
+          sx={{
+            padding: '0px',
+            border: 0,
+            textAlign: 'center',
+            fontSize: 'inherit',
+            backgroundColor: 'inherit',
+            '&:hover': {
+              backgroundColor: 'inherit',
+            },
+          }}
+        >
+          <Option value="h">HOUR</Option>
+          <Option value="d">DAY</Option>
+          <Option value="w">WEEK</Option>
+          <Option value="m">1 M</Option>
+          <Option value="3m">3 M</Option>
+          <Option value="6m">6 M</Option>
+          <Option value="y">1 Y</Option>
+          <Option value="all">ALL</Option>
+        </Select>
+      </div>
+    </span>
   );
 };
 
