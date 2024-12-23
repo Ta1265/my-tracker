@@ -71,7 +71,7 @@ export default function StatsTable() {
       },
       {
         Header: 'Current Price',
-        myWidth: '140px',
+        myWidth: '135px',
         accessor: (row: CoinSummaryResp) => row,
         Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
           <CurrentPrice coinSummary={cell.value} />

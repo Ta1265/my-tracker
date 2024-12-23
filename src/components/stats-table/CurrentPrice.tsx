@@ -39,7 +39,7 @@ const CurrentPrice: React.FC<{
           <span style={{ visibility: 'hidden' }}>
             {arrow}
           </span>
-          <span style={{ color }} className="text-light text-xs">
+          <span style={{ color }} className="text-light text-[10px] md:text-xs">
             <TickerDisplay value={priceChange} format={'USD'} fracDigits={2} />
             {' ('}<TickerDisplay value={(priceChange / timeFrameStartPrice) * 100} format={'PERCENTAGE'} fracDigits={2} />{')'}
           </span>
