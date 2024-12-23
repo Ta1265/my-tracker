@@ -7,6 +7,7 @@ import { usePriceFeed } from '../../context/CoinbaseWsFeedContext';
 import TickerDisplay from '../TickerDisplay';
 import Box from '@mui/material/Box';
 import { useStatsTableContext } from '../../context/StatsTableContext';
+import { timeFrameDisplay } from '../SingleStat';
 
 const DeltaCell:React.FC<{
   coinSummary: CoinSummaryResp;
@@ -114,7 +115,9 @@ export const DeltaSelectFilter: React.FC<{}> = ({}) => {
 const DeltaHeader: React.FC = () => {
   const { selectedTimeFrame } = useStatsTableContext();
   return (
-    <>DELTA - {selectedTimeFrame} </>
+    <>
+      P/L<span className="text-[10px] block md:inline md:text-xs"> {timeFrameDisplay[selectedTimeFrame]}</span>
+    </>
   );
 }
 

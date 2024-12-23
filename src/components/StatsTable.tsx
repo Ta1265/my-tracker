@@ -71,16 +71,16 @@ export default function StatsTable() {
       },
       {
         Header: 'Current Price',
-        myWidth: '135px',
+        myWidth: '130px',
         accessor: (row: CoinSummaryResp) => row,
         Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
           <CurrentPrice coinSummary={cell.value} />
         ),
-        sortType: (rowA: any, rowB: any, columnId: any) => {
-          const aNum = rowA.values[columnId].currentPrice;
-          const bNum = rowB.values[columnId].currentPrice;
-          return aNum - bNum;
-        },
+        // sortType: (rowA: any, rowB: any, columnId: any) => {
+        //   const aNum = rowA.values[columnId].currentPrice;
+        //   const bNum = rowB.values[columnId].currentPrice;
+        //   return aNum - bNum;
+        // },
       },
       {
         Header: <DeltaHeaderMemo />,
@@ -100,11 +100,11 @@ export default function StatsTable() {
           <ProfitLossCell coinSummary={cell.value} />
         ),
         Filter: () => <ProfitLossFilter />,
-        sortType: (rowA: any, rowB: any, columnId: any) => {
-          const aNum = rowA.values[columnId].profitLossAtCurrentPrice;
-          const bNum = rowB.values[columnId].profitLossAtCurrentPrice;
-          return aNum - bNum;
-        },
+        // sortType: (rowA: any, rowB: any, columnId: any) => {
+        //   const aNum = rowA.values[columnId].profitLossAtCurrentPrice;
+        //   const bNum = rowB.values[columnId].profitLossAtCurrentPrice;
+        //   return aNum - bNum;
+        // },
       },
     ],
     [],

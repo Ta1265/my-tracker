@@ -80,7 +80,7 @@ export const ProfitLossFilter: React.FC<{
           display: 'inline',
           justifyContent: 'center !important',
           padding: '0px',
-          width: '30px',
+          width: '20px',
         }}
       >
         <Select
@@ -116,7 +116,7 @@ export const ProfitLossHeader: React.FC = () => {
   const { selectedPlType } = useStatsTableContext();
   return (
     <>
-      Total/{selectedPlType}
+      P/L<span className="text-[10px] block md:inline md:text-xs"> All Time</span>
     </>
   );
 };

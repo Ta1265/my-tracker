@@ -58,7 +58,7 @@ export default function StatsTableComponent({ data, columns}: TableComponentProp
       style={{
         maxWidth: '900px',
         maxHeight: `calc(100vh - var(--distance-to-top))`,
-        overscrollBehavior: 'none'// !important',
+        overscrollBehavior: 'none', // !important',
       }}
     >
       <Table
@@ -99,7 +99,7 @@ export default function StatsTableComponent({ data, columns}: TableComponentProp
                   {...column.getHeaderProps()}
                   key={column.id}
                   style={{
-                    ...(column.myWidth ? { width: column.myWidth } : { width: '110px'}),
+                    ...(column.myWidth ? { width: column.myWidth } : { width: '110px' }),
                   }}
                 >
                   <span className="flex flex-row items-center">
