@@ -1,6 +1,6 @@
 # Prisma migration
 
-Generate new migration
+Generate new migrationn
 
 ```sh
 prisma migrate dev --name init
