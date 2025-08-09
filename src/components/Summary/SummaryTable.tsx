@@ -1,96 +1,15 @@
 /* eslint-disable react/jsx-key */
 import React from 'react';
 import Skeleton from '@mui/joy/Skeleton';
-import type { PortfolioSummary, TimeFrameTotalPlResp } from '../../types/global';
+import type { PortfolioSummary, TimeFrameTotalPlResp } from '../../../types/global';
 import { useQuery } from '@tanstack/react-query';
-import TickerDisplay from './TickerDisplay';
-import { DeltaSelectFilterMemo } from './stats-table/DeltaColumn';
-import { useStatsTableContext } from '../context/StatsTableContext';
-import { timeFrameDisplay } from './SingleStat';
+import TickerDisplay from '../TickerDisplay';
+import { DeltaSelectFilterMemo } from '../stats-table/DeltaColumn';
+import { useStatsTableContext } from '../../context/StatsTableContext';
+import { timeFrameDisplay } from '../SingleStat';
+import { BreakDown } from './BreakDown';
 
-const InfoTable: React.FC<{
-  rows: {
-    label: string;
-    sign: string;
-    value: number;
-    end?: boolean;
-    type?: 'PERCENTAGE' | 'USD';
-  }[];
-}> = ({ rows }) => {
-
-  return (
-    <div
-      className="
-      flex-col
-      px-2 py-2
-    "
-    >
-      <table
-        className="
-        table-auto
-        cursor-pointer
-        text-xs
-        md:text-base
-      "
-      >
-        <tbody
-          className="
-          text-base
-          justify-between
-          px-2 
-          py-2 
-          text-gray-700
-          text-gray-700
-          dark:text-gray-400
-        "
-        >
-          {rows.map((row: any) => { 
-            const val = row.type === 'PERCENTAGE' ? `${row.value.toFixed(2)}%` : row.value.toLocaleString('en-US', {
-              style: 'currency',
-              currency: 'USD',
-              maximumFractionDigits: 0,
-              minimumFractionDigits: 0,
-            });
-            return (
-            <tr key={row.label} className={row.end ? 'border-t' : ''}>
-              <td className="pr-4 text-right">{row.label}</td>
-              <td>{row.sign}</td>
-              <td>{val}</td>
-            </tr>
-          );})}
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
-const TotalTd: React.FC<{ content: React.ReactNode; isPending: boolean; inGreen: boolean }> = ({
-  content,
-  isPending,
-  inGreen,
-}) => {
-  return (
-    <td className="px-5 text-center" style={{ color: inGreen ? '#27AD75' : '#F0616D' }}>
-      {isPending ? (
-        <Skeleton
-          variant="rectangular"
-          width="100%"
-          height="100%"
-          overlay={true}
-          loading={isPending}
-        >
-          ....
-        </Skeleton>
-      ) : (
-        content
-      )}
-    </td>
-  );
-};
-
-const SummaryTable: React.FC<{
-}> = () => {
-
+const SummaryTable: React.FC<{}> = () => {
   const { selectedTimeFrame } = useStatsTableContext();
 
   const { isPending, isError, data, error } = useQuery({
@@ -136,63 +55,12 @@ const SummaryTable: React.FC<{
 
   if (showBreakdown && !isLoading) {
     return (
-      <div
-        className="flex flex-wrap justify-center"
-        onClick={() => setShowBreakdown(!showBreakdown)}
-      >
-        <InfoTable
-          rows={[
-            { label: 'Net Cash:', sign: '', value: data?.netCashHoldings },
-            {
-              label: 'Net Contrib.:',
-              sign: '-',
-              value: data?.netContributions,
-            },
-            {
-              end: true,
-              label: 'Realized:',
-              sign: '',
-              value: data?.realizedReturn,
-            },
-          ]}
-        />
-        <InfoTable
-          rows={[
-            { label: 'Purchases:', sign: '', value: data?.purchases },
-            { label: 'Sales:', sign: '-', value: data?.sales },
-            {
-              end: true,
-              label: 'Cost Basis:',
-              sign: '',
-              value: data?.costBasis,
-            },
-          ]}
-        />
-        <InfoTable
-          rows={[
-            { label: 'Holdings Value:', sign: '', value: data?.valueOfHoldings },
-            { label: 'Cost Basis:', sign: '-', value: data?.costBasis },
-            {
-              end: true,
-              label: 'Total P/L:',
-              sign: '',
-              value: data?.totalPLatCurrentPrice,
-            },
-          ]}
-        />
-        <InfoTable
-          rows={[
-            {
-              label: 'Total P/L:',
-              sign: '',
-              value: data?.totalPLatCurrentPrice,
-            },
-            { label: 'Net Contrib.:', sign: '÷', value: data?.netContributions },
-            { end: true, label: 'ROI:', sign: '', value: data?.roi, type: 'PERCENTAGE' },
-          ]}
-        />
-      </div>
-    );
+      <BreakDown
+        data={data}
+        showBreakdown={showBreakdown}
+        setShowBreakdown={setShowBreakdown}
+      />
+    )
   }
 
   return (

@@ -22,7 +22,7 @@ export const StatsTableProvider: React.FC<{
   const [selectedTimeFrame, setSelectedTimeFrame] = useState<TimeFrame>('d');
   const [selectedPlType, setSelectedPlType] = useState<'roi' | 'ror'>('roi');
 
-  const { data: timeFrameCoinsPl, isLoading: timeFrameCoinsPlIsLoading} = useQuery({
+  const { data: timeFrameCoinsPl, isLoading: timeFrameCoinsPlIsLoading } = useQuery({
     queryKey: ['time-frame-coins-pl', selectedTimeFrame],
     queryFn: async ({ signal }): Promise<TimeFramePlByUnitResp> => {
       const resp = await fetch(`/api/time-frame-coins-pl/${selectedTimeFrame}`, { signal });
@@ -33,7 +33,6 @@ export const StatsTableProvider: React.FC<{
     },
     staleTime: 30 * 60 * 1000, // 30 minutes
   });
-
 
   return (
     <StatsTableContext.Provider
@@ -55,7 +54,7 @@ export const StatsTableProvider: React.FC<{
 export const useStatsTableContext = (): StatsTableContextProps => {
   const context = useContext(StatsTableContext);
   if (!context) {
-    throw new Error('usePriceChart must be used within a PriceChartProvider');
+    throw new Error('usePriceChart must be used within a StatsTableProvider');
   }
   return context;
 };

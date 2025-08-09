@@ -53,3 +53,24 @@ interface TimeFrameTotalPlResp {
 }
 
 export type TimeFrame = 'h' | 'd' | 'w' | 'm' | '3m' | '6m' | 'y' | 'all';
+
+export type ProductTransaction = {
+  id: number;
+  fullName: string;
+  product: string;
+  date: string;
+  side: string;
+  size: string;
+  unit: string;
+  price: string;
+  fee: string;
+  total: string;
+  notes: string;
+  runningBalance: string;
+  runningCostBasis: string;
+  realizedGains: {
+    total: number;
+    short: number;
+    long: number;
+  };
+}

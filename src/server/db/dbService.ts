@@ -20,7 +20,7 @@ export interface CoinSummary {
   percentPL: number;
 }
 
-async function getCoinSummaries(userId: number, unit?: string): Promise<CoinSummary[]> {
+async function getCoinSummaries(userId: number, unit?: string, onDate?: Date): Promise<CoinSummary[]> {
   return db.$queryRaw<any>`
     SELECT
       stats.unit AS productName,
@@ -54,6 +54,7 @@ async function getCoinSummaries(userId: number, unit?: string): Promise<CoinSumm
       WHERE
         trans.userId = ${userId}
         ${unit ? Prisma.sql`AND trans.unit = ${unit}` : Prisma.empty}
+        ${onDate? Prisma.sql`AND trans.date <= ${onDate}` : Prisma.empty}
       GROUP BY unit, coinName
     ) as stats
       JOIN (

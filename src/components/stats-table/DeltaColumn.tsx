@@ -9,11 +9,9 @@ import Box from '@mui/material/Box';
 import { useStatsTableContext } from '../../context/StatsTableContext';
 import { timeFrameDisplay } from '../SingleStat';
 
-const DeltaCell:React.FC<{
+const DeltaCell: React.FC<{
   coinSummary: CoinSummaryResp;
-}> = ({
-  coinSummary,
-}) => {
+}> = ({ coinSummary }) => {
   const { productName: unit, currentPrice: backupCurrenPrice, holdings } = coinSummary;
 
   const {
@@ -22,22 +20,20 @@ const DeltaCell:React.FC<{
     timeFrameCoinsPlIsLoading: isPending,
   } = useStatsTableContext();
 
-  const { pastPl } = timeFrameCoinsPl?.[unit] || { pastPl: 0, curPl: 0,}
+  const { pastPl } = timeFrameCoinsPl?.[unit] || { pastPl: 0, curPl: 0 };
 
   const { price: priceFeed } = usePriceFeed(`${unit}-USD`);
 
   const curPrice = priceFeed || backupCurrenPrice;
   const curPl = curPrice * holdings - coinSummary.costBasis;
-  const pastToCurrentPl = curPl - pastPl
+  const pastToCurrentPl = curPl - pastPl;
 
-  const ror = ((pastToCurrentPl / coinSummary.costBasis) * 100);
-  const roi = ((pastToCurrentPl / coinSummary.netContributions) * 100) 
+  const ror = (pastToCurrentPl / coinSummary.costBasis) * 100;
+  const roi = (pastToCurrentPl / coinSummary.netContributions) * 100;
 
   const percentPl = selectedPlType === 'roi' ? roi : ror;
 
   const isLoading = isPending;
-
-
 
   const color = pastToCurrentPl < 0 ? '#F0616D' : '#27AD75';
   // const arrow = pastToCurrentPl > 0 ? '▲ ' : '▼ ';
@@ -46,18 +42,17 @@ const DeltaCell:React.FC<{
     <Box className="" style={{ color }}>
       <Skeleton variant="rectangular" overlay={true} loading={isLoading}>
         <TickerDisplay value={pastToCurrentPl} format={'USD'} fracDigits={2} showArrow />
-        <br></br>       
+        <br></br>
 
         <span style={{ visibility: 'hidden' }}>{'▲▲'}</span>
         <span className="text-right">
-        <TickerDisplay value={percentPl} format={'PERCENTAGE'} fracDigits={2} />
-        {/* <span className="text-xs capitalize"> {selectedPlType.toUpperCase()} </span> */}
+          <TickerDisplay value={percentPl} format={'PERCENTAGE'} fracDigits={2} />
+          {/* <span className="text-xs capitalize"> {selectedPlType.toUpperCase()} </span> */}
         </span>
       </Skeleton>
     </Box>
   );
 };
-
 
 export const DeltaSelectFilter: React.FC<{}> = ({}) => {
   const { selectedTimeFrame, setSelectedTimeFrame } = useStatsTableContext();
@@ -116,12 +111,15 @@ const DeltaHeader: React.FC = () => {
   const { selectedTimeFrame } = useStatsTableContext();
   return (
     <>
-      P/L<span className="text-[10px] block md:inline md:text-xs"> {timeFrameDisplay[selectedTimeFrame]}</span>
+      P/L
+      <span className="block text-[10px] md:inline md:text-xs">
+        {' '}
+        {timeFrameDisplay[selectedTimeFrame]}
+      </span>
     </>
   );
-}
+};
 
-export const DeltaHeaderMemo = React.memo(DeltaHeader)
-export const DeltaCellMemo = React.memo(DeltaCell)
-export const DeltaSelectFilterMemo = React.memo(DeltaSelectFilter)
-
+export const DeltaHeaderMemo = React.memo(DeltaHeader);
+export const DeltaCellMemo = React.memo(DeltaCell);
+export const DeltaSelectFilterMemo = React.memo(DeltaSelectFilter);

@@ -1,22 +1,19 @@
 /* eslint-disable react/jsx-key */
 import React, { useMemo } from 'react';
-import { useRef, useState, useEffect } from 'react';
-import { useTable, Column, useSortBy } from 'react-table';
+import { useState, useEffect } from 'react';
+import { useTable, useSortBy } from 'react-table';
+import { type Column } from 'react-table';
 import Table from '@mui/joy/Table';
 import SortArrow from '../SortArrow';
 import Tooltip from '@mui/joy/Tooltip';
 import RemoveIcon from '@mui/icons-material/Remove';
-import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
+import { type ProductTransaction } from '../../../types/global';
 
 const sortDollars = (rowA: any, rowB: any, columnId: string) => {
   const aNum = parseFloat(rowA.values[columnId].replace(/[$,]/g, ''));
   const bNum = parseFloat(rowB.values[columnId].replace(/[$,]/g, ''));
   return aNum - bNum;
-};
-
-type DataType = {
-  [key: string]: any;
 };
 
 interface Props {
@@ -25,12 +22,16 @@ interface Props {
   unit: string;
 }
 
-const ProductTable: React.FC<Props> = ({ unit, setDeleteTransactionSelection, setConfirmModalIsOpen }) => {
+const ProductTable: React.FC<Props> = ({
+  unit,
+  setDeleteTransactionSelection,
+  setConfirmModalIsOpen,
+}) => {
   const [loaded, setLoaded] = useState(false);
 
   const query = useQuery({
     queryKey: ['product', unit],
-    queryFn: async () =>
+    queryFn: async (): Promise<ProductTransaction[]> =>
       fetch(`/api/product/${unit}`).then((res) => {
         if (!res.ok) {
           throw new Error('Network response error');
@@ -44,11 +45,6 @@ const ProductTable: React.FC<Props> = ({ unit, setDeleteTransactionSelection, se
       {
         Header: 'Date',
         accessor: 'date',
-        sortType: (rowA: any, rowB: any, columnId: any) => {
-          const dateA = new Date(rowA.values[columnId]).getTime();
-          const dateB = new Date(rowB.values[columnId]).getTime();
-          return dateA - dateB;
-        },
         Cell: ({ cell: { value } }: { cell: { value: any } }) => {
           return (
             <Tooltip title={value}>
@@ -70,39 +66,116 @@ const ProductTable: React.FC<Props> = ({ unit, setDeleteTransactionSelection, se
       {
         Header: 'Side',
         accessor: 'side',
-        // myWidth: '5%',
-        sortType: (rowA: any, rowB: any, columnId: any) => {
-          const a = rowA.values[columnId];
-          const b = rowB.values[columnId];
-          return a > b ? 1 : -1;
-        },
+        styles: { textAlign: 'right' },
         Cell: ({ cell: { value } }: { cell: { value: any } }) => {
           return <div style={{ color: value === 'BUY' ? '#27AD75' : '#F0616D' }}>{value}</div>;
         },
       },
       {
-        Header: 'size',
-        accessor: 'size',
+        Header: 'Balance',
+        accessor: 'runningBalance',
+        styles: { textAlign: 'right', paddingRight: '25px' },
+        Cell: ({
+          cell: {
+            row: { original },
+          },
+        }: {
+          cell: { row: { original: ProductTransaction } };
+        }) => {
+          const { runningBalance, side, size } = original;
+
+          const sizeStr = `${side === 'BUY' ? '+' : '-'}${parseFloat(size).toString()} `;
+
+          return (
+            <div style={{ display: 'inline-flex', justifyContent: 'flex-end', width: '100%' }}>
+              <div style={{ color: side === 'BUY' ? '#27AD75' : '#F0616D' }}>{sizeStr}</div>
+              <div style={{ fontStyle: 'italic' }}> ({parseFloat(runningBalance).toString()})</div>
+            </div>
+          );
+        },
       },
       {
         Header: 'Price',
         accessor: 'price',
         sortType: sortDollars,
+        styles: { textAlign: 'right', paddingRight: '5px' },
       },
       {
         Header: 'Fee',
         accessor: 'fee',
         sortType: sortDollars,
-        // myWidth: '5%'
+        styles: { textAlign: 'right', paddingRight: '15px' },
       },
       {
-        Header: 'Total',
+        Header: 'Cost(Basis)',
         accessor: 'total',
-        sortType: sortDollars,
+        styles: { textAlign: 'right', paddingRight: '15px' },
+        Cell: ({
+          cell: {
+            row: { original },
+          },
+        }: {
+          cell: { row: { original: ProductTransaction } };
+        }) => {
+          // return original.total;
+          const { total, runningCostBasis, side } = original;
+          const totalNum = Math.abs(parseFloat(total.replace(/[$,]/g, '')));
+          const totalDollars = totalNum.toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+          const totalStr = side === 'SELL' ? `-${totalDollars}` : `+${totalDollars}`;
+
+          return (
+            <div style={{ display: 'inline-flex', justifyContent: 'flex-end', width: '100%' }}>
+              <div style={{ color: side === 'SELL' ? '#27AD75' : '#F0616D' }}>{totalStr}</div>
+              <div style={{ fontStyle: 'italic' }}>({runningCostBasis})</div>
+            </div>
+          );
+        },
+      },
+      {
+        Header: 'Realized',
+        accessor: 'realizedGains',
+        styles: { textAlign: 'right' },
+        Cell: ({ cell }: { cell: { value: ProductTransaction['realizedGains'] } }) => {
+          const { total, short, long } = cell.value;
+          if (total === 0) {
+            return ' - ';
+          }
+          const totalDollars = total.toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+          const shortDollars = short.toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+          const longDollars = long.toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+          return (
+            <Tooltip
+              title={`FIFO Total: ${totalDollars}, Short: ${shortDollars}, Long: ${longDollars}`}
+            >
+              <div style={{ color: total > 0 ? '#27AD75' : '#F0616D' }}>{totalDollars}</div>
+            </Tooltip>
+          );
+        },
       },
       {
         Header: 'Notes',
         accessor: 'notes',
+        myWidth: '50px',
         sortType: (rowA: any, rowB: any, columnId: string): any => {
           const a = rowA.values[columnId];
           const b = rowB.values[columnId];
@@ -118,6 +191,7 @@ const ProductTable: React.FC<Props> = ({ unit, setDeleteTransactionSelection, se
                   whiteSpace: 'nowrap',
                   textAlign: 'center',
                   cursor: 'pointer',
+                  width: '50px',
                 }}
               >
                 {value}
@@ -154,16 +228,14 @@ const ProductTable: React.FC<Props> = ({ unit, setDeleteTransactionSelection, se
     return () => setLoaded(false);
   }, []);
 
-  return <TableComponent
-    columns={columns}
-    data={query.data || []}
-    loaded={loaded && query.isSuccess}
-   />;
+  return (
+    <TableComponent columns={columns} data={query.data || []} loaded={loaded && query.isSuccess} />
+  );
 };
 
 interface TableComponentProps {
-  columns: Column<DataType>[];
-  data: DataType[];
+  columns: Column<any>[];
+  data: ProductTransaction[];
   loaded: boolean;
 }
 
@@ -191,7 +263,7 @@ function TableComponent({ columns, data, loaded }: TableComponentProps) {
        "
       style={{
         maxWidth: '900px',
-        overscrollBehavior: 'none'// !important',
+        overscrollBehavior: 'none', // !important',
       }}
     >
       <Table
@@ -200,7 +272,9 @@ function TableComponent({ columns, data, loaded }: TableComponentProps) {
         style={{
           maxWidth: '900px',
           minWidth: '880px',
-          overscrollBehavior: 'none'// !important',
+          overscrollBehavior: 'none', // !important',
+          tableLayout: 'auto', // Change from fixed to auto
+          textAlign: 'right',
         }}
         variant="plain"
         size={screenWidth && screenWidth < 768 ? 'sm' : 'md'}
@@ -234,6 +308,7 @@ function TableComponent({ columns, data, loaded }: TableComponentProps) {
                       top: '-1px', // prevent rows peeking above sticky header
                       textAlign: 'center',
                       verticalAlign: 'middle',
+                      ...(column.styles && { ...column.styles }),
                       ...(column.myWidth && { width: column.myWidth }),
                     }}
                   >
@@ -269,14 +344,17 @@ function TableComponent({ columns, data, loaded }: TableComponentProps) {
                   <td
                     {...cell.getCellProps()}
                     className={`
-                      text-center
+                      text-right
                       transition-opacity
                       duration-500
                       ${loaded ? 'opacity-100' : 'opacity-0'}
                     `}
                     style={{
                       transitionDelay: `${rowIndex * 0.05}s`,
-                      textAlign: 'center',
+                      // textAlign: 'center',
+                      // display: 'flex',
+                      justifyContent: 'right',
+                      alignItems: 'right',
                     }}
                   >
                     {cell.render('Cell')}

@@ -2,27 +2,19 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/joy/Tooltip';
 import type { CoinSummaryResp } from '../../../types/global';
-
+import { formatValue } from '../../utils/formatDollars';
 
 export const CostBasisCell: React.FC<{
   coinSummary: CoinSummaryResp;
 }> = ({ coinSummary }) => {
+  const { valueOfHoldings: backupValueOfHoldings } = coinSummary;
 
   return (
-    <Box
-      className="text-left ticker-font"
-    >
+    <Box className="ticker-font text-left">
       <Tooltip title="Cost Basis">
         <>
           <span style={{ visibility: 'hidden' }}> ▲ </span>
-          <span title="Cost Basis">
-            {coinSummary.costBasis.toLocaleString('en-US', {
-              style: 'currency',
-              currency: 'USD',
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
-          </span>
+          <span title="Cost Basis">{formatValue(coinSummary.costBasis, 'USD')}</span>
         </>
       </Tooltip>
       <br></br>
@@ -30,14 +22,11 @@ export const CostBasisCell: React.FC<{
         <>
           <span style={{ visibility: 'hidden' }}> ▲ </span>
           <span title="Break Even" className="">
-            {coinSummary.costBasis < 1
-              ? 'N/A'
-              : coinSummary.breakEvenPrice.toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: 'USD',
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
+            {coinSummary.costBasis < 1 || backupValueOfHoldings < 1 ? (
+              'N/A'
+            ) : (
+              <>{formatValue(coinSummary.breakEvenPrice, 'USD')}</>
+            )}
           </span>
         </>
       </Tooltip>

@@ -1,5 +1,5 @@
 type Transaction = {
-  fullName: string;
+  coinName: string;
   product: string;
   date: string;
   side: string;

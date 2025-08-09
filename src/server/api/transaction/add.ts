@@ -59,15 +59,17 @@ export default async function handler(
     return res.status(400).json({ error: 'Invalid token_id' });
   }
 
-  let total = parseFloat(size) * parseFloat(price) + parseFloat(fee);
+  let total = parseFloat(size) * parseFloat(price)
 
   if (side.toUpperCase() === 'BUY') {
+    total += parseFloat(fee);
     total = total * -1;
   } else {
+    total -= parseFloat(fee);
     total = Math.abs(total);
   }
 
-  const newTransaction = await db.transaction.create({
+  await db.transaction.create({
     data: {
       product: `${tokenInfo.symbol.toUpperCase()}-USD`,
       date,

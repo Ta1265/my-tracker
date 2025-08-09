@@ -2,6 +2,7 @@
 import React from 'react';
 import { css, keyframes } from '@emotion/react';
 import AnimatingNumber from './AnimatingNumber';
+import { formatValue } from '../utils/formatDollars';
 
 const flashGreen = keyframes`
   0% { opacity: .5; background-color: rgba(39, 173, 117, 0.5); color: white; }
@@ -20,39 +21,13 @@ const animateOut = keyframes`
   100% { opacity: 0; ; visibility: none; }
 `;
 
-
 const usePrevious = (value: number) => {
   const ref = React.useRef<number>(0);
   React.useEffect(() => {
     ref.current = value;
   }, [value]);
   return ref.current;
-}
-
-const formatValue = (val: number| null | undefined, format: 'USD' | 'PERCENTAGE', fracDigits?: number) => {
-  const value = val || 0;
-
-  if (!fracDigits && format === 'USD') {
-    if (value < 100000) {
-      const integerDigits = Math.floor(value).toString().length;
-      fracDigits = Math.max(6 - integerDigits, 0);
-    }
-  }
-  if (!fracDigits && format === 'PERCENTAGE') {
-    fracDigits = 2;
-  }
-
-  if (format === 'USD') {
-    return value.toLocaleString('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: fracDigits,
-      maximumFractionDigits: fracDigits,
-    });
-  }
-  return value.toFixed(fracDigits);
-}
-
+};
 
 const Ticker: React.FC<{
   value: number;
@@ -86,9 +61,7 @@ const Ticker: React.FC<{
   }
 
   return (
-    <span
-      className="ticker-font"
-    >
+    <span className="ticker-font">
       {showArrow && (
         <span
           key={`${value}-${prev}`}
@@ -103,7 +76,6 @@ const Ticker: React.FC<{
         </span>
       )}
 
-      {/* <AnimatingNumber value={value} format={format} fracDigits={fracDigits} showArrow={false} /> */}
       {formattedCur.split('').map((char, index) => {
         const shouldDigitFlash = flashFromIndex && flashFromIndex <= index;
         return (
@@ -132,7 +104,6 @@ interface TickerProps {
 interface TickerDisplayProps extends TickerProps {
   type?: 'flash' | 'animate';
 }
-
 
 const TickerDisplay: React.FC<TickerDisplayProps> = ({ type = 'flash', ...restProps }) => {
   if (type === 'animate') {

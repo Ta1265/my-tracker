@@ -60,6 +60,14 @@ services:
       portfolio-network:
         aliases:
           - next-app
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2GB
+        reservations:
+          cpus: '1'
+          memory: 512M
 
   # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

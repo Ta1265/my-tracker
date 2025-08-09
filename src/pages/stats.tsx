@@ -1,23 +1,9 @@
 import StatsTable from '../components/StatsTable';
-import SummaryTable from '../components/SummaryTable';
+import SummaryTable from '../components/Summary/SummaryTable';
 import React from 'react';
 import { StatsTableProvider } from '../context/StatsTableContext';
-// import { type TimeFrame } from './product/TimeFrameSelect';
 
 export default function Stats() {
-  // const [selectedTimeFrame, setSelectedTimeFrame] = React.useState<TimeFrame>('d');
-
-  // const { data: , isPending: timeFramePlPending } = useQuery({
-  //   queryKey: ['total-pl', selectedTimeFrame],
-  //   queryFn: async ({ signal }): Promise<number> => {
-  //     const resp = await fetch(`/api/change/${selectedTimeFrame}`, { signal });
-  //     if (!resp.ok) {
-  //       throw new Error('Network response error');
-  //     }
-  //     return resp.json();
-  //   },
-  // });
-
   return (
     <StatsTableProvider>
       <div className="mx-auto">

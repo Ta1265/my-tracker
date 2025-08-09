@@ -12,7 +12,7 @@ export const HoldingsCell: React.FC<Props> = ({ coinSummary }) => {
   const { productName: unit, holdings, valueOfHoldings: backupValueOfHoldings, currentPrice } = coinSummary;
   const { price: priceFeed } = usePriceFeed(`${unit}-USD`);
 
-  const price = priceFeed || currentPrice;
+  const price = priceFeed || currentPrice || 0;
 
   let valueOfHoldings: number;
   if (price) {
@@ -32,6 +32,19 @@ export const HoldingsCell: React.FC<Props> = ({ coinSummary }) => {
     decimalPlaces = 2;
   }
 
+  let fracDigits;  
+  if (valueOfHoldings < 1000) {
+    fracDigits = 2
+  }
+
+  let roundedHoldings = parseFloat(holdings.toFixed(decimalPlaces));
+  if (valueOfHoldings < 0) {
+    roundedHoldings = 0;
+  }
+  if (valueOfHoldings < 0) {
+    valueOfHoldings = 0;
+  }
+
 
   // let holdingsDigits = 0;
   // if (holdings < 100000) {
@@ -39,17 +52,23 @@ export const HoldingsCell: React.FC<Props> = ({ coinSummary }) => {
   //   holdingsDigits = Math.max(6 - integerDigits, 0);
   // }
 
-  const roundedHoldings = parseFloat(holdings.toFixed(decimalPlaces));
 
 
   return (
     <Box
-      className="text-left ticker-font"
-      style={{
-        // fontFamily: 'Roboto Mono, monospace',
-      }}
+      className="ticker-font text-left"
+      style={
+        {
+          // fontFamily: 'Roboto Mono, monospace',
+        }
+      }
     >
-      <TickerDisplay value={valueOfHoldings} format={'USD'} fracDigits={2} showArrow />
+        <TickerDisplay
+          value={valueOfHoldings}
+          format={'USD'}
+          fracDigits={fracDigits}
+          showArrow
+        />
       <br></br>
       <span style={{ visibility: 'hidden' }}> ▲ </span>
       <span className="text-xs">{coinSummary.productName} </span>

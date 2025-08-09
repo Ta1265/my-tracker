@@ -49,7 +49,7 @@ export const ProfitLossCell: React.FC<Props> = ({ coinSummary }) => {
     <Box style={{ color }}>
       <Skeleton variant="rectangular" overlay={true} loading={false}>
         <span>
-          <TickerDisplay value={curPl} format={'USD'} fracDigits={2} showArrow />
+          <TickerDisplay value={curPl} format={'USD'} showArrow />
         </span>
         <br></br>
         <span style={{ visibility: 'hidden' }}>{'▲▲'}</span>

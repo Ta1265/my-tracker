@@ -82,15 +82,13 @@ export const getPriceHistoryForTimeFrame = async (coinName: string, timeFrame: T
 
   const cacheValue = await redisClient.get(cacheKey);
 
+  priceHistoryCacheTracker[cacheValue ? 'hit' : 'miss'] += 1;
+
+  console.log(`getCoinPriceForTimeFrame cache hits: ${priceHistoryCacheTracker.hit}, misses: ${priceHistoryCacheTracker.miss}`);
 
   if (cacheValue) {
-    priceHistoryCacheTracker.hit += 1;
-    console.log(`getCoinPriceForTimeFrame cache hit`, priceHistoryCacheTracker);
     return JSON.parse(cacheValue);
   }
-
-  priceHistoryCacheTracker.miss += 1;
-  console.log(`getCoinPriceForTimeFrame cache miss ${priceHistoryCacheTracker}`);
   
   const resp = await fetch(
     `https://price-api.crypto.com/price/v2/${timeFrame}/${coinName.toLowerCase()}`,

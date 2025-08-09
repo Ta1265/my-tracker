@@ -19,6 +19,10 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
     },
   });
 
+  const refetchAllQueries = () => {
+    queryClient.refetchQueries();
+  };
+
   return (
     <>
       <Head>
@@ -29,7 +33,7 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
       <QueryClientProvider client={queryClient}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <SnackbarProvider>
-            <ReloadProvider id="reload-provider">
+            <ReloadProvider id="reload-provider" onReload={refetchAllQueries}>
               <SessionProvider session={session}>
                 <CoinbaseWsProvider>
                   <Layout>
