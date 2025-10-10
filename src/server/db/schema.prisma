@@ -14,6 +14,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model TokenInfo {
+  token_id Int    @id
+  symbol   String @db.VarChar(40)
+  slug     String @db.VarChar(40)
+  name     String @db.VarChar(40)
+  rank     Int    @db.Int
+  Transaction Transaction[]
+  TokenPriceHistory TokenPriceHistory[]
+}
 model Transaction {
   id       Int      @id @default(autoincrement())
   userId   Int      @default(1) @db.Int
@@ -28,6 +37,8 @@ model Transaction {
   total    Float    @db.Float
   notes    String   @db.VarChar(255)
   user     User     @relation(fields: [userId], references: [id])
+  token_info_id Int 
+  TokenInfo     TokenInfo @relation(fields: [token_info_id], references: [token_id])
 }
 
 model ExchangeRate {
@@ -46,6 +57,7 @@ model User {
   image       String?
   OauthTokens OuathToken[]
   Transaction Transaction[]
+  NetCashFlow NetCashFlow[]
 }
 
 model OuathToken {
@@ -56,10 +68,25 @@ model OuathToken {
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model TokenInfo {
-  token_id Int    @id
-  symbol   String @db.VarChar(40)
-  slug     String @db.VarChar(40)
-  name     String @db.VarChar(40)
-  rank     Int    @db.Int
+model NetCashFlow {
+  date             DateTime @db.Date @id
+  userId           Int      @db.Int
+  netContributions Float    @db.Float
+  netCash  Float    @db.Float
+  user             User     @relation(fields: [userId], references: [id])
+  totalCostBasis  Float    @db.Float
+  valueOfHoldings  Float    @db.Float
+  profitLoss       Float    @db.Float
+  roi              Float    @db.Float
+  ror              Float    @db.Float
+}
+
+model TokenPriceHistory {
+  close_price Float    @db.Float
+  date       DateTime  @db.Date
+  token_info_id Int  @db.Int
+  TokenInfo     TokenInfo @relation(fields: [token_info_id], references: [token_id])
+  timeFrame  String   @db.VarChar(245)
+
+  @@unique([date, token_info_id])
 }

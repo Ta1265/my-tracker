@@ -67,7 +67,7 @@ const priceHistoryCacheTracker = {
 };
 
 
-export const getPriceHistoryForTimeFrame = async (coinName: string, timeFrame: TimeFrame): Promise<PriceHistoryResp> => {
+export const getPriceHistoryForTimeFrame = async (coinName: string, timeFrame: TimeFrame = 'all'): Promise<PriceHistoryResp> => {
   if (
     !coinName ||
     !timeFrame ||

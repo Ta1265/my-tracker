@@ -6,7 +6,7 @@ import { StatsTableProvider } from '../context/StatsTableContext';
 export default function Stats() {
   return (
     <StatsTableProvider>
-      <div className="mx-auto">
+      {/* <div className="mx-auto"> */}
         <div
           className="flex justify-center py-2"
           style={{
@@ -17,7 +17,7 @@ export default function Stats() {
           <SummaryTable
           />
         </div>
-      </div>
+      {/* </div> */}
 
       <StatsTable/>
     </StatsTableProvider>

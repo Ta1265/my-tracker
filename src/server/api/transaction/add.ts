@@ -83,6 +83,7 @@ export default async function handler(
       total,
       notes,
       userId,
+      token_info_id: +token_id,
     },
   });
 

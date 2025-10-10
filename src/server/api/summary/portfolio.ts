@@ -5,7 +5,7 @@ import { getServerAuthSession } from '../../auth';
 import DBService from '../../db/dbService';
 import type { PortfolioSummary } from '../../../../types/global';
 
-async function getNetCashFlowAndContributions(userId: number) {
+export async function getNetCashFlowAndContributions(userId: number) {
   // Calculate net cash holdings and total contributions assuming reinvested gains (FIFO by date)
   const transactions = await DBService.getBuySellTotalFiFo(userId);
 
