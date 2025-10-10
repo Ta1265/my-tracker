@@ -4,6 +4,9 @@ import { useQuery } from '@tanstack/react-query';
 import type { CoinSummaryResp } from '../../types/global';
 import TickerDisplay from './TickerDisplay';
 import { usePriceHistory } from '../context/PriceHistoryProvider';
+import Select from '@mui/joy/Select';
+import Option from '@mui/joy/Option';
+import { Checkbox } from 'flowbite-react';
 
 export const timeFrameDisplay = {
   h: '1 Hour',
@@ -16,11 +19,35 @@ export const timeFrameDisplay = {
   all: 'All Time',
 };
 
+const STATS_LABEL_LIST = [
+  'Coins Held',
+  'Value',
+  ' Total P/L',
+  'P/L Timeframe',
+  ' ROI',
+  ' ROR',
+  'Cost Basis',
+  ' BreakEven Shares',
+  ' BreakEven Price',
+  'AVG. Buy',
+  'AVG. Sell',
+  'Net Contrib.',
+  'Net Cash',
+];
+
 const StatDisplay: React.FC<{
   label: string;
   isPending: boolean;
   content: React.ReactNode;
-}> = ({ label, isPending, content }) => {
+  selectedStats: string[];
+}> = ({ label, isPending, content, selectedStats }) => {
+  let check = label
+  if (label.startsWith('P/L') && selectedStats.includes('P/L Timeframe')) {
+    check = 'P/L Timeframe'
+  } 
+  if (!selectedStats?.includes(check)) {
+    return null;
+  }
   return (
     <div className="px-2 py-1 min-w-[100px] md:min-w-[135px]">
       <div className="flex-col">
@@ -45,7 +72,28 @@ const StatDisplay: React.FC<{
   );
 };
 
+
+const LOCAL_STORAGE_KEY = 'selectedStats';
+
 const SingleStat: React.FC<{}> = () => {
+  const [selectedStats, setSelectedStats] = React.useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch {}
+      }
+    }
+    return STATS_LABEL_LIST;
+  });
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(selectedStats));
+    }
+  }, [selectedStats]);
+
   const {
     unit,
     priceChange,
@@ -99,33 +147,87 @@ const SingleStat: React.FC<{}> = () => {
 
   const breakEvenPrice = costBasis < 1 ? 0 : costBasis / holdings;
 
+
   return (
+   <>
+   <div className="w-full inline-block">
+      <Select
+        multiple
+        value={[]}
+        className="
+            hover:border-grey-700
+            font-b
+            ml-auto
+            bg-gray-700
+            px-1
+            py-2
+            text-xl
+            text-white
+            dark:bg-black sm:text-xl
+            w-50px
+            float-right
+          "
+        sx={{
+          border: 0,
+          fontSize: {
+            sm: '20px',
+            md: '20px',
+            lg: '24px',
+          },
+        }}
+      >
+        {STATS_LABEL_LIST.map((label) => (
+          <Option
+            key={label}
+            value={label}
+            onClick={() => {
+              if (selectedStats.includes(label)) {
+                setSelectedStats(selectedStats.filter((k) => k !== label));
+              } else {
+                setSelectedStats([...selectedStats, label]);
+              }
+            }}
+          >
+            <Checkbox checked={selectedStats.includes(label)} />
+            {label}
+          </Option>
+        ))}
+      </Select>
+    </div>
     <div
       className="
         text-grey-700 
         justify-space-evenly
-        text-sm
-        md:text-base
         flex
-        flex-row 
-        flex-wrap 
-        text-center
+        flex-row
+        flex-wrap
+        justify-evenly 
+        text-center 
+        text-sm
         text-gray-500
         dark:text-gray-400
-        justify-evenly
+        md:text-base
       "
     >
       <StatDisplay
+        selectedStats={selectedStats}
         label="Coins Held"
         isPending={isPending}
-        content={<span className="">{coinSummary?.holdings.toFixed(4)}</span>}
+        content={
+          <span className="">
+            {coinSummary?.holdings.toFixed(4)}
+            {unit}
+          </span>
+        }
       />
       <StatDisplay
+        selectedStats={selectedStats}
         label="Value"
         isPending={isPending}
         content={<TickerDisplay value={valueOfCurHoldings} format={'USD'} showArrow />}
       />
       <StatDisplay
+        selectedStats={selectedStats}
         label=" Total P/L"
         isPending={isPending}
         content={
@@ -140,6 +242,7 @@ const SingleStat: React.FC<{}> = () => {
         }
       />
       <StatDisplay
+        selectedStats={selectedStats}
         label={`P/L ${(() => {
           if (timeFrame === 'h') return '1 Hour';
           if (timeFrame === 'd') return '24 Hour';
@@ -177,15 +280,17 @@ const SingleStat: React.FC<{}> = () => {
       />
 
       <StatDisplay
+        selectedStats={selectedStats}
         label=" ROI"
         isPending={isPending}
         content={
           <div style={{ color: roi > 0 ? '#27AD75' : '#F0616D' }}>
-            <TickerDisplay value={roi} format={'PERCENTAGE'} showArrow/>
+            <TickerDisplay value={roi} format={'PERCENTAGE'} showArrow />
           </div>
         }
       />
       <StatDisplay
+        selectedStats={selectedStats}
         label=" ROR"
         isPending={isPending}
         content={
@@ -194,8 +299,8 @@ const SingleStat: React.FC<{}> = () => {
           </div>
         }
       />
-
       <StatDisplay
+        selectedStats={selectedStats}
         label="Cost Basis"
         isPending={isPending}
         content={
@@ -210,7 +315,18 @@ const SingleStat: React.FC<{}> = () => {
         }
       />
       <StatDisplay
-        label="Break Even"
+        selectedStats={selectedStats}
+        label=" BreakEven Shares"
+        isPending={isPending}
+        content={
+          <span className="">
+            {(costBasis / price).toFixed(4)} {unit}
+          </span>
+        }
+      />
+      <StatDisplay
+        selectedStats={selectedStats}
+        label=" BreakEven Price"
         isPending={isPending}
         content={
           <div>
@@ -224,6 +340,7 @@ const SingleStat: React.FC<{}> = () => {
         }
       />
       <StatDisplay
+        selectedStats={selectedStats}
         label="AVG. Buy"
         isPending={isPending}
         content={
@@ -238,6 +355,7 @@ const SingleStat: React.FC<{}> = () => {
         }
       />
       <StatDisplay
+        selectedStats={selectedStats}
         label="AVG. Sell"
         isPending={isPending}
         content={
@@ -252,6 +370,7 @@ const SingleStat: React.FC<{}> = () => {
         }
       />
       <StatDisplay
+        selectedStats={selectedStats}
         label="Net Contrib."
         isPending={isPending}
         content={
@@ -266,7 +385,8 @@ const SingleStat: React.FC<{}> = () => {
         }
       />
       <StatDisplay
-        label="Net cash"
+        selectedStats={selectedStats}
+        label="Net Cash"
         isPending={isPending}
         content={
           <div>
@@ -280,6 +400,7 @@ const SingleStat: React.FC<{}> = () => {
         }
       />
     </div>
+    </>
   );
 };
 
