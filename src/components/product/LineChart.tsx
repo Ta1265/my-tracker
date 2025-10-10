@@ -41,9 +41,8 @@ const VerticalLiner = {
   },
   beforeDatasetsDraw: (chart: any, args: any, opts: any) => {
     const { ctx } = chart;
-    const { top, bottom, left, right } = chart.chartArea;
+    const { top, bottom } = chart.chartArea;
     const x = chart.verticalLiner?.x;
-    const y = chart.verticalLiner?.y;
     const draw = chart.verticalLiner?.draw;
     if (!draw) return;
 
@@ -56,8 +55,6 @@ const VerticalLiner = {
     ctx.setLineDash(opts.dash);
     ctx.moveTo(x, bottom);
     ctx.lineTo(x, top);
-    ctx.moveTo(left, y);
-    ctx.lineTo(right, y);
     ctx.stroke();
 
     ctx.restore();
