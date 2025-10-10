@@ -57,7 +57,8 @@ export default function StatsTableComponent({ data, columns}: TableComponentProp
        "
       style={{
         maxWidth: '900px',
-        maxHeight: `calc(100vh - var(--distance-to-top))`,
+        height: '100%',
+        // maxHeight: `calc(100vh - var(--distance-to-top))`,
         overscrollBehavior: 'none', // !important',
       }}
     >
@@ -70,6 +71,7 @@ export default function StatsTableComponent({ data, columns}: TableComponentProp
         stickyHeader={true}
         noWrap
         sx={{
+          height: '100%',
           justifyContent: 'space-between',
           '& tr > *:first-child': {
             zIndex: 99,
