@@ -17,6 +17,6 @@ export const useFetchCoinPriceHistory = (timeFrame: TimeFrame, coinName: string)
     },
     staleTime: 30 * 60 * 1000, // 30 minutes
     // cacheTime: 30 * 60 * 1000, // 30 minutes
-    // refetchOnWindowFocus: 'always',
+    refetchOnWindowFocus: 'always',
   });
 };

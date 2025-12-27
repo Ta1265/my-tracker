@@ -26,7 +26,7 @@ const SummaryTable: React.FC<{}> = () => {
       }
       return resp.json();
     },
-    refetchInterval: 5000,
+    // refetchInterval: 5000,
   });
 
   const { data: timeFramePlResp, isLoading: timeFramePlLoading } = useQuery({
@@ -38,7 +38,7 @@ const SummaryTable: React.FC<{}> = () => {
       }
       return resp.json();
     },
-    refetchInterval: 5000,
+    // refetchInterval: 5000,
   });
 
   const currentTotalValue = timeFramePlResp?.currentTotalValue || 0;

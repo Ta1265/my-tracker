@@ -23,6 +23,14 @@ export interface CoinSummary {
   percentPL: number;
 }
 
+async function getUsersCoins(userId: number)  {
+  return db.$queryRaw<{ coinName: string }[]>`
+    SELECT DISTINCT coinName
+    FROM PORTFOLIO.Transaction
+    WHERE userId = ${userId};
+  `;
+}
+
 async function getCoinSummaries(userId: number, unit?: string, onDate?: Date): Promise<CoinSummary[]> {
   return db.$queryRaw<any>`
     SELECT
@@ -421,7 +429,8 @@ const dbService = {
   getCoinSummaries,
   getPortfolioSummary,
   getBuySellTotalFiFo,
-  getTransactionsForUserOrdered
+  getTransactionsForUserOrdered,
+  getUsersCoins,
 }
 
 export default dbService;

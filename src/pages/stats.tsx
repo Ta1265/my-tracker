@@ -2,11 +2,12 @@ import StatsTable from '../components/StatsTable';
 import SummaryTable from '../components/Summary/SummaryTable';
 import React from 'react';
 import { StatsTableProvider } from '../context/StatsTableContext';
+import ClientLoader from '../components/ClientLoader';
 
 export default function Stats() {
   return (
-    <StatsTableProvider>
-      {/* <div className="mx-auto"> */}
+    <ClientLoader>
+      <StatsTableProvider>
         <div
           className="flex justify-center py-2"
           style={{
@@ -14,13 +15,12 @@ export default function Stats() {
             width: '100%',
           }}
         >
-          <SummaryTable
-          />
+          <SummaryTable />
         </div>
-      {/* </div> */}
 
-      <StatsTable/>
-    </StatsTableProvider>
+        <StatsTable />
+      </StatsTableProvider>
+    </ClientLoader>
   );
 }
 

@@ -88,27 +88,33 @@ export const getPriceHistoryForTimeFrame = async (coinName: string, timeFrame: T
 
   if (cacheValue) {
     return JSON.parse(cacheValue);
+  } else {
+    console.log(`Cache miss for key: ${cacheKey}, Failing request.`);
+    throw new Error('Cache miss getPriceHistoryForTimeFrame');
   }
+
+  // This fetch was moved to the frontend to avoid Bot detection issues from crypto.com, we should use Cache only now.
   
-  const resp = await fetch(
-    `https://price-api.crypto.com/price/v2/${timeFrame}/${coinName.toLowerCase()}`,
-  );
+  // const resp = await fetch(
+  //   `https://price-api.crypto.com/price/v2/${timeFrame}/${coinName.toLowerCase()}`,
+  // );
 
-  if (!resp.ok) {
-    throw new Error(`Network response error fetching price history ${resp.statusText}`);
-  }
+  // if (!resp?.ok) {
+  //   console.log(`Error fetching price history from crypto.com: ${resp.status} ${resp.statusText}`);
+  //   throw new Error(`Network response error fetching price history ${resp.statusText}`);
+  // }
 
-  const res = await resp.json();
+  // const res = await resp.json();
 
-  const expiration = cacheExpirationForTimeFrame[timeFrame];
+  // const expiration = cacheExpirationForTimeFrame[timeFrame];
 
-  await redisClient.setex(
-    cacheKey,
-    expiration,
-    JSON.stringify(res),
-  );
+  // await redisClient.setex(
+  //   cacheKey,
+  //   expiration,
+  //   JSON.stringify(res),
+  // );
 
-  return res;
+  // return res;
 }
 
 
