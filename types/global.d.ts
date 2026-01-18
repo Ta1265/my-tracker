@@ -74,3 +74,14 @@ export type ProductTransaction = {
     long: number;
   };
 }
+
+export interface ProfitLossChartResp {
+  highestPointIndex: number;
+  lowestPointIndex: number;
+  netRows: {
+    date: number;
+    valueOfHoldings: number;
+    profitLoss: number;
+    roi: number;
+  }[];
+}

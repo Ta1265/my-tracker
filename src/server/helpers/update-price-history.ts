@@ -2,7 +2,7 @@ import axios from 'axios';
 import { db } from '../db/db';
 import moment from 'moment';
 import redisClient from '../redisClient';
-import { type TimeFrame, type PriceHistoryResp } from '../../../types/global';
+import { type TimeFrame, type PriceHistoryResp, ProfitLossChartResp } from '../../../types/global';
 import { getPriceHistoryForTimeFrame } from './get-exchange-rates';
 import DBService from '../db/dbService';
 import { Prisma } from '@prisma/client';
@@ -56,7 +56,7 @@ export async function getPriceHistoryMap(userId: number, timeFrame: TimeFrame = 
   return tokenPriceDates.sort((a, b) => moment(a.date).diff(moment(b.date)));
 }
 
-export async function getNetCashFlowHistory(userId: number, timeFrame: TimeFrame = 'all') {
+export async function getNetCashFlowHistory(userId: number, timeFrame: TimeFrame = 'all'): Promise<ProfitLossChartResp | undefined> {
   const transactions = await DBService.getBuySellTotalFiFo(userId);
   const firstTxDate = transactions.length ? moment(transactions[0].date).subtract(1, 'day').utc() : undefined;
   const tokenPriceDates = await getPriceHistoryMap(userId, timeFrame, firstTxDate);
@@ -72,12 +72,7 @@ export async function getNetCashFlowHistory(userId: number, timeFrame: TimeFrame
   const TokenData: { [unit: string]: { holdings: number; costBasis: number } } = {}; 
 
   // const netRows: Parameters<typeof DBService.insertIntoNetCashFlow>[0] = [];
-  const netRows: Array<{
-    date: number;
-    valueOfHoldings: number;
-    profitLoss: number;
-    roi: number;
-  }> = [];
+  const netRows: ProfitLossChartResp['netRows'] = [];
 
   let lowestPointIndex = 0;
   let highestPointIndex = 0; 

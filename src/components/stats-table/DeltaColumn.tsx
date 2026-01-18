@@ -54,7 +54,7 @@ const DeltaCell: React.FC<{
   );
 };
 
-export const DeltaSelectFilter: React.FC<{}> = ({}) => {
+export const DeltaSelectFilter: React.FC<{ showAll?: boolean }> = ({ showAll = false }) => {
   const { selectedTimeFrame, setSelectedTimeFrame } = useStatsTableContext();
 
   return (
@@ -100,7 +100,7 @@ export const DeltaSelectFilter: React.FC<{}> = ({}) => {
           <Option value="3m">3 M</Option>
           <Option value="6m">6 M</Option>
           <Option value="y">1 Y</Option>
-          {/* <Option value="all">ALL</Option> */}
+          {showAll && <Option value="all">ALL</Option>}
         </Select>
       </div>
     </span>

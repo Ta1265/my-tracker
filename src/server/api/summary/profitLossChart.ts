@@ -8,7 +8,8 @@ import {
   getNetCashFlowHistory,
 } from '../../helpers/update-price-history';
 import redisClient from '../../redisClient';
-import { type TimeFrame } from '../../../../types/global';
+import { type TimeFrame, type ProfitLossChartResp } from '../../../../types/global';
+
 
 const EXPIRATION = 3600; // 1 hour ms
 
@@ -57,7 +58,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   console.log(`Cache miss for net cash flow history for userId ${userId} and timeFrame ${timeFrame}`);
 
-  const data = await getNetCashFlowHistory(userId, timeFrame) || [];
+  const data = await getNetCashFlowHistory(userId, timeFrame) || { netRows: [], lowestPointIndex: 0, highestPointIndex: 0 };
 
   await redisClient.setex(cacheKey, EXPIRATION, JSON.stringify(data));
 

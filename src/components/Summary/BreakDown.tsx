@@ -1,17 +1,16 @@
 import React from 'react';
-import type { PortfolioSummary } from '../../../types/global';
 import { InfoTable } from './InfoTable';
+import { useSummaryContext } from './SummaryContext';
 
-interface BreakDownProps {
-  data?: PortfolioSummary | null;
-}
+interface BreakDownProps {}
 
-export const BreakDown: React.FC<BreakDownProps> = ({
-  data,
-}) => {
+export const BreakDown: React.FC<BreakDownProps> = ({}) => {
+  const { portfolioSummary: data } = useSummaryContext();
+
   if (!data) {
     return null;
   }
+
   return (
     <div className="flex flex-wrap justify-center">
       {' '}
@@ -68,4 +67,4 @@ export const BreakDown: React.FC<BreakDownProps> = ({
       />
     </div>
   );
-}
+};
