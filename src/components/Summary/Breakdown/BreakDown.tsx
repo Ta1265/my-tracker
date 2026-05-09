@@ -1,6 +1,6 @@
 import React from 'react';
 import { InfoTable } from './InfoTable';
-import { useSummaryContext } from './SummaryContext';
+import { useSummaryContext } from '../SummaryContext';
 
 interface BreakDownProps {}
 

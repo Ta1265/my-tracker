@@ -114,18 +114,6 @@ export const LineChart: React.FC<Props> = ({
     }
     return moment().format('MMM D, YYYY h:mm a');
 
-    // if (hoverIndex === lowestPointIndex) return ' Lowest All Time';
-    // if (hoverIndex === highestPointIndex) return ' Highest All Time';
-    // if (hoverIndex !== null) return '';
-    // if (selectedTimeFrame === 'h') return 'Last Hour';
-    // if (selectedTimeFrame === 'd') return 'Last Day';
-    // if (selectedTimeFrame === 'w') return 'Last Week';
-    // if (selectedTimeFrame === 'm') return 'Last Month';
-    // if (selectedTimeFrame === '3m') return 'Last 3 Months';
-    // if (selectedTimeFrame === '6m') return 'Last 6 Months';
-    // if (selectedTimeFrame === 'y') return 'Last Year';
-    // if (selectedTimeFrame === 'all') return 'All Time';
-    // return 'All Time';
   }, [hoverIndex, , netRows]);
 
   return (
@@ -141,13 +129,14 @@ export const LineChart: React.FC<Props> = ({
             easing: 'easeInOutQuad',
           },
           plugins: {
+            // @ts-ignore
             VerticalLiner: {},
             legend: {
               display: false,
             },
             title: {
               display: true,
-              text: titleText, //tfSettings.titleText,
+              text: titleText, 
               font: {
                 size: 12,
               },
@@ -227,19 +216,6 @@ export const LineChart: React.FC<Props> = ({
               pointHoverBorderColor: 'grey-800',
               fill: true,
             },
-            // Permanent line at $32,000
-            // {
-            //   label: '$32,000 Line',
-            //   data: ,
-            //   borderColor: '#888888',
-            //   backgroundColor: 'transparent',
-            //   borderWidth: 1,
-            //   borderDash: [5, 5],
-            //   pointRadius: 0,
-            //   pointHoverRadius: 0,
-            //   tension: 0,
-            //   fill: false,
-            // },
           ],
         }}
       />

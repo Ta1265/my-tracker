@@ -1,13 +1,19 @@
 import React from 'react';
-import { useCoinSummaries } from '../_hooks/useCoinSummaries';
 import { useStorePriceHistory } from '../_hooks/useStorePriceHistory';
+import { Spinner } from 'flowbite-react';
+import { Box } from '@mui/material';
 
 
 export default function ClientLoader({ children }: { children: React.ReactNode }) {
-  const { isPending: isStorePriceHistoryPending } = useStorePriceHistory();
+  const { isPending } = useStorePriceHistory();
 
-  if (isStorePriceHistoryPending) {
-    return "Loading...";
+  if (isPending) {
+    return (
+      <Box display="flex" flexDirection={"column"} justifyContent="center" alignItems="center" height="50vh" gap="20px">
+        <Spinner size="xl" aria-label="Loading spinner" className="mt-10" />
+        <Box ml={2}>Loading your data...</Box>
+      </Box>
+    );
   }
 
 

@@ -1,5 +1,5 @@
 import StatsTable from '../components/StatsTable';
-import SummaryTable from '../components/Summary/SummaryTable';
+import SummaryLayout from '../components/Summary/SummaryLayout';
 import React from 'react';
 import { StatsTableProvider } from '../context/StatsTableContext';
 import ClientLoader from '../components/ClientLoader';
@@ -15,7 +15,7 @@ export default function Stats() {
             width: '100%',
           }}
         >
-          <SummaryTable />
+          <SummaryLayout />
         </div>
 
         <StatsTable />

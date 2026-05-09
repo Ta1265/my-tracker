@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-key */
 import React from 'react';
 import { useStatsTableContext } from '../../context/StatsTableContext';
-import { BreakDown } from './BreakDown';
+import { BreakDown } from './Breakdown/BreakDown';
 import { TotalChartLayout } from './TotalChart/Layout';
 import { Box } from '@mui/joy';
 import { MoreHoriz, CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
@@ -10,7 +10,7 @@ import { TotalsSummary } from './TotalsSummary';
 import { SummaryContextProvider } from './SummaryContext';
 import { useLocalStorage } from '../../_hooks/useLocalStorage';
 
-const SummaryTable: React.FC<{}> = () => {
+const SummaryLayout: React.FC<{}> = () => {
   const { selectedTimeFrame } = useStatsTableContext();
 
   const [showChart, setShowChart] = useLocalStorage('showChart', true);
@@ -73,4 +73,4 @@ const SummaryTable: React.FC<{}> = () => {
   );
 };
 
-export default SummaryTable;
+export default SummaryLayout;

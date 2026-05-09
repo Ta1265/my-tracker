@@ -34,17 +34,26 @@ export const StatsTableProvider: React.FC<{
     staleTime: 30 * 60 * 1000, // 30 minutes
   });
 
+  const values = React.useMemo(
+    (): StatsTableContextProps => ({
+      timeFrameCoinsPl,
+      timeFrameCoinsPlIsLoading,
+      selectedTimeFrame,
+      setSelectedTimeFrame,
+      selectedPlType,
+      setSelectedPlType,
+    }),
+    [
+      timeFrameCoinsPl,
+      timeFrameCoinsPlIsLoading,
+      selectedTimeFrame,
+      selectedPlType,
+    ],
+  );
+
   return (
     <StatsTableContext.Provider
-      value={{
-        timeFrameCoinsPl,
-        timeFrameCoinsPlIsLoading,
-
-        selectedTimeFrame,
-        setSelectedTimeFrame,
-        selectedPlType,
-        setSelectedPlType,
-      }}
+      value={values}
     >
       {children}
     </StatsTableContext.Provider>
