@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import 'chartjs-adapter-moment';
 import {
@@ -14,15 +16,34 @@ import {
 import { Line } from 'react-chartjs-2';
 import moment from 'moment';
 import { timeFrameSettingsMap } from '../../product/TimeFrameSelect';
+import { useTheme } from '../../../context/ThemeContext';
+
+const getCssVar = (name: string, fallback: string): string => {
+  if (typeof window === 'undefined') return fallback;
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+};
+
+const GlowLine = {
+  id: 'glowLine',
+  beforeDatasetsDraw(chart: any, _args: any, options: any) {
+    const color = options.color || '#ffffff';
+    chart.ctx.save();
+    chart.ctx.shadowColor = color;
+    chart.ctx.shadowBlur = options.blur || 18;
+  },
+  afterDatasetsDraw(chart: any) {
+    chart.ctx.restore();
+  },
+} as const;
 
 const VerticalLiner = {
   id: 'verticalLiner',
   defaults: {
-    width: 2,
-    color: 'grey',
-    dash: [5, 5],
+    width: 1,
+    color: 'rgba(255,255,255,0.4)',
+    dash: [4, 4],
   },
-  afterInit: (chart: any, args: any, opts: any) => {
+  afterInit: (chart: any, _args: any, _opts: any) => {
     chart.verticalLiner = {
       x: 0,
       y: 0,
@@ -68,6 +89,7 @@ ChartJS.register(
   Legend,
   TimeScale,
   VerticalLiner,
+  GlowLine,
 );
 
 interface Props {
@@ -92,6 +114,10 @@ export const LineChart: React.FC<Props> = ({
   lowestPointIndex,
   highestPointIndex,
 }) => {
+  const { theme } = useTheme(); // subscribe so chart re-renders on theme change
+  const greenColor = getCssVar('--green', '#10b981');
+  const redColor = getCssVar('--red', '#f43f5e');
+  const lineColor = inGreen ? greenColor : redColor;
   let tfSettings = timeFrameSettingsMap['all'];
 
   const downSample = 7;
@@ -125,20 +151,26 @@ export const LineChart: React.FC<Props> = ({
         options={{
           responsive: true,
           animation: {
-            duration: 50,
-            easing: 'easeInOutQuad',
+            duration: 400,
+            easing: 'easeInOutQuart',
           },
           plugins: {
             // @ts-ignore
             VerticalLiner: {},
+            // @ts-ignore
+            glowLine: {
+              color: lineColor,
+              blur: 20,
+            },
             legend: {
               display: false,
             },
             title: {
               display: true,
-              text: titleText, 
+              text: titleText,
+              color: 'rgba(255,255,255,0.45)',
               font: {
-                size: 12,
+                size: 11,
               },
             },
             tooltip: {
@@ -151,7 +183,7 @@ export const LineChart: React.FC<Props> = ({
               },
               caretPadding: 50,
               callbacks: {
-                title: (context) => '',
+                title: (_context) => '',
                 label: (context) => {
                   const originalIndex = context.dataIndex * 7;
                   if (Math.abs(originalIndex - lowestPointIndex) < 10) {
@@ -178,6 +210,8 @@ export const LineChart: React.FC<Props> = ({
                   day: 'MMM-DD-YY',
                 },
               },
+              border: { display: false },
+              grid: { display: false },
               ticks: {
                 source: 'auto',
                 autoSkip: true,
@@ -186,16 +220,22 @@ export const LineChart: React.FC<Props> = ({
               },
             },
             y: {
+              border: { display: false },
+              grid: {
+                color: 'rgba(255,255,255,0.05)',
+              },
               ticks: {
                 source: 'auto',
                 autoSkip: true,
                 maxTicksLimit: 6,
+                color: 'rgba(255,255,255,0.35)',
                 font: {},
                 callback: (value) => {
                   const val = +value;
-                  if (val >= 1000) return (val / 1000).toFixed(1) + 'k';
-                  return val.toFixed(1);
+                  if (val >= 1000) return '$' + (val / 1000).toFixed(1) + 'k';
+                  return '$' + val.toFixed(0);
                 },
+                display: true,
               },
             },
           },
@@ -206,14 +246,29 @@ export const LineChart: React.FC<Props> = ({
             {
               label: 'Total',
               data: prices,
-              borderColor: inGreen ? '#27AD75' : '#F0616D',
+              borderColor: lineColor,
+              backgroundColor: (context: any) => {
+                const chart = context.chart;
+                const { ctx, chartArea } = chart;
+                if (!chartArea) return 'transparent';
+                const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                const color = lineColor;
+                // parse hex to rgb for gradient
+                const r = parseInt(color.slice(1, 3), 16) || 0;
+                const g = parseInt(color.slice(3, 5), 16) || 0;
+                const b = parseInt(color.slice(5, 7), 16) || 0;
+                gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.25)`);
+                gradient.addColorStop(0.6, `rgba(${r}, ${g}, ${b}, 0.05)`);
+                gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+                return gradient;
+              },
               pointRadius: 0,
-              tension: 0,
-              borderWidth: 2, // pointHoverRadius: 10,
+              tension: 0.3,
+              borderWidth: 2,
               pointStyle: 'circle',
-              pointBackgroundColor: 'grey',
-              pointBorderColor: 'grey-800',
-              pointHoverBorderColor: 'grey-800',
+              pointBackgroundColor: 'transparent',
+              pointBorderColor: 'transparent',
+              pointHoverBorderColor: 'transparent',
               fill: true,
             },
           ],

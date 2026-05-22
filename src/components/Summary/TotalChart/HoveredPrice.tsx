@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/joy/Skeleton';
@@ -49,21 +51,24 @@ export const HoveredPrice: React.FC<HoverPriceProps> = ({
 }) => {
   const { selectedTimeFrame } = useStatsTableContext();
 
-  const color = profitLoss >= 0 ? '#27AD75' : '#F0616D';
+  const color = profitLoss >= 0 ? 'var(--green)' : 'var(--red)';
 
   return (
     <>
-      <Box display="flex" flexDirection="column" width="50%" alignItems="right" textAlign="right">
+      <Box display="flex" flexDirection="column" alignItems="flex-start" gap="4px">
         <Skeleton
           loading={portfolioSummaryIsPending}
           variant="rectangular"
-          width="50%"
-          height="100%"
+          width="120px"
+          height="32px"
         >
           <div
-            className="min-w-[50px] text-left font-bold md:text-2xl"
+            className="text-lg md:text-2xl"
             style={{
               color,
+              fontWeight: 700,
+              fontFamily: 'Roboto Mono, monospace',
+              letterSpacing: '-0.02em',
             }}
           >
             <TickerDisplay value={valueOfHoldings} format={'USD'} fracDigits={2} type={'animate'} />
@@ -72,25 +77,25 @@ export const HoveredPrice: React.FC<HoverPriceProps> = ({
         <Skeleton
           loading={portfolioSummaryIsPending}
           variant="rectangular"
-          width="50%"
-          height="100%"
+          width="120px"
+          height="20px"
         >
           <div
-            className="min-w-[50px] text-left text-xs"
+            className="text-[11px] md:text-[13px]"
             style={{
               color,
+              fontFamily: 'Roboto Mono, monospace',
+              opacity: 0.85,
             }}
           >
-            <span className="flex flex-col md:flex-row">
+            <span className="flex flex-row items-center gap-1">
               <span>
                 <TickerDisplay value={profitLoss || 0} format={'USD'} fracDigits={2} showArrow />
-                &nbsp;
-                {`(`}
+                {` (`}
                 <TickerDisplay value={roi || 0} format={'PERCENTAGE'} fracDigits={2} />
                 {')'}
               </span>
-              <span className="text-left text-gray-700 dark:text-gray-400">
-                &nbsp;
+              <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>
                 {getStatusLabel(dataIndex, lowestPointIndex, highestPointIndex, selectedTimeFrame)}
               </span>
             </span>

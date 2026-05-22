@@ -1,3 +1,5 @@
+'use client';
+
 // contexts/ReloadContext.tsx
 import { createContext, useState, useContext } from 'react';
 

@@ -1,3 +1,5 @@
+'use client';
+
 /* eslint-disable react/jsx-key */
 import React, { useMemo } from 'react';
 import { useState, useEffect } from 'react';
@@ -68,7 +70,7 @@ const ProductTable: React.FC<Props> = ({
         accessor: 'side',
         styles: { textAlign: 'right' },
         Cell: ({ cell: { value } }: { cell: { value: any } }) => {
-          return <div style={{ color: value === 'BUY' ? '#27AD75' : '#F0616D' }}>{value}</div>;
+          return <div style={{ color: value === 'BUY' ? 'var(--green)' : 'var(--red)' }}>{value}</div>;
         },
       },
       {
@@ -88,7 +90,7 @@ const ProductTable: React.FC<Props> = ({
 
           return (
             <div style={{ display: 'inline-flex', justifyContent: 'flex-end', width: '100%' }}>
-              <div style={{ color: side === 'BUY' ? '#27AD75' : '#F0616D' }}>{sizeStr}</div>
+              <div style={{ color: side === 'BUY' ? 'var(--green)' : 'var(--red)' }}>{sizeStr}</div>
               <div style={{ fontStyle: 'italic' }}> ({parseFloat(runningBalance).toString()})</div>
             </div>
           );
@@ -246,34 +248,50 @@ function TableComponent({ columns, data, loaded }: TableComponentProps) {
   );
 
   const [screenWidth, setScreenWidth] = useState<number | null>(null);
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setScreenWidth(window.innerWidth);
+
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        window.scrollBy({ top: e.deltaY, behavior: 'auto' });
+      }
+    };
+
+    scrollContainer.addEventListener('wheel', handleWheel, { passive: false });
+    return () => scrollContainer.removeEventListener('wheel', handleWheel);
   }, []);
 
   return (
     <div
+      ref={scrollContainerRef}
       className="
          w-full
-         overflow-auto
+         overflow-x-auto
+         overflow-y-visible
          scrollbar
          scrollbar-thin
          scrollbar-track-transparent
          scrollbar-thumb-gray-700
        "
       style={{
-        maxWidth: '900px',
-        overscrollBehavior: 'none', // !important',
+        overscrollBehavior: 'none',
+        touchAction: 'pan-x pan-y',
       }}
     >
       <Table
         {...getTableProps()}
         className=""
         style={{
-          maxWidth: '900px',
-          minWidth: '880px',
-          overscrollBehavior: 'none', // !important',
-          tableLayout: 'auto', // Change from fixed to auto
+          width: '100%',
+          minWidth: '680px',
+          overscrollBehavior: 'none',
+          tableLayout: 'auto',
           textAlign: 'right',
         }}
         variant="plain"
@@ -282,7 +300,11 @@ function TableComponent({ columns, data, loaded }: TableComponentProps) {
         sx={{
           '& thead th': {
             borderBottomWidth: '3px',
-            backgroundColor: '#000',
+            backgroundColor: 'var(--bg-table)',
+            color: 'var(--text-muted)',
+          },
+          '& tbody td': {
+            color: 'var(--text-secondary)',
           },
         }}
       >

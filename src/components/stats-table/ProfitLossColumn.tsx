@@ -1,3 +1,5 @@
+'use client';
+
 /** @jsxImportSource @emotion/react */
 import React, {} from 'react';
 import Box from '@mui/material/Box';
@@ -43,7 +45,7 @@ export const ProfitLossCell: React.FC<Props> = ({ coinSummary }) => {
     percentPL = (curPl / netContributions) * 100;
   }
 
-  const color = curPl > 0 ? '#27AD75' : '#F0616D';
+  const color = curPl > 0 ? 'var(--green)' : 'var(--red)';
 
   return (
     <Box style={{ color }}>

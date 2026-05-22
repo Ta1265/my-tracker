@@ -1,3 +1,5 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
 import { type TimeFrame } from '../components/product/TimeFrameSelect';
 import { type PriceHistoryResp } from '../../types/global';

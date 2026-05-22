@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Skeleton from '@mui/joy/Skeleton';
 import TickerDisplay from '../TickerDisplay';
@@ -17,27 +19,21 @@ export const TotalsSummary: React.FC<{}> = ({}) => {
   } = useSummaryContext();
 
   return (
-    <div
-      className="
-        text-grey-700 
-        justify-space-between
-        justify-left
-        flex
-        flex-row 
-        flex-wrap
-        text-base
-        text-xs
-        md:justify-center
-        md:text-base
-      "
-    >
-      <div className="flex min-w-[50px] flex-col px-3">
-        <div className="flex-basis-1/3 min-w-[50px] py-1 text-center font-bold">Total Value </div>
+    <div className="flex flex-row flex-wrap items-center justify-center gap-0 py-2">
+      {/* Total Value */}
+      <div className="flex flex-col items-center gap-1 px-6 py-1">
+        <div
+          className="flex items-center min-h-[20px] text-xs font-medium uppercase tracking-widest"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          Total Value
+        </div>
         <Skeleton loading={portfolioSummaryIsPending} variant="rectangular" overlay>
           <div
-            className="min-w-[50px] text-left"
+            className="text-xl font-semibold"
             style={{
-              color: portfolioSummary?.inGreen ? '#27AD75' : '#F0616D',
+              color: portfolioSummary?.inGreen ? 'var(--green)' : 'var(--red)',
+              fontFamily: 'Roboto Mono, monospace',
             }}
           >
             <TickerDisplay
@@ -50,16 +46,27 @@ export const TotalsSummary: React.FC<{}> = ({}) => {
           </div>
         </Skeleton>
       </div>
-      <div className="flex-basis-2/3 flex min-w-[50px] flex-col px-3">
-        <div className="min-w-[50px] py-1 text-left font-bold">Total P/L </div>
+
+      {/* Divider */}
+      <div className="hidden md:block self-stretch w-px mx-1" style={{ background: 'var(--border-subtle)' }} />
+
+      {/* Total P/L */}
+      <div className="flex flex-col items-center gap-1 px-6 py-1">
+        <div
+          className="flex items-center min-h-[20px] text-xs font-medium uppercase tracking-widest"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          Total P/L
+        </div>
         <Skeleton loading={portfolioSummaryIsPending} variant="rectangular" overlay>
           <div
-            className="min-w-[50px] text-left"
+            className="text-xl font-semibold"
             style={{
-              color: portfolioSummary?.inGreen ? '#27AD75' : '#F0616D',
+              color: portfolioSummary?.inGreen ? 'var(--green)' : 'var(--red)',
+              fontFamily: 'Roboto Mono, monospace',
             }}
           >
-            <span className="flex flex-col md:flex-row">
+            <span className="flex flex-row items-baseline gap-1.5">
               <span>
                 <TickerDisplay
                   value={portfolioSummary?.totalPLatCurrentPrice || 0}
@@ -68,8 +75,10 @@ export const TotalsSummary: React.FC<{}> = ({}) => {
                   type={'animate'}
                 />
               </span>
-              <span className="text-right text-xs md:text-left md:text-base">
-                &nbsp;
+              <span
+                className="text-sm"
+                style={{ color: portfolioSummary?.inGreen ? 'var(--green)' : 'var(--red)', opacity: 0.7 }}
+              >
                 {`(`}
                 <TickerDisplay
                   value={portfolioSummary?.roi || 0}
@@ -84,37 +93,49 @@ export const TotalsSummary: React.FC<{}> = ({}) => {
         </Skeleton>
       </div>
 
-      <div className="flex-basis-1/3 flex min-w-[50px] flex-col px-3">
-        <div className="flex max-h-[24px] min-w-[50px] flex-row items-center py-1 text-center font-bold capitalize md:max-h-[31.99px]">
-          <span className="pl-4">P/L - {timeFrameDisplay[selectedTimeFrame]}</span>
-          <DeltaSelectFilterMemo showAll={true} />
+      {/* Divider */}
+      <div className="hidden md:block self-stretch w-px mx-1" style={{ background: 'var(--border-subtle)' }} />
+
+      {/* Time Frame P/L */}
+      <div className="flex flex-col items-center gap-1 px-6 py-1">
+        <div
+          className="flex items-center min-h-[20px] gap-1 text-xs font-medium uppercase tracking-widest"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          P/L — {timeFrameDisplay[selectedTimeFrame]}
+          <span className="flex items-center leading-none"><DeltaSelectFilterMemo showAll={true} /></span>
         </div>
         <Skeleton loading={timeFramePlLoading} variant="rectangular" overlay>
           <div
-            className="flex flex-col pr-7 text-right md:flex-row md:pr-1 md:text-left"
+            className="text-xl font-semibold"
             style={{
-              color: timeFramePl > 0 ? '#27AD75' : '#F0616D',
+              color: timeFramePl > 0 ? 'var(--green)' : 'var(--red)',
+              fontFamily: 'Roboto Mono, monospace',
             }}
           >
-            <span>
-              <TickerDisplay
-                value={timeFramePl}
-                format={'USD'}
-                fracDigits={2}
-                type={'animate'}
-                showArrow
-              />
-            </span>
-            <span className="text-right text-xs md:text-left md:text-base">
-              &nbsp;
-              {'('}
-              <TickerDisplay
-                value={timeFramePercentPl}
-                format={'PERCENTAGE'}
-                fracDigits={2}
-                type={'animate'}
-              />
-              {')'}
+            <span className="flex flex-row items-baseline gap-1.5">
+              <span>
+                <TickerDisplay
+                  value={timeFramePl}
+                  format={'USD'}
+                  fracDigits={2}
+                  type={'animate'}
+                  showArrow
+                />
+              </span>
+              <span
+                className="text-sm"
+                style={{ color: timeFramePl > 0 ? 'var(--green)' : 'var(--red)', opacity: 0.7 }}
+              >
+                {'('}
+                <TickerDisplay
+                  value={timeFramePercentPl}
+                  format={'PERCENTAGE'}
+                  fracDigits={2}
+                  type={'animate'}
+                />
+                {')'}
+              </span>
             </span>
           </div>
         </Skeleton>
@@ -122,3 +143,4 @@ export const TotalsSummary: React.FC<{}> = ({}) => {
     </div>
   );
 };
+

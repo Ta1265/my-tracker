@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Skeleton from '@mui/joy/Skeleton';
 import type { CoinSummaryResp } from '../../../types/global';
@@ -35,7 +37,7 @@ const DeltaCell: React.FC<{
 
   const isLoading = isPending;
 
-  const color = pastToCurrentPl < 0 ? '#F0616D' : '#27AD75';
+  const color = pastToCurrentPl < 0 ? 'var(--red)' : 'var(--green)';
   // const arrow = pastToCurrentPl > 0 ? '▲ ' : '▼ ';
 
   return (
@@ -85,6 +87,8 @@ export const DeltaSelectFilter: React.FC<{ showAll?: boolean }> = ({ showAll = f
           sx={{
             padding: '0px',
             border: 0,
+            minHeight: 0,
+            height: '16px',
             textAlign: 'center',
             fontSize: 'inherit',
             backgroundColor: 'inherit',

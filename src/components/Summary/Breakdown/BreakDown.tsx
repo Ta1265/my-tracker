@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { InfoTable } from './InfoTable';
 import { useSummaryContext } from '../SummaryContext';

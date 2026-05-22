@@ -5,9 +5,19 @@ import redisClient from '../redisClient';
 import { type TimeFrame, type PriceHistoryResp } from '../../../types/global';
 
 
-export const getExchangeRates = async () => {
-  // fetch exchange rates from coinbase
+const EXCHANGE_RATE_CACHE_KEY = 'exchange-rates-last-updated';
+const EXCHANGE_RATE_CACHE_TTL = 15; // seconds
 
+// In-memory promise used as a mutex. Concurrent requests within the same
+// Node.js process will await this rather than racing each other to write the DB.
+let inflightUpdate: Promise<any> | null = null;
+
+const doUpdateExchangeRates = async () => {
+  // Set the cache key first so that requests in *other* process instances
+  // (e.g. a second container) also skip re-fetching during the TTL window.
+  await redisClient.setex(EXCHANGE_RATE_CACHE_KEY, EXCHANGE_RATE_CACHE_TTL, '1');
+
+  // fetch exchange rates from coinbase
   let rates = await axios
     .get('https://api.coinbase.com/v2/exchange-rates')
     .then((resp): ExchangeRates => resp.data.data.rates);
@@ -27,10 +37,16 @@ export const getExchangeRates = async () => {
     }))
     .filter(({ unit }) => heldCurrencies.includes(unit));
 
+  // Use a single shared timestamp for all rows so MAX(date) is never a
+  // partially-populated snapshot (the previous bug: concurrent requests each
+  // generated their own nowDate, causing some rows to be visible under the new
+  // MAX while others were still at the old timestamp, dropping those coins from
+  // the INNER JOIN in getCoinSummaries / getPortfolioSummary).
   const nowDate = moment().toDate();
 
-  // upsert the latest exchange rates into the database
-  await Promise.all(
+  // Insert all rows inside a transaction so the new timestamp is either fully
+  // committed for all coins at once, or not at all.
+  await db.$transaction(
     rows.map(
       ({ unit, rate }) =>
         db.$queryRaw<any>`
@@ -43,6 +59,30 @@ export const getExchangeRates = async () => {
 
   // return the exchange rates in case they are needed elsewhere
   return rates;
+};
+
+export const getExchangeRates = async () => {
+  // If an update is already running in this process, wait for it to finish
+  // so that callers always query against fully-written data.
+  if (inflightUpdate) {
+    await inflightUpdate;
+    return null;
+  }
+
+  // If exchange rates were recently updated (in this or another process
+  // instance), skip re-fetching entirely.
+  const lastUpdated = await redisClient.get(EXCHANGE_RATE_CACHE_KEY);
+  if (lastUpdated) {
+    return null;
+  }
+
+  // No update in flight and no recent update — start one. Store the promise so
+  // concurrent requests in this process await it rather than racing it.
+  inflightUpdate = doUpdateExchangeRates().finally(() => {
+    inflightUpdate = null;
+  });
+
+  return inflightUpdate;
 };
 
 

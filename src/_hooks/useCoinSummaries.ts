@@ -1,3 +1,5 @@
+'use client';
+
 import { useQuery, type QueryOptions } from '@tanstack/react-query';
 import { type CoinSummaryResp } from '../../types/global';
 

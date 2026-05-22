@@ -1,3 +1,5 @@
+'use client';
+
 import Grid from "@mui/material/Grid";
 import React from "react";
 import TickerDisplay from '../TickerDisplay';
@@ -32,7 +34,7 @@ export const TitleAndPriceDisplay: React.FC<{}> = () => {
 
   const isLoading = (!price && !timeFrameStartPrice);
 
-  const color = priceDiff > 0 ? '#27AD75' : '#F0616D';
+  const color = priceDiff > 0 ? 'var(--green)' : 'var(--red)';
   const arrowText = priceDiff > 0 ? '▲' : '▼';
 
   return (

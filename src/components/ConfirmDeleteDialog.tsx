@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 // import { Box, Button, DialogContent, DialogContentText } from '@mui/material';
@@ -32,6 +34,7 @@ const ConfirmDeleteDialog = ({
       isOpen={isOpen}
       onRequestClose={() => cancel()}
       contentLabel="Confirm Delete"
+      ariaHideApp={false}
       shouldCloseOnOverlayClick={true}
       className="bg-text-gray-400 flex items-center justify-center bg-opacity-100 outline-none"
       overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75"

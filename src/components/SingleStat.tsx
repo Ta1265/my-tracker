@@ -1,12 +1,12 @@
+'use client';
+
 import React from 'react';
 import Skeleton from '@mui/joy/Skeleton';
 import { useQuery } from '@tanstack/react-query';
 import type { CoinSummaryResp } from '../../types/global';
 import TickerDisplay from './TickerDisplay';
 import { usePriceHistory } from '../context/PriceHistoryProvider';
-import Select from '@mui/joy/Select';
-import Option from '@mui/joy/Option';
-import { Checkbox } from 'flowbite-react';
+import { useSingleStat } from '../context/SingleStatContext';
 
 export const timeFrameDisplay = {
   h: '1 Hour',
@@ -19,21 +19,6 @@ export const timeFrameDisplay = {
   all: 'All Time',
 };
 
-const STATS_LABEL_LIST = [
-  'Coins Held',
-  'Value',
-  ' Total P/L',
-  'P/L Timeframe',
-  ' ROI',
-  ' ROR',
-  'Cost Basis',
-  ' BreakEven Shares',
-  ' BreakEven Price',
-  'AVG. Buy',
-  'AVG. Sell',
-  'Net Contrib.',
-  'Net Cash',
-];
 
 const StatDisplay: React.FC<{
   label: string;
@@ -49,9 +34,14 @@ const StatDisplay: React.FC<{
     return null;
   }
   return (
-    <div className="px-2 py-1 min-w-[100px] md:min-w-[135px]">
+    <div className="px-2 py-1 min-w-[100px] md:min-w-[130px]">
       <div className="flex-col">
-        <div className="py-1 text-center font-semibold underline decoration-dotted">{label}</div>
+        <div
+          className="py-1 text-center text-xs font-medium uppercase tracking-wider"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          {label}
+        </div>
           <Skeleton
             width={100}
             height={24}
@@ -59,8 +49,9 @@ const StatDisplay: React.FC<{
             variant="rectangular"
           >
           <div
-            className="text-white whitespace-nowrap text-sm md:text-base"
+            className="whitespace-nowrap text-sm md:text-base"
             style={{
+              color: 'var(--text-secondary)',
               fontFamily: 'Roboto Mono, monospace',
             }}
           >
@@ -73,26 +64,8 @@ const StatDisplay: React.FC<{
 };
 
 
-const LOCAL_STORAGE_KEY = 'selectedStats';
-
 const SingleStat: React.FC<{}> = () => {
-  const [selectedStats, setSelectedStats] = React.useState<string[]>(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (stored) {
-        try {
-          return JSON.parse(stored);
-        } catch {}
-      }
-    }
-    return STATS_LABEL_LIST;
-  });
-
-  React.useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(selectedStats));
-    }
-  }, [selectedStats]);
+  const { selectedStats } = useSingleStat();
 
   const {
     unit,
@@ -150,53 +123,8 @@ const SingleStat: React.FC<{}> = () => {
 
   return (
    <>
-   <div className="w-full inline-block">
-      <Select
-        multiple
-        value={[]}
-        className="
-            hover:border-grey-700
-            font-b
-            ml-auto
-            bg-gray-700
-            px-1
-            py-2
-            text-xl
-            text-white
-            dark:bg-black sm:text-xl
-            w-50px
-            float-right
-          "
-        sx={{
-          border: 0,
-          fontSize: {
-            sm: '20px',
-            md: '20px',
-            lg: '24px',
-          },
-        }}
-      >
-        {STATS_LABEL_LIST.map((label) => (
-          <Option
-            key={label}
-            value={label}
-            onClick={() => {
-              if (selectedStats.includes(label)) {
-                setSelectedStats(selectedStats.filter((k) => k !== label));
-              } else {
-                setSelectedStats([...selectedStats, label]);
-              }
-            }}
-          >
-            <Checkbox checked={selectedStats.includes(label)} />
-            {label}
-          </Option>
-        ))}
-      </Select>
-    </div>
     <div
       className="
-        text-grey-700 
         justify-space-evenly
         flex
         flex-row
@@ -204,9 +132,9 @@ const SingleStat: React.FC<{}> = () => {
         justify-evenly 
         text-center 
         text-sm
-        text-gray-500
-        dark:text-gray-400
         md:text-base
+        py-2
+        px-1
       "
     >
       <StatDisplay
@@ -234,7 +162,7 @@ const SingleStat: React.FC<{}> = () => {
           <div
             className="flex-col"
             style={{
-              color: curPl > 0 ? '#27AD75' : '##F0616D',
+              color: curPl > 0 ? 'var(--green)' : 'var(--red)',
             }}
           >
             <TickerDisplay value={curPl} format={'USD'} showArrow />
@@ -264,7 +192,7 @@ const SingleStat: React.FC<{}> = () => {
           <div
             className="text-center"
             style={{
-              color: !priceChange || priceChange < 0 ? '#F0616D' : '#27AD75',
+              color: !priceChange || priceChange < 0 ? 'var(--red)' : 'var(--green)',
             }}
           >
             <TickerDisplay
@@ -284,7 +212,7 @@ const SingleStat: React.FC<{}> = () => {
         label=" ROI"
         isPending={isPending}
         content={
-          <div style={{ color: roi > 0 ? '#27AD75' : '#F0616D' }}>
+          <div style={{ color: roi > 0 ? 'var(--green)' : 'var(--red)' }}>
             <TickerDisplay value={roi} format={'PERCENTAGE'} showArrow />
           </div>
         }
@@ -294,7 +222,7 @@ const SingleStat: React.FC<{}> = () => {
         label=" ROR"
         isPending={isPending}
         content={
-          <div style={{ color: roi > 0 ? '#27AD75' : '#F0616D' }}>
+          <div style={{ color: roi > 0 ? 'var(--green)' : 'var(--red)' }}>
             <TickerDisplay value={ror} format={'PERCENTAGE'} showArrow />
           </div>
         }

@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Box from '@mui/material/Box';
 import { usePriceFeed } from '../../context/CoinbaseWsFeedContext';
@@ -27,7 +29,7 @@ const CurrentPrice: React.FC<{
 
   const isLoading = isPending;
 
-  const color = priceChange && priceChange < 0 ? '#F0616D' : '#27AD75';
+  const color = priceChange && priceChange < 0 ? 'var(--red)' : 'var(--green)';
   const arrow = priceChange && priceChange > 0 ? '▲ ' : '▼ ';
 
   return (

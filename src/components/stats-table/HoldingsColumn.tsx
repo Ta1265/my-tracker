@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { usePriceFeed } from '../../context/CoinbaseWsFeedContext';
 import TickerDisplay from '../TickerDisplay';

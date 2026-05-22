@@ -1,3 +1,5 @@
+'use client';
+
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import dayjs from 'dayjs';
@@ -18,8 +20,6 @@ import { useReload } from '../context/ReloadContext';
 import { SnackbarContext } from '../context/SnackBarContext';
 import { useGetTokenList } from '../_hooks/useGetTokenList';
 import { Grid } from '@mui/material';
-
-Modal.setAppElement('#__next');
 
 const textFieldSx = {
   '& .MuiOutlinedInput-root': {
@@ -224,27 +224,41 @@ const AddTransaction: React.FC<{
       <Modal
         isOpen={isOpen}
         onRequestClose={closeModal}
+        ariaHideApp={false}
         shouldCloseOnOverlayClick={false}
         contentLabel="Add Transaction"
-        className="bg-text-gray-400 flex items-center justify-center overflow-auto bg-opacity-100 outline-none"
-        overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75"
+        className="outline-none"
+        overlayClassName="fixed inset-0 z-[99] modal-overlay"
         style={{
           overlay: {
-            zIndex: 99,
+            background: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'center',
           },
           content: {
-            width: '80%',
-            maxWidth: '450px',
-            maxHeight: '100%',
-            borderRadius: '0.5rem', // rounded corners
-            // backgroundColor: '#1F2937', // background color
-            backgroundColor: 'black',
-            padding: '2rem', // padding
-            zIndex: 75, // make sure it's on top of the table
-            border: '3px solid #2D3748',
+            position: 'relative',
+            inset: 'unset',
+            width: '100%',
+            maxWidth: '500px',
+            maxHeight: '92dvh',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            boxSizing: 'border-box',
+            borderRadius: '16px 16px 0 0',
+            background: 'var(--bg-elevated)',
+            padding: '1.25rem 1rem',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderBottom: 'none',
+            boxShadow: '0 -8px 40px rgba(0,0,0,0.6)',
           },
         }}
       >
+        {/* Drag handle (visible on mobile) */}
+        <div className="mx-auto mb-4 h-1 w-10 rounded-full sm:hidden" style={{ background: 'rgba(255,255,255,0.15)' }} />
+
         {/* <form onSubmit={handleSubmit} className=""> */}
         <Grid container spacing={2}>
           <Grid item xs={12}>

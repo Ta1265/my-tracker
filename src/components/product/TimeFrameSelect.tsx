@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
@@ -86,19 +88,6 @@ export const TimeFrameSelect: React.FC<Props> = () => {
   } = usePriceHistory();
   return (
     <Select
-      // className="ml-auto rounded-md bg-gray-700 px-4 py-2 text-sm text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-      className="
-            hover:border-grey-700
-            font-b
-            ml-auto
-            bg-gray-700
-            px-1
-            py-2
-            text-xl
-            text-white
-            dark:bg-black sm:text-xl
-
-          "
       onChange={(
         event: React.SyntheticEvent | null,
         newValue: 'h' | 'd' | 'w' | 'm' | '3m' | '6m' | 'y' | 'all' | null,
@@ -108,11 +97,21 @@ export const TimeFrameSelect: React.FC<Props> = () => {
       }}
       defaultValue={timeFrame}
       sx={{
-        border: 0,
+        border: '1px solid var(--border-medium)',
+        borderRadius: '8px',
+        backgroundColor: 'var(--bg-elevated)',
+        color: 'var(--text-primary)',
         fontSize: {
           sm: '20px',
           md: '20px',
           lg: '24px',
+        },
+        '&:hover': {
+          backgroundColor: 'var(--bg-card-hover)',
+          borderColor: 'var(--border-accent)',
+        },
+        '& svg': {
+          color: 'var(--text-secondary)',
         },
       }}
     >

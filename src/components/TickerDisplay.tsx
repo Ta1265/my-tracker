@@ -1,3 +1,5 @@
+'use client';
+
 /** @jsxImportSource @emotion/react */
 import React from 'react';
 import { css, keyframes } from '@emotion/react';
@@ -42,7 +44,7 @@ const Ticker: React.FC<{
   let color = 'none';
   let flash = '';
   if (value > prev) {
-    color = '#27AD75';
+    color = 'var(--green)';
     flash = flashGreen;
   }
   if (value < prev) {

@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { motion } from "framer-motion";
 import debounce from 'lodash/debounce';
@@ -70,7 +72,7 @@ function TickerArrow({ value, showArrow }: { value: number, showArrow: boolean }
 
   if (showArrow && change > 0) {
     arrow = '▲';
-    color = '#27AD75';
+    color = 'var(--green)';
   }
   if (showArrow && change < 0) {
     arrow = '▼';

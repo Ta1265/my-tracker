@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { usePriceHistory } from '../../context/PriceHistoryProvider';
 import Box from '@mui/material/Box';
@@ -21,7 +23,7 @@ export const TransactionProfitLossColumn: React.FC<{
     profitLoss = Math.abs(total) - currentValue;
   }
 
-  const color = profitLoss > 0 ? '#27AD75' : '#F0616D';
+  const color = profitLoss > 0 ? 'var(--green)' : 'var(--red)';
 
   return (
     <Box style={{ color }}>

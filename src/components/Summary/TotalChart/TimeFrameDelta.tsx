@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Box from '@mui/material/Box';
 import TickerDisplay from '../../TickerDisplay';
@@ -37,7 +39,7 @@ export const TimeFrameDelta: React.FC<TimeFrameDeltaProps> = () => {
         <div
           className="flex flex-row justify-end text-right"
           style={{
-            color: (timeFramePl || 0) > 0 ? '#27AD75' : '#F0616D',
+            color: (timeFramePl || 0) > 0 ? 'var(--green)' : 'var(--red)',
           }}
         >
           <Skeleton loading={loading} variant="rectangular" width="100%" height="20.5px">

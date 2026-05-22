@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { visuallyHidden } from '@mui/utils';

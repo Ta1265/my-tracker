@@ -24,6 +24,7 @@ COPY next-env.d.ts .
 COPY tailwind.config.ts .
 COPY postcss.config.js .
 COPY types.d.ts .
+COPY types ./types
 ENV NEXT_TELEMETRY_DISABLED 1
 RUN npx prisma generate
 
