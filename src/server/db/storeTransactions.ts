@@ -1,6 +1,7 @@
 // import { readCSV } from '../../utils/read-csv';
 import unitToNameMap from '../../data/coinsUnitToNameMap';
 import { db } from './db';
+import logger from '../logger';
 
 // const getTransactions = async (): Promise<Transaction[]> => {
 //   return readCSV('src/data/transactions.csv').then((results) =>
@@ -51,6 +52,6 @@ export const setTransactionNames = async () => {
       `;
     }),
   )
-    .then((result) => console.log('finished setting transaction names', result))
-    .catch((error) => console.error('error setting transaction names', error));
+    .then((result) => logger.info('finished setting transaction names', { result }))
+    .catch((error) => logger.error('error setting transaction names', { error }));
 };

@@ -3,6 +3,8 @@ import { db } from '../db/db';
 import moment from 'moment';
 import redisClient from '../redisClient';
 import { type TimeFrame, type PriceHistoryResp } from '../../../types/global';
+import { externalApiCallsCounter, redisCacheResultsCounter } from '../metrics';
+import logger from '../logger';
 
 
 const EXCHANGE_RATE_CACHE_KEY = 'exchange-rates-last-updated';
@@ -18,6 +20,7 @@ const doUpdateExchangeRates = async () => {
   await redisClient.setex(EXCHANGE_RATE_CACHE_KEY, EXCHANGE_RATE_CACHE_TTL, '1');
 
   // fetch exchange rates from coinbase
+  externalApiCallsCounter.inc({ api: 'coinbase' });
   let rates = await axios
     .get('https://api.coinbase.com/v2/exchange-rates')
     .then((resp): ExchangeRates => resp.data.data.rates);
@@ -101,11 +104,6 @@ const cacheExpirationForTimeFrame = {
   all: 1 * day,
 }
 
-const priceHistoryCacheTracker = {
-  hit: 0,
-  miss: 0,
-};
-
 
 export const getPriceHistoryForTimeFrame = async (coinName: string, timeFrame: TimeFrame = 'all'): Promise<PriceHistoryResp> => {
   if (
@@ -122,14 +120,13 @@ export const getPriceHistoryForTimeFrame = async (coinName: string, timeFrame: T
 
   const cacheValue = await redisClient.get(cacheKey);
 
-  priceHistoryCacheTracker[cacheValue ? 'hit' : 'miss'] += 1;
-
-  console.log(`getCoinPriceForTimeFrame cache hits: ${priceHistoryCacheTracker.hit}, misses: ${priceHistoryCacheTracker.miss}`);
-
   if (cacheValue) {
+    redisCacheResultsCounter.inc({ cache_key_prefix: 'price_history', result: 'hit' });
+    logger.info('price_history cache hit', { cacheKey });
     return JSON.parse(cacheValue);
   } else {
-    console.log(`Cache miss for key: ${cacheKey}, Failing request.`);
+    redisCacheResultsCounter.inc({ cache_key_prefix: 'price_history', result: 'miss' });
+    logger.warn('price_history cache miss', { cacheKey });
     throw new Error('Cache miss getPriceHistoryForTimeFrame');
   }
 

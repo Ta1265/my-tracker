@@ -6,6 +6,7 @@ import {
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcrypt';
 import { db } from './db/db';
+import logger from './logger';
 // import { encode, decode } from 'next-auth/jwt';
 // import Cookies from 'cookies';
 // import { randomUUID } from 'crypto';
@@ -115,7 +116,7 @@ export const authOptions: NextAuthOptions = {
           .findFirst({
             where: { username: username.toLowerCase() },
           })
-          .catch((error) => console.error('Auth Error: ', error));
+          .catch((error) => { logger.error('Auth Error', { error }); return null; });
 
         if (!user) {
           return null;
@@ -124,7 +125,7 @@ export const authOptions: NextAuthOptions = {
         const isValidPassword = await bcrypt.compare(password, user.password);
 
         if (!isValidPassword) {
-          console.log('Invalid password for user: ', user.username);
+          logger.warn('Invalid password attempt', { username: user.username });
           return null;
         }
 

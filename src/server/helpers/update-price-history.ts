@@ -6,6 +6,7 @@ import { type TimeFrame, type PriceHistoryResp, ProfitLossChartResp } from '../.
 import { getPriceHistoryForTimeFrame } from './get-exchange-rates';
 import DBService from '../db/dbService';
 import { Prisma } from '@prisma/client';
+import logger from '../logger';
 
 
 export async function getPriceHistoryMap(userId: number, timeFrame: TimeFrame = 'all', firstTxDate?: moment.Moment) {
@@ -62,17 +63,9 @@ export async function getNetCashFlowHistory(userId: number, timeFrame: TimeFrame
   const tokenPriceDates = await getPriceHistoryMap(userId, timeFrame, firstTxDate);
 
   if (!transactions?.length) {
-    console.log(`No transactions found for userId ${userId}. Skipping NetCashFlow calculation.`);
+    logger.info('No transactions found, skipping NetCashFlow calculation', { userId });
     return;
   }
-
-  let netCash = 0; // Tracks remaining cash from sell transactions
-  let netContributions = 0; // Tracks total personal funds contributed
-
-  const TokenData: { [unit: string]: { holdings: number; costBasis: number } } = {}; 
-
-  // const netRows: Parameters<typeof DBService.insertIntoNetCashFlow>[0] = [];
-  const netRows: ProfitLossChartResp['netRows'] = [];
 
   let lowestPointIndex = 0;
   let highestPointIndex = 0; 
@@ -140,7 +133,7 @@ export async function getNetCashFlowHistory(userId: number, timeFrame: TimeFrame
     });
   });
 
-  console.log(`getNetCashFlowHistory generated ${netRows.length} rows for userId ${userId} and timeFrame ${timeFrame}.`);
+  logger.info('getNetCashFlowHistory complete', { userId, timeFrame, rowCount: netRows.length });
 
   return {
     netRows,
@@ -153,7 +146,7 @@ export async function getNetCashFlowHistory(userId: number, timeFrame: TimeFrame
 export async function updateNetCashFlowTableData(userId: number, timeFrame: TimeFrame = 'all') {
   const transactions = await DBService.getBuySellTotalFiFo(userId);
   if (!transactions?.length) {
-    console.log(`No transactions found for userId ${userId}. Skipping NetCashFlow calculation.`);
+    logger.info('No transactions found, skipping NetCashFlow calculation', { userId });
     return;
   }
 
@@ -240,13 +233,13 @@ export async function updateNetCashFlowTableData(userId: number, timeFrame: Time
 export const syncPriceHistoryToDbForUserId = async (userId: number, timeFrame: TimeFrame = 'all') => {
   const tokens = await DBService.getTokensForUserId(userId);
 
-  console.log(`syncPriceHistoryToDbForUserId found ${tokens.length} tokens for userId ${userId}`);
+  logger.info('syncPriceHistoryToDbForUserId found tokens', { userId, count: tokens.length });
 
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
     try {
-      console.log(`Fetching price history for ${token.coinName}...`);
+      logger.info('Fetching price history', { coinName: token.coinName });
       const tokenPriceHistory = await getPriceHistoryForTimeFrame(token.coinName, timeFrame);
 
       await DBService.insertIntoTokenPriceHistory(tokenPriceHistory.prices.map(([unixTimestamp, closePrice]) => ({
@@ -257,7 +250,7 @@ export const syncPriceHistoryToDbForUserId = async (userId: number, timeFrame: T
       })));
 
     } catch (error) {
-      console.error(`Error fetching/storing price history for ${token.coinName}:`, error);
+      logger.error('Error fetching/storing price history', { coinName: token.coinName, error });
       throw error;
     }
   }

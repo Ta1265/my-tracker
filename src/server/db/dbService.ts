@@ -3,6 +3,7 @@ import { db } from './db';
 import { Prisma } from '@prisma/client'
 import moment from 'moment';
 import { type TimeFrame } from '../../../types/global';
+import logger from '../logger';
 
 export interface CoinSummary {
   productName: string;
@@ -303,7 +304,7 @@ const getTokensForUserId = async (userId: number): Promise<{ coinName: string; u
 
 const insertIntoTokenPriceHistory = async (rows: { timeFrame: TimeFrame; closePrice: string; timeStamp: string; tokenInfoId: number; }[]) => {
   if (rows.length === 0) {
-    console.log('No rows to insert into TokenPriceHistory.');
+    logger.info('No rows to insert into TokenPriceHistory.');
     return;
   }
   const values = rows
@@ -317,7 +318,7 @@ const insertIntoTokenPriceHistory = async (rows: { timeFrame: TimeFrame; closePr
   
   const result = await db.$executeRawUnsafe(sql);
 
-  console.log(`Inserted ${result} rows into TokenPriceHistory.`);
+  logger.info(`Inserted ${result} rows into TokenPriceHistory.`, { count: result });
 }
 
 const insertIntoNetCashFlow = async (
@@ -334,7 +335,7 @@ const insertIntoNetCashFlow = async (
   }[],
 ) => {
   if (rows.length === 0) {
-    console.log('No rows to insert into NetCashFlow.');
+    logger.info('No rows to insert into NetCashFlow.');
     return;
   }
   const values = rows
@@ -358,7 +359,7 @@ const insertIntoNetCashFlow = async (
 
   const result = await db.$executeRawUnsafe(sql);
 
-  console.log(`Inserted/Updated ${result} rows into NetCashFlow.`);
+  logger.info(`Inserted/Updated ${result} rows into NetCashFlow.`, { count: result });
 };
 
 
@@ -410,7 +411,7 @@ async function getPriceHistoryMap(
     ORDER BY date ASC;
   `;
 
-  console.log('rows', rows[0])
+  logger.debug('getPriceHistoryMap first row', { row: rows[0] });
 
   return rows.map(({ date, tokens }) => ({ 
     date: moment(date).format('YYYY-MM-DD HH:mm:ss'),
