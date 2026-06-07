@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-export type ThemeId = 'deep-space' | 'light' | 'midnight-purple' | 'forest-dark' | 'material';
+export type ThemeId = 'deep-space' | 'light' | 'midnight-purple' | 'forest-dark' | 'material' | 'slate-gold';
 
 export interface Theme {
   id: ThemeId;
@@ -15,6 +15,7 @@ export const themes: Theme[] = [
   { id: 'midnight-purple', label: 'Ember Dark' },
   { id: 'forest-dark', label: 'Forest' },
   { id: 'material', label: 'Material' },
+  { id: 'slate-gold', label: 'Slate Gold' },
 ];
 
 interface ThemeContextValue {

@@ -16,6 +16,8 @@ import SortArrow from './SortArrow';
 import { useCoinSummaries } from '../_hooks/useCoinSummaries';
 import Image from 'next/image';
 
+const EMPTY_STATS_DATA: CoinSummaryResp[] = [];
+
 const statsColumns: Column<CoinSummaryResp>[] = [
   {
     Header: ' ',
@@ -99,7 +101,7 @@ const statsColumns: Column<CoinSummaryResp>[] = [
 ];
 
 export default function StatsTable() {
-  const { data = [] } = useCoinSummaries();
+  const { data = EMPTY_STATS_DATA } = useCoinSummaries();
   const router = useRouter();
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
@@ -109,8 +111,8 @@ export default function StatsTable() {
 
   return (
     <div
-      className="gradient-border w-full"
-      style={{ maxWidth: '960px', borderRadius: '12px', background: 'var(--bg-table)' }}
+      className="glass-card gradient-border w-full overflow-hidden"
+      style={{ maxWidth: '960px', borderRadius: '12px' }}
     >
       <div
         className="
@@ -123,7 +125,7 @@ export default function StatsTable() {
            scrollbar-thumb-gray-700
          "
         style={{
-          overscrollBehavior: 'none',
+          // overscrollBehavior: 'none',
           borderRadius: '12px',
           touchAction: 'pan-x pan-y',
         }}
@@ -143,58 +145,72 @@ export default function StatsTable() {
               zIndex: 99,
               position: 'sticky',
               left: 0,
-              bgcolor: 'var(--bg-table)',
+              bgcolor: 'transparent',
+              boxShadow: 'inset -1px 0 0 var(--border-subtle)',
             },
             '& thead th': {
-              bgcolor: 'var(--bg-table)',
+              bgcolor: 'transparent',
               borderBottom: '1px solid var(--border-medium)',
               textAlign: 'left',
               verticalAlign: 'middle',
               color: 'var(--text-muted)',
-              fontSize: '11px',
-              fontWeight: 600,
-              letterSpacing: '0.08em',
+              fontSize: '10px',
+              fontWeight: 700,
+              letterSpacing: '0.10em',
               textTransform: 'uppercase',
+              paddingTop: '12px',
+              paddingBottom: '12px',
             },
             '& tbody td': {
               textAlign: 'left',
               color: 'var(--text-secondary)',
               fontSize: '13px',
+              paddingTop: '10px',
+              paddingBottom: '10px',
             },
             '& tbody tr': {
               borderBottom: '1px solid var(--border-subtle)',
+              transition: 'background 0.15s ease',
             },
           }}
         >
           <thead>
-            {headerGroups.map((headerGroup) => (
-              <tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map((column: any) => (
-                  <th
-                    {...column.getHeaderProps()}
-                    key={column.id}
-                    style={{
-                      ...(column.myWidth ? { width: column.myWidth } : { width: '110px' }),
-                    }}
-                  >
-                    <span className="flex flex-row items-center">
-                      <span style={{ visibility: 'hidden' }}> ▲ </span>
-                      <SortArrow isSorted={column.isSorted} isSortedDesc={column.isSortedDesc}>
-                        <span {...column.getSortByToggleProps()}>{column.render('Header')}</span>
-                      </SortArrow>
-                      {column.Filter && column.render('Filter')}
-                    </span>
-                  </th>
-                ))}
-              </tr>
-            ))}
+            {headerGroups.map((headerGroup) => {
+              const { key: headerGroupKey, ...headerGroupProps } = headerGroup.getHeaderGroupProps();
+              return (
+                <tr key={headerGroupKey} {...headerGroupProps}>
+                  {headerGroup.headers.map((column: any) => {
+                    const { key: _colKey, ...colHeaderProps } = column.getHeaderProps();
+                    return (
+                      <th
+                        {...colHeaderProps}
+                        key={column.id}
+                        style={{
+                          ...(column.myWidth ? { width: column.myWidth } : { width: '110px' }),
+                        }}
+                      >
+                        <span className="flex flex-row items-center">
+                          <span style={{ visibility: 'hidden' }}> ▲ </span>
+                          <SortArrow isSorted={column.isSorted} isSortedDesc={column.isSortedDesc}>
+                            <span {...column.getSortByToggleProps()}>{column.render('Header')}</span>
+                          </SortArrow>
+                          {column.Filter && column.render('Filter')}
+                        </span>
+                      </th>
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </thead>
           <tbody {...getTableBodyProps()}>
             {rows.map((row) => {
               prepareRow(row);
+              const { key: rowKey, ...rowProps } = row.getRowProps();
               return (
                 <tr
-                  {...row.getRowProps()}
+                  key={rowKey}
+                  {...rowProps}
                   onClick={() => {
                     router.push(
                       `/product?unit=${encodeURIComponent(row.original.productName)}&name=${encodeURIComponent(row.original.coinName)}`
@@ -208,9 +224,10 @@ export default function StatsTable() {
                     (e.currentTarget as HTMLElement).style.background = 'transparent';
                   }}
                 >
-                  {row.cells.map((cell) => (
-                    <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                  ))}
+                  {row.cells.map((cell) => {
+                    const { key: cellKey, ...cellProps } = cell.getCellProps();
+                    return <td key={cellKey} {...cellProps}>{cell.render('Cell')}</td>;
+                  })}
                 </tr>
               );
             })}

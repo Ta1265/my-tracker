@@ -30,7 +30,7 @@ export const TotalsSummary: React.FC<{}> = ({}) => {
         </div>
         <Skeleton loading={portfolioSummaryIsPending} variant="rectangular" overlay>
           <div
-            className="text-xl font-semibold"
+            className="text-base md:text-xl font-semibold"
             style={{
               color: portfolioSummary?.inGreen ? 'var(--green)' : 'var(--red)',
               fontFamily: 'Roboto Mono, monospace',
@@ -60,7 +60,7 @@ export const TotalsSummary: React.FC<{}> = ({}) => {
         </div>
         <Skeleton loading={portfolioSummaryIsPending} variant="rectangular" overlay>
           <div
-            className="text-xl font-semibold"
+            className="text-base md:text-xl font-semibold"
             style={{
               color: portfolioSummary?.inGreen ? 'var(--green)' : 'var(--red)',
               fontFamily: 'Roboto Mono, monospace',
@@ -76,7 +76,7 @@ export const TotalsSummary: React.FC<{}> = ({}) => {
                 />
               </span>
               <span
-                className="text-sm"
+                className="text-xs md:text-sm"
                 style={{ color: portfolioSummary?.inGreen ? 'var(--green)' : 'var(--red)', opacity: 0.7 }}
               >
                 {`(`}
@@ -107,7 +107,7 @@ export const TotalsSummary: React.FC<{}> = ({}) => {
         </div>
         <Skeleton loading={timeFramePlLoading} variant="rectangular" overlay>
           <div
-            className="text-xl font-semibold"
+            className="text-base md:text-xl font-semibold"
             style={{
               color: timeFramePl > 0 ? 'var(--green)' : 'var(--red)',
               fontFamily: 'Roboto Mono, monospace',
@@ -124,7 +124,7 @@ export const TotalsSummary: React.FC<{}> = ({}) => {
                 />
               </span>
               <span
-                className="text-sm"
+                className="text-xs md:text-sm"
                 style={{ color: timeFramePl > 0 ? 'var(--green)' : 'var(--red)', opacity: 0.7 }}
               >
                 {'('}

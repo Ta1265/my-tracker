@@ -12,6 +12,17 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import { useSingleStat } from '../context/SingleStatContext';
 import { useSummaryVisibility } from '../context/SummaryVisibilityContext';
 import { useTheme, themes, type ThemeId } from '../context/ThemeContext';
+import { useBackground, backgrounds, type BackgroundId } from '../context/BackgroundContext';
+
+/** Swatch colour shown next to each theme name in the dropdown. */
+const themeSwatchColor: Record<ThemeId, string> = {
+  'deep-space': '#3b82f6',
+  'light': '#2563eb',
+  'midnight-purple': '#f97316',
+  'forest-dark': '#80cbc4',
+  'material': '#80cbc4',
+  'slate-gold': '#c49c3f',
+};
 
 const TopNav: React.FC<{}> = ({}) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,6 +33,7 @@ const TopNav: React.FC<{}> = ({}) => {
   const { selectedStats, toggleStat, statLabelList } = useSingleStat();
   const { showChart, setShowChart, showSummary, setShowSummary, showBreakdown, setShowBreakdown } = useSummaryVisibility();
   const { theme, setTheme } = useTheme();
+  const { background, setBackground } = useBackground();
   const light = theme === 'light';
 
   return (
@@ -41,48 +53,35 @@ const TopNav: React.FC<{}> = ({}) => {
         <div
           className="mx-auto flex w-full max-w-[960px] items-center gap-4 px-4 py-3"
         >
-          {/* Logo + Portfolio button */}
-          <div className="flex items-center gap-2">
-            {/* App logo */}
-            <div
-              className="flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0"
-              style={{ color: 'var(--accent-blue)' }}
-            >
-              <Image src="/logo.svg" alt="logo" width={32} height={32} style={{ filter: 'none' }} />
-            </div>
-
-            {/* Contained Portfolio button */}
-            <Link
-              href="/stats"
-              className="flex items-center rounded-lg px-3 py-1.5 text-sm font-semibold transition-all"
-              style={{
-                background: 'var(--accent-blue-glow)',
-                border: '1px solid var(--add-btn-border)',
-                color: 'var(--add-btn-color)',
-                letterSpacing: '0.01em',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.background = 'var(--add-btn-hover-bg)';
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--add-btn-hover-border)';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.background = 'var(--accent-blue-glow)';
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--add-btn-border)';
-              }}
-            >
-              Portfolio
-            </Link>
-          </div>
+          {/* Logo — links to /stats */}
+          <Link
+            href="/stats"
+            className="flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0 transition-opacity"
+            style={{ opacity: 1 }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.75'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
+            aria-label="Portfolio"
+          >
+            <Image
+              src="/logo.svg"
+              alt="logo"
+              width={32}
+              height={32}
+              style={{ filter: light ? 'none' : 'brightness(0) invert(1)' }}
+            />
+          </Link>
 
           {/* Add Transaction button */}
           <button
             onClick={() => setIsOpen(true)}
-            className="ml-2 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all"
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all"
             style={{
               background: 'var(--add-btn-bg)',
               border: '1px solid var(--add-btn-border)',
               color: 'var(--add-btn-color)',
               letterSpacing: '0.01em',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
             }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLElement).style.background = 'var(--add-btn-hover-bg)';
@@ -220,9 +219,43 @@ const TopNav: React.FC<{}> = ({}) => {
                     ) : (
                       <CheckBoxOutlineBlankIcon className="text-gray-600" fontSize="small" />
                     )}
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        background: themeSwatchColor[t.id],
+                        flexShrink: 0,
+                      }}
+                    />
                     <span style={{ color: 'var(--text-secondary)' }}>
                       {t.label}
                     </span>
+                  </Dropdown.Item>
+                ))}
+                <div style={{ borderTop: '1px solid var(--border-subtle)', margin: '4px 0' }} />
+                <Dropdown.Header
+                  className="py-1.5 px-4"
+                  style={{ background: 'var(--dropdown-bg)', borderBottom: '1px solid var(--border-subtle)', borderTop: '1px solid var(--border-subtle)' }}
+                >
+                  <span className="block text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                    Background
+                  </span>
+                </Dropdown.Header>
+                {backgrounds.map((b) => (
+                  <Dropdown.Item
+                    key={b.id}
+                    className="flex items-center gap-2 px-4 py-1.5 text-sm"
+                    onClick={() => setBackground(b.id as BackgroundId)}
+                  >
+                    {background === b.id ? (
+                      <CheckBoxIcon className="text-blue-400" fontSize="small" />
+                    ) : (
+                      <CheckBoxOutlineBlankIcon className="text-gray-600" fontSize="small" />
+                    )}
+                    <span style={{ fontSize: 13, lineHeight: 1, userSelect: 'none' }}>{b.icon}</span>
+                    <span style={{ color: 'var(--text-secondary)' }}>{b.label}</span>
                   </Dropdown.Item>
                 ))}
                 <div style={{ borderTop: '1px solid var(--border-subtle)', margin: '4px 0' }} />

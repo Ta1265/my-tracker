@@ -12,6 +12,8 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { useQuery } from '@tanstack/react-query';
 import { type ProductTransaction } from '../../../types/global';
 
+const EMPTY_PRODUCT_DATA: ProductTransaction[] = [];
+
 const sortDollars = (rowA: any, rowB: any, columnId: string) => {
   const aNum = parseFloat(rowA.values[columnId].replace(/[$,]/g, ''));
   const bNum = parseFloat(rowB.values[columnId].replace(/[$,]/g, ''));
@@ -231,7 +233,7 @@ const ProductTable: React.FC<Props> = ({
   }, []);
 
   return (
-    <TableComponent columns={columns} data={query.data || []} loaded={loaded && query.isSuccess} />
+    <TableComponent columns={columns} data={query.data ?? EMPTY_PRODUCT_DATA} loaded={loaded && query.isSuccess} />
   );
 };
 
@@ -280,7 +282,7 @@ function TableComponent({ columns, data, loaded }: TableComponentProps) {
          scrollbar-thumb-gray-700
        "
       style={{
-        overscrollBehavior: 'none',
+        // overscrollBehavior: 'none',
         touchAction: 'pan-x pan-y',
       }}
     >
@@ -290,7 +292,7 @@ function TableComponent({ columns, data, loaded }: TableComponentProps) {
         style={{
           width: '100%',
           minWidth: '680px',
-          overscrollBehavior: 'none',
+          // overscrollBehavior: 'none',
           tableLayout: 'auto',
           textAlign: 'right',
         }}
@@ -300,7 +302,7 @@ function TableComponent({ columns, data, loaded }: TableComponentProps) {
         sx={{
           '& thead th': {
             borderBottomWidth: '3px',
-            backgroundColor: 'var(--bg-table)',
+            backgroundColor: 'transparent',
             color: 'var(--text-muted)',
           },
           '& tbody td': {

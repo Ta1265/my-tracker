@@ -260,6 +260,173 @@
   border-color: rgba(128, 203, 196, 0.15);
 }
 
+/* ── Slate Gold ──────────────────────────────────────────────────── */
+[data-theme="slate-gold"] {
+  --bg-primary: #0b0d14;
+  --bg-secondary: #111420;
+  --bg-card: #161a27;
+  --bg-card-hover: #1e2333;
+  --bg-elevated: #1e2333;
+  --border-subtle: rgba(196, 156, 63, 0.08);
+  --border-medium: rgba(196, 156, 63, 0.16);
+  --border-accent: rgba(196, 156, 63, 0.42);
+  --accent-blue: #c49c3f;
+  --accent-blue-glow: rgba(196, 156, 63, 0.18);
+  --accent-emerald: #7ec8a4;
+  --accent-red: #e06b6b;
+  --text-primary: #ede8d8;
+  --text-secondary: #a09880;
+  --text-muted: #4e4635;
+  --green: #7ec8a4;
+  --red: #e06b6b;
+  --foreground-rgb: 237, 232, 216;
+  --nav-bg: rgba(11, 13, 20, 0.90);
+  --nav-border: rgba(196, 156, 63, 0.12);
+  --dropdown-bg: #1e2333;
+  --dropdown-item-hover: rgba(196, 156, 63, 0.07);
+  --nav-link-hover-bg: rgba(196, 156, 63, 0.07);
+  --add-btn-bg: rgba(196, 156, 63, 0.14);
+  --add-btn-border: rgba(196, 156, 63, 0.36);
+  --add-btn-color: #e0c678;
+  --add-btn-hover-bg: rgba(196, 156, 63, 0.26);
+  --add-btn-hover-border: rgba(196, 156, 63, 0.56);
+  --avatar-bg: linear-gradient(135deg, #c49c3f, #8b5e14);
+  --user-pill-bg: rgba(196, 156, 63, 0.08);
+  --user-pill-border: rgba(196, 156, 63, 0.16);
+  --bg-table: #111420;
+  --bg-table-hover: #1e2333;
+}
+
+[data-theme="slate-gold"] .glass-card {
+  background: rgba(22, 26, 39, 0.88);
+  border-color: rgba(196, 156, 63, 0.10);
+}
+[data-theme="slate-gold"] .glass-card-elevated {
+  background: rgba(30, 35, 51, 0.94);
+  border-color: rgba(196, 156, 63, 0.16);
+}
+[data-theme="slate-gold"] .gradient-border::before {
+  background: linear-gradient(135deg, rgba(196,156,63,0.45), rgba(139,92,246,0.15), rgba(126,200,164,0.20));
+}
+
+/* ── Image background: semi-transparent surfaces (per-theme) ─────── */
+/* --bg-primary goes transparent so the fixed photo shows behind the   */
+/* layout wrapper. Table + nav keep their theme tint, just less opaque. */
+html[data-bg] {
+  --bg-primary: transparent;
+}
+
+html[data-bg="forest-mist"][data-theme="deep-space"],
+html[data-bg="forest-mist"]:not([data-theme]) {
+  --bg-table:       rgba(0, 0, 0, 0.85);
+  --bg-table-hover: rgba(13, 17, 23, 0.92);
+  --nav-bg:         rgba(8, 10, 15, 0.42);
+}
+
+html[data-bg="forest-mist"][data-theme="midnight-purple"] {
+  --bg-table:       rgba(10, 7, 4, 0.85);
+  --bg-table-hover: rgba(21, 14, 6, 0.92);
+  --nav-bg:         rgba(16, 12, 8, 0.42);
+}
+
+html[data-bg="forest-mist"][data-theme="forest-dark"] {
+  --bg-table:       rgba(46, 60, 67, 0.85);
+  --bg-table-hover: rgba(55, 71, 79, 0.92);
+  --nav-bg:         rgba(38, 50, 56, 0.42);
+}
+
+html[data-bg="forest-mist"][data-theme="material"] {
+  --bg-table:       rgba(26, 28, 37, 0.88);
+  --bg-table-hover: rgba(33, 35, 46, 0.94);
+  --nav-bg:         rgba(9, 11, 16, 0.42);
+}
+
+html[data-bg="forest-mist"][data-theme="slate-gold"] {
+  --bg-table:       rgba(17, 20, 32, 0.88);
+  --bg-table-hover: rgba(30, 35, 51, 0.94);
+  --nav-bg:         rgba(11, 13, 20, 0.7);
+}
+
+html[data-bg="forest-mist"][data-theme="light"] {
+  --bg-table:       rgba(255, 255, 255, 0.85);
+  --bg-table-hover: rgba(245, 246, 248, 0.92);
+  --nav-bg:         rgba(240, 242, 245, 0.42);
+}
+
+html[data-bg="waves"][data-theme="deep-space"],
+html[data-bg="waves"]:not([data-theme]) {
+  --bg-table:       rgba(0, 0, 0, 0.85);
+  --bg-table-hover: rgba(13, 17, 23, 0.92);
+  --nav-bg:         rgba(8, 10, 15, 0.42);
+}
+
+html[data-bg="waves"][data-theme="midnight-purple"] {
+  --bg-table:       rgba(10, 7, 4, 0.85);
+  --bg-table-hover: rgba(21, 14, 6, 0.92);
+  --nav-bg:         rgba(16, 12, 8, 0.42);
+}
+
+html[data-bg="waves"][data-theme="forest-dark"] {
+  --bg-table:       rgba(46, 60, 67, 0.85);
+  --bg-table-hover: rgba(55, 71, 79, 0.92);
+  --nav-bg:         rgba(38, 50, 56, 0.42);
+}
+
+html[data-bg="waves"][data-theme="material"] {
+  --bg-table:       rgba(26, 28, 37, 0.88);
+  --bg-table-hover: rgba(33, 35, 46, 0.94);
+  --nav-bg:         rgba(9, 11, 16, 0.42);
+}
+
+html[data-bg="waves"][data-theme="slate-gold"] {
+  --bg-table:       rgba(17, 20, 32, 0.88);
+  --bg-table-hover: rgba(30, 35, 51, 0.94);
+  --nav-bg:         rgba(11, 13, 20, 0.6);
+}
+
+html[data-bg="waves"][data-theme="light"] {
+  --bg-table:       rgba(255, 255, 255, 0.85);
+  --bg-table-hover: rgba(245, 246, 248, 0.92);
+  --nav-bg:         rgba(240, 242, 245, 0.42);
+}
+
+html[data-bg="sunset-waves"][data-theme="deep-space"],
+html[data-bg="sunset-waves"]:not([data-theme]) {
+  --bg-table:       rgba(0, 0, 0, 0.85);
+  --bg-table-hover: rgba(13, 17, 23, 0.92);
+  --nav-bg:         rgba(8, 10, 15, 0.42);
+}
+
+html[data-bg="sunset-waves"][data-theme="midnight-purple"] {
+  --bg-table:       rgba(10, 7, 4, 0.85);
+  --bg-table-hover: rgba(21, 14, 6, 0.92);
+  --nav-bg:         rgba(16, 12, 8, 0.42);
+}
+
+html[data-bg="sunset-waves"][data-theme="forest-dark"] {
+  --bg-table:       rgba(46, 60, 67, 0.85);
+  --bg-table-hover: rgba(55, 71, 79, 0.92);
+  --nav-bg:         rgba(38, 50, 56, 0.42);
+}
+
+html[data-bg="sunset-waves"][data-theme="material"] {
+  --bg-table:       rgba(26, 28, 37, 0.88);
+  --bg-table-hover: rgba(33, 35, 46, 0.94);
+  --nav-bg:         rgba(9, 11, 16, 0.42);
+}
+
+html[data-bg="sunset-waves"][data-theme="slate-gold"] {
+  --bg-table:       rgba(17, 20, 32, 0.88);
+  --bg-table-hover: rgba(30, 35, 51, 0.94);
+  --nav-bg:         rgba(11, 13, 20, 0.6);
+}
+
+html[data-bg="sunset-waves"][data-theme="light"] {
+  --bg-table:       rgba(255, 255, 255, 0.85);
+  --bg-table-hover: rgba(245, 246, 248, 0.92);
+  --nav-bg:         rgba(240, 242, 245, 0.42);
+}
+
 body {
   overscroll-behavior: none !important;
   color: rgb(var(--foreground-rgb));
@@ -268,16 +435,17 @@ body {
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Glassmorphism card utility */
+/* ── Glassmorphism card utility ──────────────────────────────────── */
 .glass-card {
   background: #000000;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .glass-card-elevated {
@@ -286,6 +454,35 @@ body {
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-medium);
   border-radius: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* ── Page section reveal ─────────────────────────────────────────── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.section-reveal {
+  animation: fadeSlideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Skeleton shimmer override ───────────────────────────────────── */
+@keyframes skeletonShimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--bg-elevated) 25%,
+    var(--border-medium) 50%,
+    var(--bg-elevated) 75%
+  );
+  background-size: 800px 100%;
+  animation: skeletonShimmer 1.4s infinite linear;
+  border-radius: 4px;
 }
 
 /* Glow effects */

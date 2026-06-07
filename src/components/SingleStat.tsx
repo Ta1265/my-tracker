@@ -34,31 +34,36 @@ const StatDisplay: React.FC<{
     return null;
   }
   return (
-    <div className="px-2 py-1 min-w-[100px] md:min-w-[130px]">
-      <div className="flex-col">
-        <div
-          className="py-1 text-center text-xs font-medium uppercase tracking-wider"
-          style={{ color: 'var(--text-muted)' }}
-        >
-          {label}
-        </div>
-          <Skeleton
-            width={100}
-            height={24}
-            loading={isPending}
-            variant="rectangular"
-          >
-          <div
-            className="whitespace-nowrap text-sm md:text-base"
-            style={{
-              color: 'var(--text-secondary)',
-              fontFamily: 'Roboto Mono, monospace',
-            }}
-          >
-            {content}
-          </div>
-          </Skeleton>
+    <div
+      className="flex flex-col gap-1.5 rounded-lg px-3 py-2.5"
+      style={{
+        background: 'var(--bg-elevated)',
+        border: '1px solid var(--border-subtle)',
+      }}
+    >
+      <div
+        className="text-[9px] font-bold uppercase tracking-[0.16em]"
+        style={{ color: 'var(--text-muted)' }}
+      >
+        {label.trim()}
       </div>
+      <Skeleton
+        width={90}
+        height={24}
+        loading={isPending}
+        variant="rectangular"
+      >
+        <div
+          className="text-sm md:text-[15px]"
+          style={{
+            color: 'var(--text-secondary)',
+            fontFamily: 'Roboto Mono, monospace',
+            fontWeight: 500,
+          }}
+        >
+          {content}
+        </div>
+      </Skeleton>
     </div>
   );
 };
@@ -124,18 +129,7 @@ const SingleStat: React.FC<{}> = () => {
   return (
    <>
     <div
-      className="
-        justify-space-evenly
-        flex
-        flex-row
-        flex-wrap
-        justify-evenly 
-        text-center 
-        text-sm
-        md:text-base
-        py-2
-        px-1
-      "
+      className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 p-3"
     >
       <StatDisplay
         selectedStats={selectedStats}
@@ -160,7 +154,6 @@ const SingleStat: React.FC<{}> = () => {
         isPending={isPending}
         content={
           <div
-            className="flex-col"
             style={{
               color: curPl > 0 ? 'var(--green)' : 'var(--red)',
             }}
@@ -190,7 +183,6 @@ const SingleStat: React.FC<{}> = () => {
         }
         content={
           <div
-            className="text-center"
             style={{
               color: !priceChange || priceChange < 0 ? 'var(--red)' : 'var(--green)',
             }}

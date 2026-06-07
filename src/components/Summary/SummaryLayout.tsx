@@ -16,7 +16,7 @@ const SummaryLayout: React.FC<{}> = () => {
 
   return (
     <SummaryContextProvider selectedTimeFrame={selectedTimeFrame}>
-      <Box display="flex" flexDirection={'column'} width="100%" gap="16px">
+      <Box display="flex" flexDirection={'column'} width="100%" gap="12px">
         {showChart && (
           <div
             className="glass-card gradient-border w-full overflow-hidden"
@@ -27,18 +27,62 @@ const SummaryLayout: React.FC<{}> = () => {
         )}
 
         {showBreakdown && (
-          <div className="glass-card gradient-border w-full p-4">
-            <BreakDown />
+          <div className="glass-card gradient-border w-full" style={{ padding: '0' }}>
+            <div
+              className="flex items-center gap-2 px-4 pt-3 pb-2"
+              style={{ borderBottom: '1px solid var(--border-subtle)' }}
+            >
+              <span
+                style={{
+                  display: 'inline-block',
+                  width: 6,
+                  height: 6,
+                  borderRadius: '50%',
+                  background: 'var(--accent-emerald)',
+                  flexShrink: 0,
+                }}
+              />
+              <span
+                className="text-xs font-semibold uppercase tracking-widest"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                Breakdown
+              </span>
+            </div>
+            <div className="p-4">
+              <BreakDown />
+            </div>
           </div>
         )}
 
         {showSummary && (
-          <div className="glass-card gradient-border w-full p-4">
-            <TotalsSummary />
+          <div className="glass-card gradient-border w-full" style={{ padding: '0' }}>
+            <div
+              className="flex items-center gap-2 px-4 pt-3 pb-2"
+              style={{ borderBottom: '1px solid var(--border-subtle)' }}
+            >
+              <span
+                style={{
+                  display: 'inline-block',
+                  width: 6,
+                  height: 6,
+                  borderRadius: '50%',
+                  background: 'var(--accent-blue)',
+                  flexShrink: 0,
+                }}
+              />
+              <span
+                className="text-xs font-semibold uppercase tracking-widest"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                Portfolio Summary
+              </span>
+            </div>
+            <div className="p-4">
+              <TotalsSummary />
+            </div>
           </div>
         )}
-
-
       </Box>
     </SummaryContextProvider>
   );

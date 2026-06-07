@@ -58,11 +58,13 @@ export const useStorePriceHistory = () => {
     queryFn: async ({ signal }) => {
       const cachesNeedingUpdate = await checkCoinPriceHistoryCache(signal);
 
-     await Promise.all(cachesNeedingUpdate.flatMap(({ coinName, timeFramesNeeded }) =>
-       timeFramesNeeded.map((timeFrame) =>
-         fetchAndStorePriceHistory(timeFrame, coinName, signal),
-       ),
-     ));
+      await Promise.all(cachesNeedingUpdate.flatMap(({ coinName, timeFramesNeeded }) =>
+        timeFramesNeeded.map((timeFrame) =>
+          fetchAndStorePriceHistory(timeFrame, coinName, signal),
+        ),
+      ));
+
+      return null;
 
       // await Promise.all(
       //   cachesNeedingUpdate.map(async ({ coinName, timeFramesNeeded }) => {

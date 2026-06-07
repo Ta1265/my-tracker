@@ -9,6 +9,7 @@ import { ReloadProvider } from '@/context/ReloadContext';
 import { SnackbarProvider } from '@/context/SnackBarContext';
 import { CoinbaseWsProvider } from '@/context/CoinbaseWsFeedContext';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { BackgroundProvider } from '@/context/BackgroundContext';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -29,7 +30,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           <ReloadProvider id="reload-provider" onReload={refetchAllQueries}>
             <SessionProvider>
               <ThemeProvider>
-                <CoinbaseWsProvider>{children}</CoinbaseWsProvider>
+                <BackgroundProvider>
+                  <CoinbaseWsProvider>{children}</CoinbaseWsProvider>
+                </BackgroundProvider>
               </ThemeProvider>
             </SessionProvider>
           </ReloadProvider>

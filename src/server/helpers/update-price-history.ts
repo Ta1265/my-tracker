@@ -67,8 +67,13 @@ export async function getNetCashFlowHistory(userId: number, timeFrame: TimeFrame
     return;
   }
 
+  let netCash = 0;
+  let netContributions = 0;
+  const TokenData: { [unit: string]: { holdings: number; costBasis: number } } = {};
+  const netRows: ProfitLossChartResp['netRows'] = [];
+
   let lowestPointIndex = 0;
-  let highestPointIndex = 0; 
+  let highestPointIndex = 0;
 
   let index = 0;
   tokenPriceDates.forEach(({ date, tokenPricesByInfoId }) => {
@@ -217,11 +222,11 @@ export async function updateNetCashFlowTableData(userId: number, timeFrame: Time
     netRows.push({
       userId,
       date,
-      totalCostBasis,
-      netCash: netCash,
-      netContributions,
-      valueOfHoldings,
-      profitLoss,
+      totalCostBasis: totalCostBasis.toFixed(2),
+      netCash: netCash.toFixed(2),
+      netContributions: netContributions.toFixed(2),
+      valueOfHoldings: valueOfHoldings.toFixed(2),
+      profitLoss: profitLoss.toFixed(2),
       roi: returnOnInvestment.toFixed(2),
       ror: rateOfReturn.toFixed(2),
     });

@@ -231,9 +231,9 @@ const AddTransaction: React.FC<{
         overlayClassName="fixed inset-0 z-[99] modal-overlay"
         style={{
           overlay: {
-            background: 'rgba(0, 0, 0, 0.75)',
-            backdropFilter: 'blur(4px)',
-            WebkitBackdropFilter: 'blur(4px)',
+            background: 'rgba(0, 0, 0, 0.80)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
             display: 'flex',
             alignItems: 'flex-end',
             justifyContent: 'center',
@@ -247,17 +247,64 @@ const AddTransaction: React.FC<{
             overflowY: 'auto',
             overflowX: 'hidden',
             boxSizing: 'border-box',
-            borderRadius: '16px 16px 0 0',
+            borderRadius: '20px 20px 0 0',
             background: 'var(--bg-elevated)',
-            padding: '1.25rem 1rem',
-            border: '1px solid rgba(255,255,255,0.08)',
+            padding: '0',
+            border: '1px solid var(--border-medium)',
             borderBottom: 'none',
-            boxShadow: '0 -8px 40px rgba(0,0,0,0.6)',
+            boxShadow: '0 -12px 60px rgba(0,0,0,0.7)',
           },
         }}
       >
-        {/* Drag handle (visible on mobile) */}
-        <div className="mx-auto mb-4 h-1 w-10 rounded-full sm:hidden" style={{ background: 'rgba(255,255,255,0.15)' }} />
+        {/* Modal header */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '14px 20px 12px',
+            borderBottom: '1px solid var(--border-subtle)',
+            background: 'var(--bg-card)',
+            borderRadius: '20px 20px 0 0',
+          }}
+        >
+          {/* Drag handle (visible on mobile) */}
+          <div
+            className="sm:hidden"
+            style={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', width: 36, height: 4, borderRadius: 4, background: 'var(--border-medium)' }}
+          />
+          <span
+            style={{
+              fontSize: 14,
+              fontWeight: 600,
+              letterSpacing: '0.02em',
+              color: 'var(--text-primary)',
+            }}
+          >
+            Add Transaction
+          </span>
+          <button
+            onClick={closeModal}
+            aria-label="Close"
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--text-muted)',
+              fontSize: 20,
+              lineHeight: 1,
+              padding: '2px 4px',
+              borderRadius: 4,
+              transition: 'color 0.15s',
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; }}
+          >
+            ✕
+          </button>
+        </div>
+
+        <div style={{ padding: '1.25rem 1rem' }}>
 
         {/* <form onSubmit={handleSubmit} className=""> */}
         <Grid container spacing={2}>
@@ -634,6 +681,7 @@ const AddTransaction: React.FC<{
           </Grid>
         </Grid>
         {/* </form> */}
+        </div>
       </Modal>
     </ThemeProvider>
   );

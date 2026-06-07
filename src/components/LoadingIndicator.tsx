@@ -29,7 +29,7 @@ export default function LoadingIndicator() {
             cy="32"
             r="26"
             fill="none"
-            stroke="rgba(255,255,255,0.06)"
+            style={{ stroke: 'var(--border-subtle)' }}
             strokeWidth="3"
           />
         </svg>
@@ -47,18 +47,12 @@ export default function LoadingIndicator() {
             cy="32"
             r="26"
             fill="none"
-            stroke="url(#spinGrad)"
+            style={{ stroke: 'var(--accent-blue)' }}
             strokeWidth="3"
             strokeLinecap="round"
             strokeDasharray="50 113"
             strokeDashoffset="0"
           />
-          <defs>
-            <linearGradient id="spinGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#3b82f6" />
-              <stop offset="100%" stopColor="#6366f1" />
-            </linearGradient>
-          </defs>
         </motion.svg>
         {/* Center icon */}
         <div
@@ -73,14 +67,14 @@ export default function LoadingIndicator() {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path
               d="M3 3v18h18"
-              stroke="rgba(59,130,246,0.7)"
+              style={{ stroke: 'var(--accent-blue)', opacity: 0.7 }}
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
             <path
               d="M7 16l4-4 4 4 4-6"
-              stroke="rgba(99,102,241,0.7)"
+              style={{ stroke: 'var(--accent-blue)', opacity: 0.7 }}
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
