@@ -34,14 +34,19 @@ export default function LoginPage() {
       username: data.username,
       password: data.password,
       redirect: false,
+      callbackUrl,
     });
 
     if (result?.error) {
       setError('Invalid username or password');
       setIsLoading(false);
-    } else {
-      router.push(callbackUrl);
+      return;
     }
+
+    // Prefer the provider-returned URL when available, otherwise fall back
+    // to the original callbackUrl or a safe default.
+    const destination = result?.url ?? callbackUrl ?? '/stats';
+    await router.push(destination + '/stats');
   };
 
   return (

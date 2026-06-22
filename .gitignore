@@ -42,3 +42,17 @@ db-dumps
 .env
 .secrets
 cdp_api_key.json
+
+# Local nginx-generated certs and keys (do not commit)
+/nginx/letsencrypt/
+/nginx/certs/
+/nginx/dhparam.pem
+
+# local env overrides
+/override.env
+
+# docker-compose override for local development
+/docker-compose.override.yml
+
+# Editor settings
+.vscode/

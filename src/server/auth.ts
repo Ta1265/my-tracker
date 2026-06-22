@@ -65,6 +65,15 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     async redirect({ url, baseUrl }) {
+      // Allow redirects to URLs within the same baseUrl (safe), otherwise
+      // fall back to the baseUrl to avoid returning to untrusted origins.
+      try {
+        if (typeof url === 'string' && url.startsWith(baseUrl)) {
+          return url;
+        }
+      } catch (e) {
+        // ignore and fall through
+      }
       return baseUrl;
     },
 
