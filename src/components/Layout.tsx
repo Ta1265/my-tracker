@@ -1,11 +1,10 @@
 'use client';
 
 import React from 'react';
-import TopNav from './TopNav';
+import TopNav from './top-nav/TopNav';
 import ImageBackground from './ImageBackground';
 import { SingleStatProvider } from '../context/SingleStatContext';
 import { SummaryVisibilityProvider } from '../context/SummaryVisibilityContext';
-import { useBackground } from '../context/BackgroundContext';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
 

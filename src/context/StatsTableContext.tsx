@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState } from 'react';
 import { type TimeFrame } from '../components/product/TimeFrameSelect';
 import { useQuery } from '@tanstack/react-query';
 import { type TimeFramePlByUnitResp } from '../../types/global';
+import { useLocalStorage } from '../_hooks/useLocalStorage';
 
 interface StatsTableContextProps {
   selectedTimeFrame: TimeFrame;
@@ -14,7 +15,20 @@ interface StatsTableContextProps {
 
   timeFrameCoinsPl?: TimeFramePlByUnitResp;
   timeFrameCoinsPlIsLoading: boolean;
+
+  columns: [string, boolean][];
+  toggleColumn: (id: string) => void;
+  moveColumn: (id: string) => void;
 }
+
+const DEFAULT_COLUMN_MAP: [string, boolean][] = [
+  ['coin', true],
+  ['holdings', true],
+  ['costBasis', true],
+  ['currentPrice', true],
+  ['delta', true],
+  ['total', true],
+];
 
 const StatsTableContext = createContext<StatsTableContextProps | undefined>(undefined);
 
@@ -23,6 +37,22 @@ export const StatsTableProvider: React.FC<{
 }> = ({ children }) => {
   const [selectedTimeFrame, setSelectedTimeFrame] = useState<TimeFrame>('d');
   const [selectedPlType, setSelectedPlType] = useState<'roi' | 'ror'>('roi');
+  const [columns, setColumns] = useLocalStorage<[string, boolean][]>(
+    'stats-table-columns',
+    DEFAULT_COLUMN_MAP,
+  );
+
+  const moveColumn = React.useCallback((id: string) => {
+    const next = [...columns];
+    const idx = next.findIndex(([k]) => k === id);
+    if (idx <= 0) return;
+    [next[idx], next[idx - 1]] = [next[idx - 1], next[idx]];
+    setColumns(next);
+  }, [columns, setColumns]);
+
+  const toggleColumn = React.useCallback((id: string) => {
+    setColumns(columns.map(([k, v]): [string, boolean] => k === id ? [k, !v] : [k, v]));
+  }, [columns, setColumns]);
 
   const { data: timeFrameCoinsPl, isLoading: timeFrameCoinsPlIsLoading } = useQuery({
     queryKey: ['time-frame-coins-pl', selectedTimeFrame],
@@ -44,12 +74,18 @@ export const StatsTableProvider: React.FC<{
       setSelectedTimeFrame,
       selectedPlType,
       setSelectedPlType,
+      columns,
+      toggleColumn,
+      moveColumn,
     }),
     [
       timeFrameCoinsPl,
       timeFrameCoinsPlIsLoading,
       selectedTimeFrame,
       selectedPlType,
+      columns,
+      toggleColumn,
+      moveColumn,
     ],
   );
 

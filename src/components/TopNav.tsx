@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import React, { useState } from 'react';
+import PortfolioIcon from './PortfolioIcon';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { Dropdown } from 'flowbite-react';
 import AddTransaction from './AddTransaction';
@@ -50,28 +50,43 @@ const TopNav: React.FC<{}> = ({}) => {
           zIndex: 100,
         }}
       >
-        <div
-          className="mx-auto flex w-full max-w-[960px] items-center gap-4 px-4 py-3"
-        >
+        <div className="mx-auto flex w-full max-w-[960px] items-center gap-4 px-4 py-3">
           {/* Logo — links to /stats */}
           <Link
             href="/stats"
-            className="flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0 transition-opacity"
-            style={{ opacity: 1 }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.75'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
-            aria-label="Portfolio"
+            className="flex h-8 w-8 items-center justify-center"
+            // style={{ opacity: 1 }}
+            // onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.75'; }}
+            // onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
+            // aria-label="Portfolio"
+
+            style={{
+              width: 45,
+              height: 45,
+              borderRadius: 14,
+              background: 'var(--accent-blue-glow)',
+              border: '1px solid var(--border-accent)',
+              // display: 'flex',
+              // alignItems: 'center',
+              // justifyContent: 'center',
+              // margin: '0 auto 18px',
+              boxShadow: '0 0 32px var(--accent-blue-glow)',
+              cursor: 'pointer',
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.opacity = '0.85';
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.opacity = '1';
+            }}
+            aria-label="Portfolio Tracker"
+            // onClick={() => router.push('/')}
           >
-            <Image
-              src="/logo.svg"
-              alt="logo"
-              width={32}
-              height={32}
-              style={{ filter: light ? 'none' : 'brightness(0) invert(1)' }}
-            />
+            <PortfolioIcon size={26} />
           </Link>
 
           {/* Add Transaction button */}
+          {session?.isAuthenticated && (
           <button
             onClick={() => setIsOpen(true)}
             className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all"
@@ -82,6 +97,7 @@ const TopNav: React.FC<{}> = ({}) => {
               letterSpacing: '0.01em',
               whiteSpace: 'nowrap',
               flexShrink: 0,
+              height: '40px'
             }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLElement).style.background = 'var(--add-btn-hover-bg)';
@@ -95,170 +111,226 @@ const TopNav: React.FC<{}> = ({}) => {
             <span style={{ fontSize: '16px', lineHeight: 1 }}>+</span>
             Add Transaction
           </button>
+          )}
 
-          {/* Auth section */}
+          {/* Auth/Theme section */}
           <div className="ml-auto flex items-center">
-            {status === 'loading' ? null : session?.isAuthenticated ? (
-              <Dropdown
-                className="z-[999]"
-                arrowIcon={false}
-                inline
-                style={light ? {
-                  background: '#ffffff',
-                  border: '1px solid rgba(0,0,0,0.10)',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
-                  color: '#0f172a',
-                } : undefined}
-                label={
-                  <span
-                    className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer"
-                    style={{
-                      background: 'var(--user-pill-bg)',
-                      border: '1px solid var(--user-pill-border)',
-                      color: 'var(--text-secondary)',
-                    }}
-                  >
-                    <span
-                      className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold"
-                      style={{
-                        background: 'var(--avatar-bg)',
-                        color: 'white',
-                      }}
-                    >
-                      {session?.user.username?.[0]?.toUpperCase() || 'U'}
-                    </span>
-                    {session?.user.username}
-                  </span>
-                }
+            <Dropdown
+              className="z-[999]"
+              arrowIcon={false}
+              inline
+              style={
+                light
+                  ? {
+                      background: '#ffffff',
+                      border: '1px solid rgba(0,0,0,0.10)',
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+                      color: '#0f172a',
+                     height: ' 40px',
+                    }
+                  : {
+                     height: ' 40px',
+                  }
+              }
+              label={
+                <span
+                  className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors"
+                  style={{
+                    background: 'var(--user-pill-bg)',
+                    border: '1px solid var(--user-pill-border)',
+                    color: 'var(--text-secondary)',
+                  }}
+                >
+                  {session?.isAuthenticated ? (
+                    <>
+                      <span
+                        className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold"
+                        style={{
+                          background: 'var(--avatar-bg)',
+                          color: 'white',
+                        }}
+                      >
+                        {session?.user.username?.[0]?.toUpperCase() || 'U'}
+                      </span>
+                      {session?.user.username}
+                    </>
+                  ) : (<>{'Theme'}</>)}
+
+                </span>
+              }
+            >
+              <div
+                className="dropdown-scroll-inner"
+                style={{
+                  maxHeight: 'calc(100vh - 80px)',
+                  overflowY: 'auto',
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: '#000 transparent',
+                }}
               >
+              {session?.isAuthenticated && (
                 <Dropdown.Header
                   className="py-2"
-                  style={{ background: 'var(--dropdown-bg)', borderBottom: '1px solid var(--border-subtle)' }}
+                  style={{
+                    background: 'var(--dropdown-bg)',
+                    borderBottom: '1px solid var(--border-subtle)',
+                  }}
                 >
-                  <span className="block py-1 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                  <span
+                    className="block py-1 text-sm font-semibold"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
                     {session?.user.name}
                   </span>
                   <span className="block truncate text-xs" style={{ color: 'var(--text-muted)' }}>
                     {session?.user.email}
                   </span>
                 </Dropdown.Header>
-                {isStatsPage && (
-                  <>
-                    <Dropdown.Header
-                      className="py-1.5 px-4"
-                      style={{ background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border-subtle)', borderTop: '1px solid var(--border-subtle)' }}
-                    >
-                      <span className="block text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                        Visible Sections
-                      </span>
-                    </Dropdown.Header>
-                    {[
-                      { label: 'Chart', value: showChart, set: setShowChart },
-                      { label: 'Summary', value: showSummary, set: setShowSummary },
-                      { label: 'Breakdown', value: showBreakdown, set: setShowBreakdown },
-                    ].map(({ label, value, set }) => (
-                      <Dropdown.Item
-                        key={label}
-                        className="flex items-center gap-2 px-4 py-1.5 text-sm"
-                        onClick={() => set(!value)}
-                      >
-                        {value ? (
-                          <CheckBoxIcon className="text-blue-400" fontSize="small" />
-                        ) : (
-                          <CheckBoxOutlineBlankIcon className="text-gray-600" fontSize="small" />
-                        )}
-                        <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
-                      </Dropdown.Item>
-                    ))}
-                    <div style={{ borderTop: '1px solid var(--border-subtle)', margin: '4px 0' }} />
-                  </>
-                )}
-                {isProductPage && (
-                  <>
-                    <Dropdown.Header
-                      className="py-1.5 px-4"
-                      style={{ background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border-subtle)', borderTop: '1px solid var(--border-subtle)' }}
-                    >
-                      <span className="block text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                        Visible Stats
-                      </span>
-                    </Dropdown.Header>
-                    {statLabelList.map((label) => (
-                      <Dropdown.Item
-                        key={label}
-                        className="flex items-center gap-2 px-4 py-1.5 text-sm"
-                        onClick={() => toggleStat(label)}
-                      >
-                        {selectedStats.includes(label) ? (
-                          <CheckBoxIcon className="text-blue-400" fontSize="small" />
-                        ) : (
-                          <CheckBoxOutlineBlankIcon className="text-gray-600" fontSize="small" />
-                        )}
-                        <span style={{ color: 'var(--text-secondary)' }}>{label.trim()}</span>
-                      </Dropdown.Item>
-                    ))}
-                    <div style={{ borderTop: '1px solid var(--border-subtle)', margin: '4px 0' }} />
-                  </>
-                )}
-                <Dropdown.Header
-                  className="py-1.5 px-4"
-                  style={{ background: 'var(--dropdown-bg)', borderBottom: '1px solid var(--border-subtle)', borderTop: '1px solid var(--border-subtle)' }}
-                >
-                  <span className="block text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                    Theme
-                  </span>
-                </Dropdown.Header>
-                {themes.map((t) => (
-                  <Dropdown.Item
-                    key={t.id}
-                    className="flex items-center gap-2 px-4 py-1.5 text-sm"
-                    onClick={() => setTheme(t.id as ThemeId)}
+              )}
+              {isStatsPage && (
+                <>
+                  <Dropdown.Header
+                    className="px-4 py-1.5"
+                    style={{
+                      background: 'var(--bg-elevated)',
+                      borderBottom: '1px solid var(--border-subtle)',
+                      borderTop: '1px solid var(--border-subtle)',
+                    }}
                   >
-                    {theme === t.id ? (
-                      <CheckBoxIcon className="text-blue-400" fontSize="small" />
-                    ) : (
-                      <CheckBoxOutlineBlankIcon className="text-gray-600" fontSize="small" />
-                    )}
                     <span
-                      style={{
-                        display: 'inline-block',
-                        width: 8,
-                        height: 8,
-                        borderRadius: '50%',
-                        background: themeSwatchColor[t.id],
-                        flexShrink: 0,
-                      }}
-                    />
-                    <span style={{ color: 'var(--text-secondary)' }}>
-                      {t.label}
+                      className="block text-xs font-semibold uppercase tracking-wider"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      Visible Sections
                     </span>
-                  </Dropdown.Item>
-                ))}
-                <div style={{ borderTop: '1px solid var(--border-subtle)', margin: '4px 0' }} />
-                <Dropdown.Header
-                  className="py-1.5 px-4"
-                  style={{ background: 'var(--dropdown-bg)', borderBottom: '1px solid var(--border-subtle)', borderTop: '1px solid var(--border-subtle)' }}
-                >
-                  <span className="block text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                    Background
-                  </span>
-                </Dropdown.Header>
-                {backgrounds.map((b) => (
-                  <Dropdown.Item
-                    key={b.id}
-                    className="flex items-center gap-2 px-4 py-1.5 text-sm"
-                    onClick={() => setBackground(b.id as BackgroundId)}
+                  </Dropdown.Header>
+                  {[
+                    { label: 'Chart', value: showChart, set: setShowChart },
+                    { label: 'Summary', value: showSummary, set: setShowSummary },
+                    { label: 'Breakdown', value: showBreakdown, set: setShowBreakdown },
+                  ].map(({ label, value, set }) => (
+                    <Dropdown.Item
+                      key={label}
+                      className="flex items-center gap-2 px-4 py-1.5 text-sm"
+                      onClick={() => set(!value)}
+                    >
+                      {value ? (
+                        <CheckBoxIcon className="text-blue-400" fontSize="small" />
+                      ) : (
+                        <CheckBoxOutlineBlankIcon className="text-gray-600" fontSize="small" />
+                      )}
+                      <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
+                    </Dropdown.Item>
+                  ))}
+                  <div style={{ borderTop: '1px solid var(--border-subtle)', margin: '4px 0' }} />
+                </>
+              )}
+              {isProductPage && (
+                <>
+                  <Dropdown.Header
+                    className="px-4 py-1.5"
+                    style={{
+                      background: 'var(--bg-elevated)',
+                      borderBottom: '1px solid var(--border-subtle)',
+                      borderTop: '1px solid var(--border-subtle)',
+                    }}
                   >
-                    {background === b.id ? (
-                      <CheckBoxIcon className="text-blue-400" fontSize="small" />
-                    ) : (
-                      <CheckBoxOutlineBlankIcon className="text-gray-600" fontSize="small" />
-                    )}
-                    <span style={{ fontSize: 13, lineHeight: 1, userSelect: 'none' }}>{b.icon}</span>
-                    <span style={{ color: 'var(--text-secondary)' }}>{b.label}</span>
-                  </Dropdown.Item>
-                ))}
-                <div style={{ borderTop: '1px solid var(--border-subtle)', margin: '4px 0' }} />
+                    <span
+                      className="block text-xs font-semibold uppercase tracking-wider"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      Visible Stats
+                    </span>
+                  </Dropdown.Header>
+                  {statLabelList.map((label) => (
+                    <Dropdown.Item
+                      key={label}
+                      className="flex items-center gap-2 px-4 py-1.5 text-sm"
+                      onClick={() => toggleStat(label)}
+                    >
+                      {selectedStats.includes(label) ? (
+                        <CheckBoxIcon className="text-blue-400" fontSize="small" />
+                      ) : (
+                        <CheckBoxOutlineBlankIcon className="text-gray-600" fontSize="small" />
+                      )}
+                      <span style={{ color: 'var(--text-secondary)' }}>{label.trim()}</span>
+                    </Dropdown.Item>
+                  ))}
+                  <div style={{ borderTop: '1px solid var(--border-subtle)', margin: '4px 0' }} />
+                </>
+              )}
+              <Dropdown.Header
+                className="px-4 py-1.5"
+                style={{
+                  background: 'var(--dropdown-bg)',
+                  borderBottom: '1px solid var(--border-subtle)',
+                  borderTop: '1px solid var(--border-subtle)',
+                }}
+              >
+                <span
+                  className="block text-xs font-semibold uppercase tracking-wider"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  Theme
+                </span>
+              </Dropdown.Header>
+              {themes.map((t) => (
+                <Dropdown.Item
+                  key={t.id}
+                  className="flex items-center gap-2 px-4 py-1.5 text-sm"
+                  onClick={() => setTheme(t.id as ThemeId)}
+                >
+                  {theme === t.id ? (
+                    <CheckBoxIcon className="text-blue-400" fontSize="small" />
+                  ) : (
+                    <CheckBoxOutlineBlankIcon className="text-gray-600" fontSize="small" />
+                  )}
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      background: themeSwatchColor[t.id],
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span style={{ color: 'var(--text-secondary)' }}>{t.label}</span>
+                </Dropdown.Item>
+              ))}
+              <div style={{ borderTop: '1px solid var(--border-subtle)', margin: '4px 0' }} />
+              <Dropdown.Header
+                className="px-4 py-1.5"
+                style={{
+                  background: 'var(--dropdown-bg)',
+                  borderBottom: '1px solid var(--border-subtle)',
+                  borderTop: '1px solid var(--border-subtle)',
+                }}
+              >
+                <span
+                  className="block text-xs font-semibold uppercase tracking-wider"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  Background
+                </span>
+              </Dropdown.Header>
+              {backgrounds.map((b) => (
+                <Dropdown.Item
+                  key={b.id}
+                  className="flex items-center gap-2 px-4 py-1.5 text-sm"
+                  onClick={() => setBackground(b.id as BackgroundId)}
+                >
+                  {background === b.id ? (
+                    <CheckBoxIcon className="text-blue-400" fontSize="small" />
+                  ) : (
+                    <CheckBoxOutlineBlankIcon className="text-gray-600" fontSize="small" />
+                  )}
+                  <span style={{ fontSize: 13, lineHeight: 1, userSelect: 'none' }}>{b.icon}</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{b.label}</span>
+                </Dropdown.Item>
+              ))}
+              <div style={{ borderTop: '1px solid var(--border-subtle)', margin: '4px 0' }} />
+              {session?.isAuthenticated && (
                 <Dropdown.Item
                   className="py-2 text-sm"
                   style={{ color: 'var(--text-secondary)' }}
@@ -266,36 +338,14 @@ const TopNav: React.FC<{}> = ({}) => {
                 >
                   Sign out
                 </Dropdown.Item>
-              </Dropdown>
-            ) : (
-              <button
-                className="rounded-lg px-3 py-1.5 text-sm font-medium transition-all"
-                style={{
-                  background: 'var(--user-pill-bg)',
-                  border: '1px solid var(--user-pill-border)',
-                  color: 'var(--text-secondary)',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)';
-                  (e.currentTarget as HTMLElement).style.background = 'var(--dropdown-item-hover)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)';
-                  (e.currentTarget as HTMLElement).style.background = 'var(--user-pill-bg)';
-                }}
-                onClick={() => signIn()}
-              >
-                Sign in
-              </button>
-            )}
+              )}
+              </div>
+            </Dropdown>
           </div>
         </div>
       </nav>
 
-      <AddTransaction
-        isOpen={isOpen || false}
-        setIsOpen={(value) => setIsOpen(value)}
-      />
+      <AddTransaction isOpen={isOpen || false} setIsOpen={(value) => setIsOpen(value)} />
     </>
   );
 };

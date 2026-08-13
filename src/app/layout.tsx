@@ -6,6 +6,11 @@ import Layout from '@/components/Layout';
 
 export const metadata: Metadata = {
   title: 'Portfolio Tracker',
+  icons: {
+    icon: '/portfolio-icon.svg',
+    shortcut: '/portfolio-icon.svg',
+    apple: '/portfolio-icon.svg',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -15,12 +15,16 @@ import { CoinColumnCell } from './stats-table/CoinColumn';
 import SortArrow from './SortArrow';
 import { useCoinSummaries } from '../_hooks/useCoinSummaries';
 import Image from 'next/image';
+import { ColumnVisibilityDropdown } from './stats-table/ColumnVisibilityDropdown';
+import { useStatsTableContext } from '../context/StatsTableContext';
+import { useMemo } from 'react';
 
 const EMPTY_STATS_DATA: CoinSummaryResp[] = [];
 
-const statsColumns: Column<CoinSummaryResp>[] = [
+const ALL_STATS_COLUMNS: (Column<CoinSummaryResp> & { id: string })[] = [
   {
-    Header: ' ',
+    Header: <ColumnVisibilityDropdown />,
+    id: 'icon',
     myWidth: '35px',
     accessor: (row: CoinSummaryResp) => row,
     Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
@@ -34,6 +38,7 @@ const statsColumns: Column<CoinSummaryResp>[] = [
   },
   {
     Header: 'Coin',
+    id: 'coin',
     myWidth: '90px',
     accessor: (row: CoinSummaryResp) => row,
     Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
@@ -47,7 +52,7 @@ const statsColumns: Column<CoinSummaryResp>[] = [
   },
   {
     Header: 'Holdings',
-    // myWidth: '120px',
+    id: 'holdings',
     accessor: (row: CoinSummaryResp) => row,
     Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
       <HoldingsCell coinSummary={cell.value} />
@@ -60,6 +65,7 @@ const statsColumns: Column<CoinSummaryResp>[] = [
   },
   {
     Header: 'Cost Basis',
+    id: 'costBasis',
     title: 'Cost Basis / Break Even',
     accessor: (row: CoinSummaryResp) => row,
     Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
@@ -73,6 +79,7 @@ const statsColumns: Column<CoinSummaryResp>[] = [
   },
   {
     Header: 'Current Price',
+    id: 'currentPrice',
     myWidth: '130px',
     accessor: (row: CoinSummaryResp) => row,
     Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
@@ -103,6 +110,14 @@ const statsColumns: Column<CoinSummaryResp>[] = [
 export default function StatsTable() {
   const { data = EMPTY_STATS_DATA } = useCoinSummaries();
   const router = useRouter();
+  const { columns } = useStatsTableContext();
+
+  const statsColumns = useMemo(() => {
+    const orderedIds = ['icon', ...columns.map(([id]) => id)];
+    return orderedIds
+      .map((id) => ALL_STATS_COLUMNS.find((col) => col.id === id)!)
+      .filter((col) => col && (col.id === 'icon' || columns.find(([k]) => k === col.id)?.[1] !== false));
+  }, [columns]);
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     { columns: statsColumns, data },
@@ -190,11 +205,17 @@ export default function StatsTable() {
                         }}
                       >
                         <span className="flex flex-row items-center">
-                          <span style={{ visibility: 'hidden' }}> ▲ </span>
-                          <SortArrow isSorted={column.isSorted} isSortedDesc={column.isSortedDesc}>
-                            <span {...column.getSortByToggleProps()}>{column.render('Header')}</span>
-                          </SortArrow>
-                          {column.Filter && column.render('Filter')}
+                          {column.id === 'icon' ? (
+                            column.render('Header')
+                          ) : (
+                            <>
+                              <span style={{ visibility: 'hidden' }}> ▲ </span>
+                              <SortArrow isSorted={column.isSorted} isSortedDesc={column.isSortedDesc}>
+                                <span {...column.getSortByToggleProps()}>{column.render('Header')}</span>
+                              </SortArrow>
+                              {column.Filter && column.render('Filter')}
+                            </>
+                          )}
                         </span>
                       </th>
                     );

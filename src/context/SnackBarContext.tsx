@@ -3,21 +3,11 @@
 import { createContext } from 'react';
 import { useState } from 'react';
 import Snackbar from '@mui/joy/Snackbar';
-import { CssVarsProvider, extendTheme } from '@mui/joy';
 import Button from '@mui/joy/Button';
 import {
   PlaylistAddCheckCircleRounded,
   PlaylistRemoveRounded,
 } from '@mui/icons-material';
-import { color } from 'framer-motion';
-
-const baseTheme = extendTheme();
-const darkOnlyTheme = extendTheme({
-  colorSchemes: {
-    light: baseTheme.colorSchemes.dark,
-    dark: baseTheme.colorSchemes.dark,
-  },
-});
 
 type toastProps = {
   message?: string;
@@ -153,44 +143,42 @@ export const SnackbarProvider: React.FC<any> = ({ children }) => {
       }}
     >
       {children}
-      <CssVarsProvider theme={darkOnlyTheme}>
-        <Snackbar
-          color={toastProps.color}
-          open={open}
-          autoHideDuration={toastProps.autoHideDuration}
-          onClose={closeSnackbar}
-          anchorOrigin={{
-            vertical: toastProps.anchorVertical,
-            horizontal: toastProps.anchorHorizontal,
-          }}
-          variant="outlined"
-          size="lg"
-          startDecorator={
-            <>
-              {(() => {
-                if (toastProps.color === 'success') {
-                  return <PlaylistAddCheckCircleRounded />;
-                }
-                if (toastProps.color === 'danger') {
-                  return <PlaylistRemoveRounded />;
-                }
-              })()}
-            </>
-          }
-          endDecorator={
-            <Button
-              onClick={() => setOpen(false)}
-              size="sm"
-              variant="outlined"
-              color={toastProps.color}
-            >
-              Dismiss
-            </Button>
-          }
-        >
-          {toastProps.message}
-        </Snackbar>
-      </CssVarsProvider>
+      <Snackbar
+        color={toastProps.color}
+        open={open}
+        autoHideDuration={toastProps.autoHideDuration}
+        onClose={closeSnackbar}
+        anchorOrigin={{
+          vertical: toastProps.anchorVertical,
+          horizontal: toastProps.anchorHorizontal,
+        }}
+        variant="outlined"
+        size="lg"
+        startDecorator={
+          <>
+            {(() => {
+              if (toastProps.color === 'success') {
+                return <PlaylistAddCheckCircleRounded />;
+              }
+              if (toastProps.color === 'danger') {
+                return <PlaylistRemoveRounded />;
+              }
+            })()}
+          </>
+        }
+        endDecorator={
+          <Button
+            onClick={() => setOpen(false)}
+            size="sm"
+            variant="outlined"
+            color={toastProps.color}
+          >
+            Dismiss
+          </Button>
+        }
+      >
+        {toastProps.message}
+      </Snackbar>
     </SnackbarContext.Provider>
   );
 };

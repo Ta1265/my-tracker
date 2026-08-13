@@ -9,6 +9,7 @@ import { ReloadProvider } from '@/context/ReloadContext';
 import { SnackbarProvider } from '@/context/SnackBarContext';
 import { CoinbaseWsProvider } from '@/context/CoinbaseWsFeedContext';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { JoyThemeProvider } from '@/context/JoyThemeProvider';
 import { BackgroundProvider } from '@/context/BackgroundContext';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -25,19 +26,21 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <SnackbarProvider>
-          <ReloadProvider id="reload-provider" onReload={refetchAllQueries}>
-            <SessionProvider>
-              <ThemeProvider>
-                <BackgroundProvider>
-                  <CoinbaseWsProvider>{children}</CoinbaseWsProvider>
-                </BackgroundProvider>
-              </ThemeProvider>
-            </SessionProvider>
-          </ReloadProvider>
-        </SnackbarProvider>
-      </LocalizationProvider>
+      <ThemeProvider>
+        <JoyThemeProvider>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <SnackbarProvider>
+              <ReloadProvider id="reload-provider" onReload={refetchAllQueries}>
+                <SessionProvider>
+                  <BackgroundProvider>
+                    <CoinbaseWsProvider>{children}</CoinbaseWsProvider>
+                  </BackgroundProvider>
+                </SessionProvider>
+              </ReloadProvider>
+            </SnackbarProvider>
+          </LocalizationProvider>
+        </JoyThemeProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

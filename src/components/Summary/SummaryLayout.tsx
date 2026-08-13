@@ -29,7 +29,7 @@ const SummaryLayout: React.FC<{}> = () => {
         {showBreakdown && (
           <div className="glass-card gradient-border w-full" style={{ padding: '0' }}>
             <div
-              className="flex items-center gap-2 px-4 pt-3 pb-2"
+              className="flex items-center gap-2 px-4 pb-2 pt-3"
               style={{ borderBottom: '1px solid var(--border-subtle)' }}
             >
               <span
@@ -49,16 +49,22 @@ const SummaryLayout: React.FC<{}> = () => {
                 Breakdown
               </span>
             </div>
-            <div className="p-4">
+            <Box
+              paddingY={2}
+              paddingX={{
+                xs: '2px',
+                sm: '16px',
+              }}
+            >
               <BreakDown />
-            </div>
+            </Box>
           </div>
         )}
 
         {showSummary && (
           <div className="glass-card gradient-border w-full" style={{ padding: '0' }}>
             <div
-              className="flex items-center gap-2 px-4 pt-3 pb-2"
+              className="flex items-center gap-2 px-4 pb-2 pt-3"
               style={{ borderBottom: '1px solid var(--border-subtle)' }}
             >
               <span

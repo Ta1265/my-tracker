@@ -2,6 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Slim dark scrollbar for dropdown menus */
+.dropdown-scroll-inner::-webkit-scrollbar {
+  width: 4px;
+}
+.dropdown-scroll-inner::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dropdown-scroll-inner::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 2px;
+}
+.dropdown-scroll-inner::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+html,
+body {
+  /* Prevent overscroll/rubber-band behavior on the entire page */
+  overscroll-behavior: none;
+}
+
+
 /* Desktop modal: center near top instead of bottom sheet */
 @media (min-width: 640px) {
   .modal-overlay {
@@ -103,6 +125,13 @@
 }
 
 /* Light theme: Flowbite dropdown overrides */
+/* Keep dropdown content reachable on smaller viewports. */
+[role="menu"] {
+  /* max-height: min(32rem, calc(100dvh - 5rem)); */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 /* Target the floating dropdown container */
 [data-theme="light"] [role="menu"],
 [data-theme="light"] [role="menu"] > div {
