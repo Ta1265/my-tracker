@@ -21,6 +21,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: frontend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/my-tracker:latest
 

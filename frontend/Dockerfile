@@ -6,8 +6,8 @@ FROM node:18-bullseye AS base
 FROM base AS deps
 # RUN apk add --no-cache libc6-compat
 WORKDIR /app
-COPY package.json ./
-COPY package-lock.json ./
+COPY frontend/package.json ./
+COPY frontend/package-lock.json ./
 RUN npm ci
 
 # 2. Common build stage
@@ -16,15 +16,17 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./package.json
 COPY --from=deps /app/package-lock.json ./package-lock.json
-COPY src ./src
-COPY public ./public
-COPY next.config.js .
-COPY tsconfig.json .
-COPY next-env.d.ts .
-COPY tailwind.config.ts .
-COPY postcss.config.js .
-COPY types.d.ts .
-COPY types ./types
+COPY frontend/src ./src
+COPY frontend/public ./public
+COPY frontend/next.config.js .
+COPY frontend/tsconfig.json .
+# tsconfig.json extends ../tsconfig.base.json; WORKDIR is /app, so the base must sit at /
+COPY tsconfig.base.json /tsconfig.base.json
+COPY frontend/next-env.d.ts .
+COPY frontend/tailwind.config.ts .
+COPY frontend/postcss.config.js .
+COPY frontend/types.d.ts .
+COPY frontend/types ./types
 ENV NEXT_TELEMETRY_DISABLED 1
 RUN npx prisma generate
 

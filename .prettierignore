@@ -1,5 +1,5 @@
 node_modules
 .private
-.next
+frontend/.next
 db_dumps
-public
+frontend/public
