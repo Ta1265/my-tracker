@@ -1,6 +1,6 @@
 
 # FROM node:18-alpine AS base
-FROM node:18-bullseye AS base
+FROM node:24-bookworm AS base
 
 # 1. Install dependencies only when needed
 FROM base AS deps
