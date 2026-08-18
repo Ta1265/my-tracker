@@ -10,9 +10,7 @@ export class AppConfigService {
   constructor(private readonly configService: ConfigService) {
     const databaseUrl = this.configService.get<string>('DATABASE_URL');
     if (!databaseUrl) {
-      throw new Error(
-        'DATABASE_URL is missing or empty - check defaults.env/override.env',
-      );
+      throw new Error('DATABASE_URL is missing or empty - check defaults.env/override.env');
     }
     this.databaseUrl = databaseUrl;
   }

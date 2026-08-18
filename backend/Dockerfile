@@ -28,6 +28,8 @@ COPY backend/package.json ./backend/
 COPY backend/src ./backend/src
 COPY backend/tsconfig.json ./backend/
 COPY backend/nest-cli.json ./backend/
+COPY backend/eslint.config.mjs ./backend/
+COPY backend/.prettierrc.json ./backend/
 COPY tsconfig.base.json ./tsconfig.base.json
 
 # 3. Target for development
@@ -38,6 +40,7 @@ CMD ["pnpm", "--filter", "@portfolio/backend", "start:dev"]
 # 4. Build stage for production target
 FROM common-build AS builder
 WORKDIR /app
+RUN pnpm --filter @portfolio/backend lint
 RUN pnpm --filter @portfolio/backend build
 
 # 5. Deploy stage - self-contained production closure
