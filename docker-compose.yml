@@ -72,6 +72,28 @@ services:
 
   # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+  nest-api:
+    container_name: nest-api
+    depends_on:
+      - portfolio-db
+      - redis
+    build:
+      target: ${TARGET:-dev}
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file:
+      - ./defaults.env
+      - ./override.env
+    volumes:
+      - ./backend/src:/app/backend/src
+    restart: unless-stopped
+    networks:
+      portfolio-network:
+        aliases:
+          - nest-api
+
+  # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
   redis:
     container_name: redis
     image: redis:latest
@@ -151,6 +173,7 @@ services:
     restart: unless-stopped
     depends_on:
       - next-app
+      - nest-api
     ports:
       - 80:80
       - 443:443
