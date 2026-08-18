@@ -25,10 +25,8 @@ services:
     env_file:
       - ./defaults.env
       - ./override.env
-    environment:
-      MYSQL_ROOT_PASSWORD: $MYSQLDB_PASSWORD
     ports:
-      - $MYSQLDB_LOCAL_PORT:$MYSQLDB_DOCKER_PORT
+      - ${MYSQLDB_LOCAL_PORT:-3306}:${MYSQLDB_DOCKER_PORT:-3306}
     volumes:
       - mysql-volume:/var/lib/mysql:rw
       # - ./mysql-db:/docker-entrypoint-initdb.d/
@@ -47,10 +45,7 @@ services:
       target: ${TARGET:-dev}  # prod or dev
       context: .
       dockerfile: frontend/Dockerfile
-    # Set environment variables directly in the docker-compose file
     environment:
-      ENV_VARIABLE: ${ENV_VARIABLE}
-      NEXT_PUBLIC_ENV_VARIABLE: ${NEXT_PUBLIC_ENV_VARIABLE}
       HOST: 0.0.0.0
     # Set environment variables from defaults.env and local override.env
     env_file:
@@ -178,8 +173,10 @@ services:
     volumes:
       - grafana-volume:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    env_file:
+      - ./defaults.env
+      - ./override.env
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
       GF_USERS_ALLOW_SIGN_UP: 'false'
     ports:
       - 3001:3000
