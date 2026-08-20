@@ -28,6 +28,12 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
+      // Epic 2's scaffold stub convention is `async handler(...): Promise<Dto> { throw new
+      // NotImplementedException(); }` on every endpoint - the params are real (documented
+      // via Swagger) but unused until the real implementation lands, and the throw is
+      // synchronous, so neither rule's default would survive being applied ~20 times over.
+      '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
+      '@typescript-eslint/require-await': 'off',
       'prettier/prettier': ['error', { endOfLine: 'auto' }],
     },
   },

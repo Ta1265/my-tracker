@@ -22,4 +22,10 @@ export class AppConfigService {
   get priceProvider(): string | undefined {
     return this.configService.get<string>('PRICE_PROVIDER');
   }
+
+  // Defaults to true when unset - a flag, not a NODE_ENV check, so it can be turned
+  // off without a rebuild.
+  get swaggerEnabled(): boolean {
+    return this.configService.get<string>('SWAGGER_ENABLED') !== 'false';
+  }
 }
