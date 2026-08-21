@@ -81,6 +81,8 @@ services:
       target: ${TARGET:-dev}
       context: .
       dockerfile: backend/Dockerfile
+    environment:
+      TZ: UTC
     env_file:
       - ./defaults.env
       - ./override.env

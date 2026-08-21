@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppConfigModule } from './config/app-config.module';
 import { AuthModule } from './auth/auth.module';
+import { DbModule } from './db/db.module';
 import { ExchangeRatesModule } from './exchange-rates/exchange-rates.module';
 import { HealthController } from './health/health.controller';
 import { MetricsModule } from './metrics/metrics.module';
@@ -15,6 +16,7 @@ import { TransactionsModule } from './transactions/transactions.module';
 @Module({
   imports: [
     AppConfigModule,
+    DbModule,
     AuthModule,
     TransactionsModule,
     SummaryModule,
