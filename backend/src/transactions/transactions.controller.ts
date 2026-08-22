@@ -6,14 +6,19 @@ import {
   NotImplementedException,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiCookieAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { SessionClaims } from '@portfolio/shared';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { SessionGuard } from '../auth/session.guard';
 import { TransactionAddRequestDto } from './dto/transaction-add-request.dto';
 
 @ApiTags('Transactions')
 @Controller('transaction')
 export class TransactionsController {
   @Post('add')
+  @UseGuards(SessionGuard)
   @ApiCookieAuth()
   @ApiOperation({ description: "Record a transaction owned by the caller's session." })
   @ApiResponse({
@@ -41,12 +46,16 @@ export class TransactionsController {
   })
   // Validate the body, look up the token, and write a Transaction row owned by the
   // caller's session, then return the bare string "Transaction added".
-  async add(@Body() body: TransactionAddRequestDto): Promise<string> {
+  async add(
+    @Body() body: TransactionAddRequestDto,
+    @CurrentUser() user: SessionClaims,
+  ): Promise<string> {
     throw new NotImplementedException();
   }
 
   @Delete(':id')
   @HttpCode(204)
+  @UseGuards(SessionGuard)
   @ApiCookieAuth()
   @ApiParam({ name: 'id', example: '1', description: "The transaction's numeric id, as a string." })
   @ApiOperation({ description: "Delete the caller's transaction by id." })
@@ -80,7 +89,7 @@ export class TransactionsController {
   })
   // Delete the transaction row by id - matches the existing behavior of not checking
   // whether the row exists first.
-  async delete(@Param('id') id: string): Promise<void> {
+  async delete(@Param('id') id: string, @CurrentUser() user: SessionClaims): Promise<void> {
     throw new NotImplementedException();
   }
 }

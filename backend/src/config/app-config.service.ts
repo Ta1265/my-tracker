@@ -6,6 +6,8 @@ export class AppConfigService {
   // Validated once at construction, so it's exposed as a non-optional field. Optional
   // config below stays a getter typed `string | undefined`.
   readonly databaseUrl: string;
+  readonly sessionPrivateKeyJwk: string;
+  readonly sessionPublicKeyJwk: string;
 
   constructor(private readonly configService: ConfigService) {
     const databaseUrl = this.configService.get<string>('DATABASE_URL');
@@ -13,6 +15,22 @@ export class AppConfigService {
       throw new Error('DATABASE_URL is missing or empty - check defaults.env/override.env');
     }
     this.databaseUrl = databaseUrl;
+
+    const sessionPrivateKeyJwk = this.configService.get<string>('SESSION_PRIVATE_KEY_JWK');
+    if (!sessionPrivateKeyJwk) {
+      throw new Error(
+        'SESSION_PRIVATE_KEY_JWK is missing or empty - check defaults.env/override.env',
+      );
+    }
+    this.sessionPrivateKeyJwk = sessionPrivateKeyJwk;
+
+    const sessionPublicKeyJwk = this.configService.get<string>('SESSION_PUBLIC_KEY_JWK');
+    if (!sessionPublicKeyJwk) {
+      throw new Error(
+        'SESSION_PUBLIC_KEY_JWK is missing or empty - check defaults.env/override.env',
+      );
+    }
+    this.sessionPublicKeyJwk = sessionPublicKeyJwk;
   }
 
   get metricsSecret(): string | undefined {

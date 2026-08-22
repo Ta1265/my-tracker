@@ -1,18 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-// Every field below is required in the finished contract but also carries
-// @IsOptional() so the permissive global pipe never 400s ahead of real handler logic -
-// presence enforcement is business logic that lands with the real implementation, not
-// something the stub's global pipe should take on.
+// username/password are required here: letting either through as undefined crashes
+// CredentialVerifierService instead of producing a clean 400/401 response.
 export class LoginRequestDto {
   @ApiProperty({ example: 'jdoe' })
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   username!: string;
 
   @ApiProperty({ example: 'hunter2' })
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   password!: string;
 

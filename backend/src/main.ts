@@ -1,12 +1,17 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { AppConfigService } from './config/app-config.service';
+import { createWinstonLogger } from './common/logging/winston-logger.factory';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { logger: createWinstonLogger() });
   app.setGlobalPrefix('backend/api');
+  app.use(cookieParser());
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // Permissive by design: must never reject a request the existing Next.js routes
   // accept. No business-rule validators live here - just shape/type coercion.

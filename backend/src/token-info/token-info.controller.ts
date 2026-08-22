@@ -1,4 +1,4 @@
-import { Controller, Get, NotImplementedException, Param } from '@nestjs/common';
+import { Controller, Get, NotImplementedException, Param, UseGuards } from '@nestjs/common';
 import {
   ApiCookieAuth,
   ApiOkResponse,
@@ -7,6 +7,9 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { SessionClaims } from '@portfolio/shared';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { SessionGuard } from '../auth/session.guard';
 import { TokenInfoResponseDto } from './dto/token-info-response.dto';
 import { TokenInfoSyncResponseDto } from './dto/token-info-sync-response.dto';
 
@@ -14,6 +17,7 @@ import { TokenInfoSyncResponseDto } from './dto/token-info-sync-response.dto';
 @Controller('token-info')
 export class TokenInfoController {
   @Get(':userId')
+  @UseGuards(SessionGuard)
   @ApiCookieAuth()
   @ApiParam({ name: 'userId', example: '1' })
   @ApiOperation({
@@ -44,7 +48,10 @@ export class TokenInfoController {
   })
   // Triggers syncPriceHistoryToDbForUserId - does not return token info despite the
   // route name.
-  async sync(@Param('userId') userId: string): Promise<TokenInfoSyncResponseDto> {
+  async sync(
+    @Param('userId') userId: string,
+    @CurrentUser() user: SessionClaims,
+  ): Promise<TokenInfoSyncResponseDto> {
     throw new NotImplementedException();
   }
 

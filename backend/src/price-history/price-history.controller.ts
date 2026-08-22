@@ -1,5 +1,8 @@
-import { Body, Controller, Get, NotImplementedException, Post } from '@nestjs/common';
+import { Body, Controller, Get, NotImplementedException, Post, UseGuards } from '@nestjs/common';
 import { ApiCookieAuth, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { SessionClaims } from '@portfolio/shared';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { SessionGuard } from '../auth/session.guard';
 import { PriceHistoryCheckResponseDto } from './dto/price-history-check-response.dto';
 import { SetPriceHistoryRequestDto } from './dto/set-price-history-request.dto';
 import { SetPriceHistoryResponseDto } from './dto/set-price-history-response.dto';
@@ -8,6 +11,7 @@ import { SetPriceHistoryResponseDto } from './dto/set-price-history-response.dto
 @Controller('price-history')
 export class PriceHistoryController {
   @Get('check')
+  @UseGuards(SessionGuard)
   @ApiCookieAuth()
   @ApiOperation({
     description:
@@ -26,7 +30,7 @@ export class PriceHistoryController {
   })
   // Will check Redis EXISTS under time-frame-pl-{timeFrame}-coinName-{coin} (both
   // segments lowercased), for each coin the caller has transacted in.
-  async check(): Promise<PriceHistoryCheckResponseDto[]> {
+  async check(@CurrentUser() user: SessionClaims): Promise<PriceHistoryCheckResponseDto[]> {
     throw new NotImplementedException();
   }
 

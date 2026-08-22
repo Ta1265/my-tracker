@@ -1,7 +1,7 @@
 import { Entity, PrimaryKey, Property } from '@mikro-orm/decorators/legacy';
 
 // The `OuathToken` misspelling is kept exactly as it exists in the live database -
-// renaming it would be a schema change, out of scope under FR-13.
+// renaming it would be a schema change, which this entity mapping does not make.
 @Entity({ tableName: 'OuathToken' })
 export class OuathToken {
   // Externally assigned (cuid), not autoincrement.
