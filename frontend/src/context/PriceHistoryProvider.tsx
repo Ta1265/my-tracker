@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState } from 'react';
 import { type TimeFrame } from '../components/product/TimeFrameSelect';
 import { useQuery } from '@tanstack/react-query';
 import { usePriceFeed } from './CoinbaseWsFeedContext';
-import { type PriceHistoryResp } from '../../types/global';
+import { type PriceHistoryResponseDto } from '../../types/contracts';
 import { useFetchCoinPriceHistory } from '../_hooks/useFetchCoinPriceHistory';
 
 interface PriceHistoryContextProps {
@@ -14,7 +14,7 @@ interface PriceHistoryContextProps {
   setHoveringChart: React.Dispatch<React.SetStateAction<boolean>>;
   hoverPrice: number | null;
   setHoverPrice: React.Dispatch<React.SetStateAction<number | null>>;
-  priceData: PriceHistoryResp['prices'] | [[]];
+  priceData: PriceHistoryResponseDto['prices'] | [[]];
   priceChange: number;
   startPrice: number;
   priceHistoryLoading: boolean;
@@ -39,7 +39,10 @@ export const PriceHistoryProvider: React.FC<{
 
   const { price_change, prices } = data || {};
 
-  const priceData = React.useMemo(() => prices || [[]], [prices]) as PriceHistoryResp['prices'];
+  const priceData = React.useMemo(
+    () => prices || [[]],
+    [prices],
+  ) as PriceHistoryResponseDto['prices'];
   const priceChange = React.useMemo(() => price_change || 0, [price_change]);
   const startPrice = React.useMemo(() => priceData[0][1] || 0, [priceData]);
 

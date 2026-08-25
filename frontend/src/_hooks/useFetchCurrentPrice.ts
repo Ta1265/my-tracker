@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useReload } from '../context/ReloadContext';
+import type { TimeFrame } from '../../types/contracts';
 
 export const useFetchCurrentPrice = (
   unit: string | null,

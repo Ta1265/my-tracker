@@ -11,6 +11,7 @@ import {
 import { SessionClaims } from '@portfolio/shared';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { SessionGuard } from '../auth/session.guard';
+import { TIME_FRAMES } from '../common/time-frame/time-frames';
 import {
   TimeFrameCoinsPlEntryDto,
   TimeFrameCoinsPlResponseDto,
@@ -23,7 +24,7 @@ export class TimeFrameCoinsPlController {
   @UseGuards(SessionGuard)
   @ApiCookieAuth()
   @ApiExtraModels(TimeFrameCoinsPlEntryDto)
-  @ApiParam({ name: 'timeFrame', example: '24h' })
+  @ApiParam({ name: 'timeFrame', enum: TIME_FRAMES, enumName: 'TimeFrame', example: 'd' })
   @ApiOperation({
     description: "Return the caller's per-coin P/L for a time frame, keyed by product name.",
   })

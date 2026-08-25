@@ -10,6 +10,7 @@ import {
 import { SessionClaims } from '@portfolio/shared';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { SessionGuard } from '../auth/session.guard';
+import { TIME_FRAMES } from '../common/time-frame/time-frames';
 import { CoinSummaryResponseDto } from './dto/coin-summary-response.dto';
 import { PortfolioSummaryResponseDto } from './dto/portfolio-summary-response.dto';
 import { ProfitLossChartResponseDto } from './dto/profit-loss-chart-response.dto';
@@ -48,6 +49,8 @@ export class SummaryController {
   @ApiQuery({
     name: 'timeFrame',
     required: false,
+    enum: TIME_FRAMES,
+    enumName: 'TimeFrame',
     example: 'all',
     description: "Defaults to 'all'.",
   })
@@ -69,7 +72,7 @@ export class SummaryController {
 
   @Get('profitLossChart/:timeFrame')
   @ApiCookieAuth()
-  @ApiParam({ name: 'timeFrame', example: 'all' })
+  @ApiParam({ name: 'timeFrame', enum: TIME_FRAMES, enumName: 'TimeFrame', example: 'all' })
   @ApiOperation({
     description:
       "Return the caller's net cash flow history chart for a time frame (path-param " +

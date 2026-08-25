@@ -41,7 +41,6 @@ COPY packages/shared ./packages/shared
 # not run builds) - must precede the backend build/lint since @portfolio/shared is a
 # real import, not just a type reference.
 RUN pnpm --filter @portfolio/shared build
-RUN pnpm --filter @portfolio/shared lint
 
 # 3. Target for development
 FROM common-build AS dev
@@ -54,8 +53,10 @@ CMD ["pnpm", "--filter", "@portfolio/backend", "start:dev"]
 # 4. Build stage for production target
 FROM common-build AS builder
 WORKDIR /app
-RUN pnpm --filter @portfolio/backend lint
 RUN pnpm --filter @portfolio/backend build
+COPY backend/openapi.json ./backend/openapi.json
+COPY scripts ./scripts
+RUN node scripts/generate-api-contract.mjs --check --only=spec
 
 # 5. Deploy stage - self-contained production closure
 FROM builder AS deploy

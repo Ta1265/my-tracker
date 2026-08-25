@@ -4,12 +4,12 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import { usePriceFeed } from '../../context/CoinbaseWsFeedContext';
 import TickerDisplay from '../TickerDisplay';
-import { type CoinSummaryResp } from '../../../types/global';
+import type { CoinSummaryResponseDto } from '../../../types/contracts';
 import Skeleton from '@mui/joy/Skeleton';
 import { useStatsTableContext } from '../../context/StatsTableContext';
 
 const CurrentPrice: React.FC<{
-  coinSummary: CoinSummaryResp;
+  coinSummary: CoinSummaryResponseDto;
 }> = ({ 
   coinSummary, 
  }) => {

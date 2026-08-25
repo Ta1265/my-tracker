@@ -5,7 +5,7 @@ import React, {} from 'react';
 import Box from '@mui/material/Box';
 import { usePriceFeed } from '../../context/CoinbaseWsFeedContext';
 import TickerDisplay from '../TickerDisplay';
-import type { CoinSummaryResp } from '../../../types/global';
+import type { CoinSummaryResponseDto } from '../../../types/contracts';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import { useStatsTableContext } from '../../context/StatsTableContext';
@@ -13,7 +13,7 @@ import { Skeleton } from '@mui/joy';
 
 
 interface Props {
-  coinSummary: CoinSummaryResp;
+  coinSummary: CoinSummaryResponseDto;
 }
 
 export const ProfitLossCell: React.FC<Props> = ({ coinSummary }) => {

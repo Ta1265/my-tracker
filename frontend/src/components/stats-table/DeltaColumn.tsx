@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Skeleton from '@mui/joy/Skeleton';
-import type { CoinSummaryResp } from '../../../types/global';
+import type { CoinSummaryResponseDto } from '../../../types/contracts';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import { usePriceFeed } from '../../context/CoinbaseWsFeedContext';
@@ -12,7 +12,7 @@ import { useStatsTableContext } from '../../context/StatsTableContext';
 import { timeFrameDisplay } from '../SingleStat';
 
 const DeltaCell: React.FC<{
-  coinSummary: CoinSummaryResp;
+  coinSummary: CoinSummaryResponseDto;
 }> = ({ coinSummary }) => {
   const { productName: unit, currentPrice: backupCurrenPrice, holdings } = coinSummary;
 

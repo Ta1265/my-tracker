@@ -1,3 +1,6 @@
+// Legacy-only: kept for the server-side files (src/server, src/app/api) that still
+// import these. New response types come from frontend/types/contracts.ts.
+
 export type PortfolioSummary = {
   purchases: number;
   sales: number;
@@ -43,13 +46,6 @@ interface TimeFramePlByUnitResp {
     curPl: number;
     timeFrameStartPrice: number;
   }
-}
-
-interface TimeFrameTotalPlResp {
-  totalPastPl: number;
-  totalCurPl: number;
-  pastTotalValue: number;
-  currentTotalValue: number;
 }
 
 export type TimeFrame = 'h' | 'd' | 'w' | 'm' | '3m' | '6m' | 'y' | 'all';

@@ -3,7 +3,7 @@
 import React from 'react';
 import Skeleton from '@mui/joy/Skeleton';
 import { useQuery } from '@tanstack/react-query';
-import type { CoinSummaryResp } from '../../types/global';
+import type { CoinSummaryResponseDto } from '../../types/contracts';
 import TickerDisplay from './TickerDisplay';
 import { usePriceHistory } from '../context/PriceHistoryProvider';
 import { useSingleStat } from '../context/SingleStatContext';
@@ -88,7 +88,7 @@ const SingleStat: React.FC<{}> = () => {
     error,
   } = useQuery({
     queryKey: [`summary`, unit],
-    queryFn: async ({ signal }): Promise<CoinSummaryResp> => {
+    queryFn: async ({ signal }): Promise<CoinSummaryResponseDto> => {
       const resp = await fetch(`/api/summary/${unit}`, { signal });
       if (!resp.ok) {
         throw new Error('Network response error');

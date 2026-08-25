@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import type { CoinSummaryResp } from '../../../types/global';
+import type { CoinSummaryResponseDto } from '../../../types/contracts';
 
 export const CoinColumnCell: React.FC<{
-  coinSummary: CoinSummaryResp;
+  coinSummary: CoinSummaryResponseDto;
 }> = ({ coinSummary }) => {
 
   return (

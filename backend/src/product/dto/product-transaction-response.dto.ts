@@ -12,6 +12,24 @@ class RealizedGainsDto {
 }
 
 export class ProductTransactionResponseDto {
+  @ApiProperty({ example: 42 })
+  id!: number;
+
+  @ApiProperty({ example: 'Bitcoin' })
+  fullName!: string;
+
+  @ApiProperty({ example: 'BTC-USD' })
+  product!: string;
+
+  @ApiProperty({ example: 'BUY' })
+  side!: string;
+
+  @ApiProperty({ example: 'BTC' })
+  unit!: string;
+
+  @ApiProperty({ example: 'Bought the dip' })
+  notes!: string;
+
   @ApiProperty({
     type: String,
     example: '$1,234.56',
@@ -50,8 +68,8 @@ export class ProductTransactionResponseDto {
 
   @ApiProperty({
     type: String,
-    example: '12.3400',
-    description: 'Coin quantity, .toFixed(4)-formatted.',
+    example: '12.34',
+    description: 'Coin quantity, returned via .toString(), not fixed-decimal formatted.',
   })
   size!: string;
 

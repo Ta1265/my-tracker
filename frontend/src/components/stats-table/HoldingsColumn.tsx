@@ -4,10 +4,10 @@ import React from 'react';
 import { usePriceFeed } from '../../context/CoinbaseWsFeedContext';
 import TickerDisplay from '../TickerDisplay';
 import Box from '@mui/material/Box';
-import type { CoinSummaryResp } from '../../../types/global';
+import type { CoinSummaryResponseDto } from '../../../types/contracts';
 
 interface Props {
-  coinSummary: CoinSummaryResp;
+  coinSummary: CoinSummaryResponseDto;
 }
 
 export const HoldingsCell: React.FC<Props> = ({ coinSummary }) => {

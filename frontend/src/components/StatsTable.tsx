@@ -6,7 +6,7 @@ import type { Column } from 'react-table';
 import { useRouter } from 'next/navigation';
 import Table from '@mui/joy/Table';
 import { DeltaCellMemo, DeltaHeaderMemo, DeltaSelectFilterMemo } from './stats-table/DeltaColumn';
-import type { CoinSummaryResp } from '../../types/global';
+import type { CoinSummaryResponseDto } from '../../types/contracts';
 import CurrentPrice from './stats-table/CurrentPrice';
 import { ProfitLossCell, ProfitLossFilter, ProfitLossHeader } from './stats-table/ProfitLossColumn';
 import { HoldingsCell } from './stats-table/HoldingsColumn';
@@ -19,15 +19,15 @@ import { ColumnVisibilityDropdown } from './stats-table/ColumnVisibilityDropdown
 import { useStatsTableContext } from '../context/StatsTableContext';
 import { useMemo } from 'react';
 
-const EMPTY_STATS_DATA: CoinSummaryResp[] = [];
+const EMPTY_STATS_DATA: CoinSummaryResponseDto[] = [];
 
-const ALL_STATS_COLUMNS: (Column<CoinSummaryResp> & { id: string })[] = [
+const ALL_STATS_COLUMNS: (Column<CoinSummaryResponseDto> & { id: string })[] = [
   {
     Header: <ColumnVisibilityDropdown />,
     id: 'icon',
     myWidth: '35px',
-    accessor: (row: CoinSummaryResp) => row,
-    Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
+    accessor: (row: CoinSummaryResponseDto) => row,
+    Cell: ({ cell }: { cell: { value: CoinSummaryResponseDto } }) => (
       <Image
         src={`/${cell.value.productName}-icon.png`}
         alt={cell.value.productName}
@@ -40,8 +40,8 @@ const ALL_STATS_COLUMNS: (Column<CoinSummaryResp> & { id: string })[] = [
     Header: 'Coin',
     id: 'coin',
     myWidth: '90px',
-    accessor: (row: CoinSummaryResp) => row,
-    Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
+    accessor: (row: CoinSummaryResponseDto) => row,
+    Cell: ({ cell }: { cell: { value: CoinSummaryResponseDto } }) => (
       <CoinColumnCell coinSummary={cell.value} />
     ),
     sortType: (rowA: any, rowB: any, columnId: any) => {
@@ -53,8 +53,8 @@ const ALL_STATS_COLUMNS: (Column<CoinSummaryResp> & { id: string })[] = [
   {
     Header: 'Holdings',
     id: 'holdings',
-    accessor: (row: CoinSummaryResp) => row,
-    Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
+    accessor: (row: CoinSummaryResponseDto) => row,
+    Cell: ({ cell }: { cell: { value: CoinSummaryResponseDto } }) => (
       <HoldingsCell coinSummary={cell.value} />
     ),
     sortType: (rowA: any, rowB: any, columnId: any) => {
@@ -67,8 +67,8 @@ const ALL_STATS_COLUMNS: (Column<CoinSummaryResp> & { id: string })[] = [
     Header: 'Cost Basis',
     id: 'costBasis',
     title: 'Cost Basis / Break Even',
-    accessor: (row: CoinSummaryResp) => row,
-    Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
+    accessor: (row: CoinSummaryResponseDto) => row,
+    Cell: ({ cell }: { cell: { value: CoinSummaryResponseDto } }) => (
       <CostBasisCell coinSummary={cell.value} />
     ),
     sortType: (rowA: any, rowB: any, columnId: any) => {
@@ -81,8 +81,8 @@ const ALL_STATS_COLUMNS: (Column<CoinSummaryResp> & { id: string })[] = [
     Header: 'Current Price',
     id: 'currentPrice',
     myWidth: '130px',
-    accessor: (row: CoinSummaryResp) => row,
-    Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
+    accessor: (row: CoinSummaryResponseDto) => row,
+    Cell: ({ cell }: { cell: { value: CoinSummaryResponseDto } }) => (
       <CurrentPrice coinSummary={cell.value} />
     ),
   },
@@ -90,8 +90,8 @@ const ALL_STATS_COLUMNS: (Column<CoinSummaryResp> & { id: string })[] = [
     Header: <DeltaHeaderMemo />,
     id: 'delta',
     myWidth: '100px',
-    accessor: (row: CoinSummaryResp) => row,
-    Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
+    accessor: (row: CoinSummaryResponseDto) => row,
+    Cell: ({ cell }: { cell: { value: CoinSummaryResponseDto } }) => (
       <DeltaCellMemo coinSummary={cell.value} />
     ),
     Filter: () => <DeltaSelectFilterMemo />,
@@ -99,8 +99,8 @@ const ALL_STATS_COLUMNS: (Column<CoinSummaryResp> & { id: string })[] = [
   {
     Header: <ProfitLossHeader />,
     id: 'total',
-    accessor: (row: CoinSummaryResp) => row,
-    Cell: ({ cell }: { cell: { value: CoinSummaryResp } }) => (
+    accessor: (row: CoinSummaryResponseDto) => row,
+    Cell: ({ cell }: { cell: { value: CoinSummaryResponseDto } }) => (
       <ProfitLossCell coinSummary={cell.value} />
     ),
     Filter: () => <ProfitLossFilter />,

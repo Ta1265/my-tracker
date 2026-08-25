@@ -29,6 +29,7 @@ export class PortfolioSummaryResponseDto {
   realizedReturn!: number;
 
   @ApiProperty({
+    type: 'number',
     example: 0.1875,
     nullable: true,
     description: 'NaN when netContributions is 0 (division by zero), which serializes to null.',

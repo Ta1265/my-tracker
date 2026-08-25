@@ -4,12 +4,12 @@ import React, { createContext, useContext } from 'react';
 import { type TimeFrame } from '../../components/product/TimeFrameSelect';
 import { useQuery } from '@tanstack/react-query';
 import { useTimeTotalFramePl } from '../../_hooks/useTimeTotalFramePl';
-import type { PortfolioSummary } from '../../../types/global';
+import type { PortfolioSummaryResponseDto } from '../../../types/contracts';
 
 interface SummaryContextProps {
   timeFramePl: number;
   timeFramePercentPl: number;
-  portfolioSummary?: PortfolioSummary;
+  portfolioSummary?: PortfolioSummaryResponseDto;
   portfolioSummaryIsPending: boolean;
   timeFramePlLoading: boolean;
 }
@@ -22,7 +22,7 @@ export const SummaryContextProvider: React.FC<{
 }> = ({ selectedTimeFrame, children }) => {
   const { isPending, data: portfolioSummary } = useQuery({
     queryKey: ['portfolio'],
-    queryFn: async ({ signal }): Promise<PortfolioSummary> => {
+    queryFn: async ({ signal }): Promise<PortfolioSummaryResponseDto> => {
       const resp = await fetch('/api/summary/portfolio', { signal });
       if (!resp.ok) {
         throw new Error('Network response error');

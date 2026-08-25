@@ -10,9 +10,9 @@ import SortArrow from '../SortArrow';
 import Tooltip from '@mui/joy/Tooltip';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { useQuery } from '@tanstack/react-query';
-import { type ProductTransaction } from '../../../types/global';
+import type { ProductTransactionResponseDto } from '../../../types/contracts';
 
-const EMPTY_PRODUCT_DATA: ProductTransaction[] = [];
+const EMPTY_PRODUCT_DATA: ProductTransactionResponseDto[] = [];
 
 const sortDollars = (rowA: any, rowB: any, columnId: string) => {
   const aNum = parseFloat(rowA.values[columnId].replace(/[$,]/g, ''));
@@ -35,7 +35,7 @@ const ProductTable: React.FC<Props> = ({
 
   const query = useQuery({
     queryKey: ['product', unit],
-    queryFn: async (): Promise<ProductTransaction[]> =>
+    queryFn: async (): Promise<ProductTransactionResponseDto[]> =>
       fetch(`/api/product/${unit}`).then((res) => {
         if (!res.ok) {
           throw new Error('Network response error');
@@ -84,7 +84,7 @@ const ProductTable: React.FC<Props> = ({
             row: { original },
           },
         }: {
-          cell: { row: { original: ProductTransaction } };
+          cell: { row: { original: ProductTransactionResponseDto } };
         }) => {
           const { runningBalance, side, size } = original;
 
@@ -119,7 +119,7 @@ const ProductTable: React.FC<Props> = ({
             row: { original },
           },
         }: {
-          cell: { row: { original: ProductTransaction } };
+          cell: { row: { original: ProductTransactionResponseDto } };
         }) => {
           // return original.total;
           const { total, runningCostBasis, side } = original;
@@ -144,7 +144,7 @@ const ProductTable: React.FC<Props> = ({
         Header: 'Realized',
         accessor: 'realizedGains',
         styles: { textAlign: 'right' },
-        Cell: ({ cell }: { cell: { value: ProductTransaction['realizedGains'] } }) => {
+        Cell: ({ cell }: { cell: { value: ProductTransactionResponseDto['realizedGains'] } }) => {
           const { total, short, long } = cell.value;
           if (total === 0) {
             return ' - ';
@@ -239,7 +239,7 @@ const ProductTable: React.FC<Props> = ({
 
 interface TableComponentProps {
   columns: Column<any>[];
-  data: ProductTransaction[];
+  data: ProductTransactionResponseDto[];
   loaded: boolean;
 }
 

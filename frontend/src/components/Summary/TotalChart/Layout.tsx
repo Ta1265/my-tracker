@@ -8,9 +8,9 @@ import { HoveredPrice } from './HoveredPrice';
 import { TimeFrameDelta } from './TimeFrameDelta';
 import { useStatsTableContext } from '../../../context/StatsTableContext';
 import { useSummaryContext } from '../SummaryContext';
-import { type ProfitLossChartResp } from '../../../../types/global';
+import type { ProfitLossChartResponseDto } from '../../../../types/contracts';
 
-const emptyData: ProfitLossChartResp = {
+const emptyData: ProfitLossChartResponseDto = {
   netRows: [],
   lowestPointIndex: 0,
   highestPointIndex: 0,
@@ -25,7 +25,7 @@ export const TotalChartLayout: React.FC<{}> = ({}) => {
 
   const { data = emptyData, isLoading: chartValuesLoading } = useQuery({
     queryKey: ['profit-loss-chart', selectedTimeFrame],
-    queryFn: async ({ signal }): Promise<ProfitLossChartResp> => {
+    queryFn: async ({ signal }): Promise<ProfitLossChartResponseDto> => {
       const resp = await fetch(`/api/summary/profitLossChart?timeFrame=${selectedTimeFrame}`, {
         signal,
       });

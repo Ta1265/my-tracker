@@ -3,6 +3,7 @@ import { ApiCookieAuth, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@
 import { SessionClaims } from '@portfolio/shared';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { SessionGuard } from '../auth/session.guard';
+import { TIME_FRAMES } from '../common/time-frame/time-frames';
 import { TimeFrameTotalPlResponseDto } from './dto/time-frame-total-pl-response.dto';
 
 @ApiTags('Time-Frame P&L')
@@ -11,7 +12,7 @@ export class TimeFrameTotalPlController {
   @Get(':timeFrame')
   @UseGuards(SessionGuard)
   @ApiCookieAuth()
-  @ApiParam({ name: 'timeFrame', example: '24h' })
+  @ApiParam({ name: 'timeFrame', enum: TIME_FRAMES, enumName: 'TimeFrame', example: 'd' })
   @ApiOperation({
     description: "Return the caller's aggregate portfolio P/L for a time frame.",
   })

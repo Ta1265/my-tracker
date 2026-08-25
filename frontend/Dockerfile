@@ -53,6 +53,9 @@ CMD ["pnpm", "--filter", "@portfolio/frontend", "dev"]
 # 2. Build stage for production target
 FROM common-build AS builder
 WORKDIR /app
+COPY backend/openapi.json ./backend/openapi.json
+COPY scripts ./scripts
+RUN node scripts/generate-api-contract.mjs --check --only=types
 RUN pnpm --filter @portfolio/frontend build
 
 # 3. Production image, copy all the files and run next

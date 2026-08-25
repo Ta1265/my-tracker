@@ -1,12 +1,13 @@
 import { Controller, Get, NotImplementedException, Param } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { TIME_FRAMES } from '../common/time-frame/time-frames';
 import { PriceHistoryResponseDto } from './dto/price-history-response.dto';
 
 @ApiTags('Exchange Rates')
 @Controller('exchange-rates')
 export class ExchangeRatesController {
   @Get(':timeFrame/:coinName')
-  @ApiParam({ name: 'timeFrame', example: '24h' })
+  @ApiParam({ name: 'timeFrame', enum: TIME_FRAMES, enumName: 'TimeFrame', example: 'd' })
   @ApiParam({ name: 'coinName', example: 'Bitcoin' })
   @ApiOperation({
     description:

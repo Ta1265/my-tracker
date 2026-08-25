@@ -64,7 +64,7 @@ export const BreakDown: React.FC<BreakDownProps> = ({}) => {
             value: data?.totalPLatCurrentPrice,
           },
           { label: 'Net Contrib.:', sign: '÷', value: data?.netContributions },
-          { end: true, label: 'ROI:', sign: '', value: data?.roi, type: 'PERCENTAGE' },
+          { end: true, label: 'ROI:', sign: '', value: data?.roi ?? 0, type: 'PERCENTAGE' },
         ]}
       />
     </div>

@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { type TimeFrame } from '../components/product/TimeFrameSelect';
 import { useQuery } from '@tanstack/react-query';
-import { type TimeFramePlByUnitResp } from '../../types/global';
+import { type TimeFrameCoinsPlResponseDto } from '../../types/contracts';
 import { useLocalStorage } from '../_hooks/useLocalStorage';
 
 interface StatsTableContextProps {
@@ -13,7 +13,7 @@ interface StatsTableContextProps {
   selectedPlType: 'roi' | 'ror';
   setSelectedPlType: React.Dispatch<React.SetStateAction<'roi' | 'ror'>>;
 
-  timeFrameCoinsPl?: TimeFramePlByUnitResp;
+  timeFrameCoinsPl?: TimeFrameCoinsPlResponseDto;
   timeFrameCoinsPlIsLoading: boolean;
 
   columns: [string, boolean][];
@@ -56,7 +56,7 @@ export const StatsTableProvider: React.FC<{
 
   const { data: timeFrameCoinsPl, isLoading: timeFrameCoinsPlIsLoading } = useQuery({
     queryKey: ['time-frame-coins-pl', selectedTimeFrame],
-    queryFn: async ({ signal }): Promise<TimeFramePlByUnitResp> => {
+    queryFn: async ({ signal }): Promise<TimeFrameCoinsPlResponseDto> => {
       const resp = await fetch(`/api/time-frame-coins-pl/${selectedTimeFrame}`, { signal });
       if (!resp.ok) {
         throw new Error('Network response error');

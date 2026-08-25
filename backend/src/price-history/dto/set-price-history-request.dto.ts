@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsOptional, IsString, ValidateNested } from 'class-validator';
+import { TIME_FRAMES } from '../../common/time-frame/time-frames';
 import { PriceHistoryResponseDto } from '../../exchange-rates/dto/price-history-response.dto';
 
 // Every field below is required in the finished contract and documented as such via
@@ -13,7 +14,7 @@ export class SetPriceHistoryRequestDto {
   @IsString()
   coinName!: string;
 
-  @ApiProperty({ example: '24h' })
+  @ApiProperty({ enum: TIME_FRAMES, enumName: 'TimeFrame', example: 'd' })
   @IsOptional()
   @IsString()
   timeFrame!: string;

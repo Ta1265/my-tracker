@@ -10,6 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "generate": "npx prisma generate",
     "scrapeCoins": "node ./src/server/scripts/scrape.ts"
   },
