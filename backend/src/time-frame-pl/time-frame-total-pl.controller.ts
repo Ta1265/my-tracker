@@ -14,6 +14,7 @@ export class TimeFrameTotalPlController {
   @ApiCookieAuth()
   @ApiParam({ name: 'timeFrame', enum: TIME_FRAMES, enumName: 'TimeFrame', example: 'd' })
   @ApiOperation({
+    operationId: 'timeFrameTotalPl',
     description: "Return the caller's aggregate portfolio P/L for a time frame.",
   })
   @ApiOkResponse({ type: TimeFrameTotalPlResponseDto })

@@ -2,13 +2,13 @@
 
 import React from 'react';
 import Box from '@mui/material/Box';
-import { useQuery } from '@tanstack/react-query';
+import { useProfitLossChart } from '../../../api/generated';
 import { LineChart } from './LineChart';
 import { HoveredPrice } from './HoveredPrice';
 import { TimeFrameDelta } from './TimeFrameDelta';
 import { useStatsTableContext } from '../../../context/StatsTableContext';
 import { useSummaryContext } from '../SummaryContext';
-import type { ProfitLossChartResponseDto } from '../../../../types/contracts';
+import type { ProfitLossChartResponseDto } from '../../../api/generated';
 
 const emptyData: ProfitLossChartResponseDto = {
   netRows: [],
@@ -23,17 +23,8 @@ export const TotalChartLayout: React.FC<{}> = ({}) => {
 
   const [dataIndex, setDataIndex] = React.useState<number | null>(null);
 
-  const { data = emptyData, isLoading: chartValuesLoading } = useQuery({
-    queryKey: ['profit-loss-chart', selectedTimeFrame],
-    queryFn: async ({ signal }): Promise<ProfitLossChartResponseDto> => {
-      const resp = await fetch(`/api/summary/profitLossChart?timeFrame=${selectedTimeFrame}`, {
-        signal,
-      });
-      if (!resp.ok) {
-        throw new Error('Network response error');
-      }
-      return resp.json();
-    },
+  const { data = emptyData, isLoading: chartValuesLoading } = useProfitLossChart({
+    timeFrame: selectedTimeFrame,
   });
 
   const { netRows, lowestPointIndex, highestPointIndex } = data;

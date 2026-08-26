@@ -4,7 +4,7 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import { usePriceFeed } from '../../context/CoinbaseWsFeedContext';
 import TickerDisplay from '../TickerDisplay';
-import type { CoinSummaryResponseDto } from '../../../types/contracts';
+import type { CoinSummaryResponseDto } from '../../api/generated';
 import Skeleton from '@mui/joy/Skeleton';
 import { useStatsTableContext } from '../../context/StatsTableContext';
 

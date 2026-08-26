@@ -20,7 +20,10 @@ export class TransactionsController {
   @Post('add')
   @UseGuards(SessionGuard)
   @ApiCookieAuth()
-  @ApiOperation({ description: "Record a transaction owned by the caller's session." })
+  @ApiOperation({
+    operationId: 'addTransaction',
+    description: "Record a transaction owned by the caller's session.",
+  })
   @ApiResponse({
     status: 200,
     description: 'Transaction recorded.',
@@ -58,7 +61,10 @@ export class TransactionsController {
   @UseGuards(SessionGuard)
   @ApiCookieAuth()
   @ApiParam({ name: 'id', example: '1', description: "The transaction's numeric id, as a string." })
-  @ApiOperation({ description: "Delete the caller's transaction by id." })
+  @ApiOperation({
+    operationId: 'deleteTransaction',
+    description: "Delete the caller's transaction by id.",
+  })
   @ApiResponse({ status: 204, description: 'Transaction deleted.' })
   @ApiResponse({
     status: 400,

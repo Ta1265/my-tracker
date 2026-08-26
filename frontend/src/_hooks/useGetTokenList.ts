@@ -2,6 +2,7 @@
 
 
 import React, { useMemo, useEffect, useState } from 'react';
+import { tokenInfoSearch } from '../api/generated';
 
 export const useGetTokenList = () => {
   const [coinSearchValue, setCoinSearchValue] = useState('');
@@ -20,9 +21,8 @@ export const useGetTokenList = () => {
     }
     setLoading(true);
 
-    fetch(`/api/token-info/search/${coinSearchValue}`)
-      .then((res) => res?.json())
-      .then((resp: { symbol: string; name: string; token_id: number }) => {
+    tokenInfoSearch(coinSearchValue)
+      .then((resp) => {
         if (!Array.isArray(resp)) {
           return;
         }

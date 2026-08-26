@@ -3,3 +3,4 @@ node_modules
 .next
 db_dumps
 public
+src/api/generated.ts

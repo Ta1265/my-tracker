@@ -12,12 +12,11 @@ import Box from '@mui/material/Box';
 import { LineChart } from '@/components/product/LineChart';
 import { TimeFrameSelect } from '@/components/product/TimeFrameSelect';
 import { TitleAndPriceDisplay } from '@/components/product/TitleAndPriceDisplay';
+import { deleteTransaction as deleteTransactionRequest } from '@/api/generated';
 
 const deleteTransaction = async (id: number) => {
-  await fetch(`/api/transaction/${id}`, { method: 'DELETE' })
-    .then((resp) => {
-      if (resp.status === 204) console.log('success');
-    })
+  await deleteTransactionRequest(String(id))
+    .then(() => console.log('success'))
     .catch((error) => console.log('error', error));
 };
 

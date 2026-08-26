@@ -14,6 +14,7 @@ export class PriceHistoryController {
   @UseGuards(SessionGuard)
   @ApiCookieAuth()
   @ApiOperation({
+    operationId: 'priceHistoryCheck',
     description:
       'Return, per coin the caller has transacted in, which time frames are missing from ' +
       'the price-history cache. Requires a session; returns 401 if none is present.',
@@ -36,6 +37,7 @@ export class PriceHistoryController {
 
   @Post('set')
   @ApiOperation({
+    operationId: 'setPriceHistory',
     description:
       'Deliberately public: writes a shared price-history cache entry keyed by ' +
       'coin/timeFrame, not anything scoped to the caller. No session read today; stays ' +

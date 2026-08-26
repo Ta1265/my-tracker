@@ -26,6 +26,7 @@ export class TimeFrameCoinsPlController {
   @ApiExtraModels(TimeFrameCoinsPlEntryDto)
   @ApiParam({ name: 'timeFrame', enum: TIME_FRAMES, enumName: 'TimeFrame', example: 'd' })
   @ApiOperation({
+    operationId: 'timeFrameCoinsPl',
     description: "Return the caller's per-coin P/L for a time frame, keyed by product name.",
   })
   @ApiResponse({

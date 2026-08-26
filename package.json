@@ -1,12 +1,4 @@
 {
   "private": true,
-  "packageManager": "pnpm@11.22.0",
-  "scripts": {
-    "spec:generate": "node scripts/generate-api-contract.mjs",
-    "spec:check": "node scripts/generate-api-contract.mjs --check",
-    "spec:watch": "node --watch-path=backend/src scripts/generate-api-contract.mjs"
-  },
-  "devDependencies": {
-    "openapi-typescript": "7.13.0"
-  }
+  "packageManager": "pnpm@11.22.0"
 }

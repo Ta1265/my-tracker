@@ -1,10 +1,9 @@
 'use client';
 
 import React, { createContext, useContext, useState } from 'react';
-import { type TimeFrame } from '../components/product/TimeFrameSelect';
 import { useQuery } from '@tanstack/react-query';
 import { usePriceFeed } from './CoinbaseWsFeedContext';
-import { type PriceHistoryResponseDto } from '../../types/contracts';
+import { type PriceHistoryResponseDto, type TimeFrame } from '../api/generated';
 import { useFetchCoinPriceHistory } from '../_hooks/useFetchCoinPriceHistory';
 
 interface PriceHistoryContextProps {

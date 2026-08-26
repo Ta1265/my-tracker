@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Skeleton from '@mui/joy/Skeleton';
-import type { CoinSummaryResponseDto } from '../../../types/contracts';
+import type { CoinSummaryResponseDto } from '../../api/generated';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import { usePriceFeed } from '../../context/CoinbaseWsFeedContext';

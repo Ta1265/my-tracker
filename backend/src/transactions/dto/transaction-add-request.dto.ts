@@ -23,11 +23,6 @@ export class TransactionAddRequestDto {
   @IsIn(['BUY', 'SELL'])
   side!: string;
 
-  @ApiProperty({ example: 'BTC' })
-  @IsOptional()
-  @IsString()
-  unit!: string;
-
   @ApiProperty({ example: '0.5', description: 'Coin quantity, as a decimal string.' })
   @IsOptional()
   @IsString()

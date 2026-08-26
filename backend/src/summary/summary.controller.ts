@@ -25,6 +25,7 @@ export class SummaryController {
   @Get('coins')
   @ApiCookieAuth()
   @ApiOperation({
+    operationId: 'coinSummaries',
     description: "Return a per-coin summary of the caller's portfolio.",
   })
   @ApiOkResponse({ type: CoinSummaryResponseDto, isArray: true })
@@ -36,6 +37,7 @@ export class SummaryController {
   @Get('portfolio')
   @ApiCookieAuth()
   @ApiOperation({
+    operationId: 'portfolioSummary',
     description: "Return the caller's aggregate portfolio summary.",
   })
   @ApiOkResponse({ type: PortfolioSummaryResponseDto })
@@ -55,6 +57,7 @@ export class SummaryController {
     description: "Defaults to 'all'.",
   })
   @ApiOperation({
+    operationId: 'profitLossChart',
     description:
       "Return the caller's net cash flow history chart for a time frame. An empty-history " +
       'user gets the fallback shape { netRows: [], lowestPointIndex: 0, highestPointIndex: ' +
@@ -74,6 +77,7 @@ export class SummaryController {
   @ApiCookieAuth()
   @ApiParam({ name: 'timeFrame', enum: TIME_FRAMES, enumName: 'TimeFrame', example: 'all' })
   @ApiOperation({
+    operationId: 'profitLossChartByTimeFrame',
     description:
       "Return the caller's net cash flow history chart for a time frame (path-param " +
       'variant, identical response to the query variant). An empty-history user gets the ' +
@@ -94,6 +98,7 @@ export class SummaryController {
   @ApiCookieAuth()
   @ApiParam({ name: 'unit', example: 'BTC' })
   @ApiOperation({
+    operationId: 'coinSummariesByUnit',
     description:
       "Return the caller's per-coin summary filtered to a single unit, same shape as " +
       'summary/coins. No known frontend caller today, documented in full regardless.',

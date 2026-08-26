@@ -1,10 +1,8 @@
 'use client';
 
 import React, { createContext, useContext } from 'react';
-import { type TimeFrame } from '../../components/product/TimeFrameSelect';
-import { useQuery } from '@tanstack/react-query';
-import { useTimeTotalFramePl } from '../../_hooks/useTimeTotalFramePl';
-import type { PortfolioSummaryResponseDto } from '../../../types/contracts';
+import { usePortfolioSummary, useTimeFrameTotalPl } from '../../api/generated';
+import type { PortfolioSummaryResponseDto, TimeFrame } from '../../api/generated';
 
 interface SummaryContextProps {
   timeFramePl: number;
@@ -20,20 +18,10 @@ export const SummaryContextProvider: React.FC<{
   selectedTimeFrame: TimeFrame;
   children: React.ReactNode;
 }> = ({ selectedTimeFrame, children }) => {
-  const { isPending, data: portfolioSummary } = useQuery({
-    queryKey: ['portfolio'],
-    queryFn: async ({ signal }): Promise<PortfolioSummaryResponseDto> => {
-      const resp = await fetch('/api/summary/portfolio', { signal });
-      if (!resp.ok) {
-        throw new Error('Network response error');
-      }
-      return resp.json();
-    },
-    // refetchInterval: 5000,
-  });
+  const { isPending, data: portfolioSummary } = usePortfolioSummary();
 
   const { data: timeFramePlResp, isLoading: timeFramePlLoading } =
-    useTimeTotalFramePl(selectedTimeFrame);
+    useTimeFrameTotalPl(selectedTimeFrame);
 
   const { timeFramePl, timeFramePercentPl } = React.useMemo(() => {
     let currentTotalValue = 0;

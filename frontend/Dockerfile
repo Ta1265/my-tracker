@@ -40,8 +40,14 @@ COPY frontend/tailwind.config.ts ./frontend/
 COPY frontend/postcss.config.js ./frontend/
 COPY frontend/types.d.ts ./frontend/
 COPY frontend/types ./frontend/types
+COPY frontend/orval.config.ts ./frontend/
 COPY tsconfig.base.json ./tsconfig.base.json
+# Orval formats its output through Prettier's API, which resolves config by walking up
+# from the generated file - so the root config has to exist in the image.
+COPY prettier.config.mjs ./prettier.config.mjs
 ENV NEXT_TELEMETRY_DISABLED 1
+ARG NEXT_PUBLIC_API_TARGET=legacy
+ENV NEXT_PUBLIC_API_TARGET=$NEXT_PUBLIC_API_TARGET
 RUN pnpm --filter @portfolio/frontend exec prisma generate
 
 # 2. Target for development
@@ -53,9 +59,6 @@ CMD ["pnpm", "--filter", "@portfolio/frontend", "dev"]
 # 2. Build stage for production target
 FROM common-build AS builder
 WORKDIR /app
-COPY backend/openapi.json ./backend/openapi.json
-COPY scripts ./scripts
-RUN node scripts/generate-api-contract.mjs --check --only=types
 RUN pnpm --filter @portfolio/frontend build
 
 # 3. Production image, copy all the files and run next

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import type { CoinSummaryResponseDto } from '../../../types/contracts';
+import type { CoinSummaryResponseDto } from '../../api/generated';
 
 export const CoinColumnCell: React.FC<{
   coinSummary: CoinSummaryResponseDto;

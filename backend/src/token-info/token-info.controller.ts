@@ -21,6 +21,7 @@ export class TokenInfoController {
   @ApiCookieAuth()
   @ApiParam({ name: 'userId', example: '1' })
   @ApiOperation({
+    operationId: 'tokenInfoSync',
     description:
       "This route's name is misleading - it does not return token info, it triggers a " +
       'price-history sync (a database write) keyed by the given userId. Requires a ' +
@@ -58,6 +59,7 @@ export class TokenInfoController {
   @Get('search/:searchTerm')
   @ApiParam({ name: 'searchTerm', example: 'bit' })
   @ApiOperation({
+    operationId: 'tokenInfoSearch',
     description:
       'Deliberately public: returns generic token metadata (symbol/name/slug lookup), not ' +
       'anything scoped to the caller. No auth today; stays public.',

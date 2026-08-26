@@ -3,7 +3,7 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/joy/Tooltip';
-import type { CoinSummaryResponseDto } from '../../../types/contracts';
+import type { CoinSummaryResponseDto } from '../../api/generated';
 import { formatValue } from '../../utils/formatDollars';
 
 export const CostBasisCell: React.FC<{

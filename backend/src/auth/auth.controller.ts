@@ -31,6 +31,7 @@ export class AuthController {
   @Post('login')
   @HttpCode(200)
   @ApiOperation({
+    operationId: 'login',
     description:
       'Verify credentials and issue a session cookie. Deliberately public - logging in ' +
       'cannot itself require a session.',
@@ -72,7 +73,7 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(204)
-  @ApiOperation({ description: "Clear the caller's session cookie." })
+  @ApiOperation({ operationId: 'logout', description: "Clear the caller's session cookie." })
   @ApiResponse({ status: 204, description: 'Session cleared.' })
   // Unconditional: invalidation only needs to clear the browser's cookie, not to require
   // a valid session to log out of, so this stays unguarded and without @ApiCookieAuth().
@@ -83,7 +84,10 @@ export class AuthController {
   @Get('session')
   @UseGuards(SessionGuard)
   @ApiCookieAuth()
-  @ApiOperation({ description: 'Return the whitelisted user shape for the current session.' })
+  @ApiOperation({
+    operationId: 'authSession',
+    description: 'Return the whitelisted user shape for the current session.',
+  })
   @ApiOkResponse({ type: SessionResponseDto })
   @ApiResponse({
     status: 401,

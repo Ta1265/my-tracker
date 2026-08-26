@@ -13,6 +13,7 @@ export class ProductController {
   @ApiCookieAuth()
   @ApiParam({ name: 'product', example: 'BTC' })
   @ApiOperation({
+    operationId: 'productTransactions',
     description:
       "Return the caller's transaction history for a product, most recent first. An empty " +
       'product param returns [] rather than a 400.',

@@ -1,5 +1,5 @@
 // Legacy-only: kept for the server-side files (src/server, src/app/api) that still
-// import these. New response types come from frontend/types/contracts.ts.
+// import these. New response types come from frontend/src/api/generated.ts.
 
 export type PortfolioSummary = {
   purchases: number;

@@ -7,6 +7,7 @@ export class MetricsController {
   @Get()
   @ApiSecurity('metrics-secret')
   @ApiOperation({
+    operationId: 'metrics',
     description:
       'Authenticated via a static bearer-token check (Authorization: Bearer {METRICS_SECRET}), ' +
       'not a session - this is a machine-to-machine scrape credential, never a user-facing ' +

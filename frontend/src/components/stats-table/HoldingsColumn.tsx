@@ -4,7 +4,7 @@ import React from 'react';
 import { usePriceFeed } from '../../context/CoinbaseWsFeedContext';
 import TickerDisplay from '../TickerDisplay';
 import Box from '@mui/material/Box';
-import type { CoinSummaryResponseDto } from '../../../types/contracts';
+import type { CoinSummaryResponseDto } from '../../api/generated';
 
 interface Props {
   coinSummary: CoinSummaryResponseDto;

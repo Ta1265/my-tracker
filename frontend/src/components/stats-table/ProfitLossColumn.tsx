@@ -5,7 +5,7 @@ import React, {} from 'react';
 import Box from '@mui/material/Box';
 import { usePriceFeed } from '../../context/CoinbaseWsFeedContext';
 import TickerDisplay from '../TickerDisplay';
-import type { CoinSummaryResponseDto } from '../../../types/contracts';
+import type { CoinSummaryResponseDto } from '../../api/generated';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import { useStatsTableContext } from '../../context/StatsTableContext';

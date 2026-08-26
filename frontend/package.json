@@ -12,7 +12,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "generate": "npx prisma generate",
-    "scrapeCoins": "node ./src/server/scripts/scrape.ts"
+    "scrapeCoins": "node ./src/server/scripts/scrape.ts",
+    "spec:generate": "orval --config orval.config.ts"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
@@ -61,7 +62,6 @@
     "react-hook-form": "^7.53.2",
     "react-modal": "^3.16.1",
     "react-number-format": "^5.3.4",
-    "react-query": "^3.39.3",
     "react-select": "^5.8.0",
     "react-table": "^7.8.0",
     "styled-components": "^6.1.8",
@@ -80,7 +80,8 @@
     "@types/react-dom": "^18",
     "@types/react-table": "^7.7.17",
     "@typescript-eslint/eslint-plugin": "^6.3.0",
-    "@typescript-eslint/parser": "^6.3.0"
+    "@typescript-eslint/parser": "^6.3.0",
+    "orval": "8.26.0"
   },
   "prisma": {
     "schema": "src/server/db/schema.prisma"

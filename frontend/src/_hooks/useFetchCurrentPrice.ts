@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useReload } from '../context/ReloadContext';
-import type { TimeFrame } from '../../types/contracts';
+import { type TimeFrame, exchangeRatesByUnit } from '../api/generated';
 
 export const useFetchCurrentPrice = (
   unit: string | null,
@@ -14,12 +14,10 @@ export const useFetchCurrentPrice = (
   useEffect(() => {
     if (!unit) return;
     setCurrentPriceIsLoading(true);
-    fetch(`/api/exchange-rates/unit/${unit}`)
-      .then((res) => res?.json())
-      .then((resp: string) => {
-        setCurrentPrice(resp);
-        setCurrentPriceIsLoading(false);
-      });
+    exchangeRatesByUnit(unit).then((resp) => {
+      setCurrentPrice(resp);
+      setCurrentPriceIsLoading(false);
+    });
   }, [unit, timeFrame, reload]);
 
   return { currentPrice, currentPriceIsLoading };

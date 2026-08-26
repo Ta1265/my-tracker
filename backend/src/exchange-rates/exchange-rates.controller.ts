@@ -10,6 +10,7 @@ export class ExchangeRatesController {
   @ApiParam({ name: 'timeFrame', enum: TIME_FRAMES, enumName: 'TimeFrame', example: 'd' })
   @ApiParam({ name: 'coinName', example: 'Bitcoin' })
   @ApiOperation({
+    operationId: 'coinPriceHistory',
     description:
       'Deliberately public: returns market price history for a coin, not anything scoped to ' +
       'the caller. No auth today; stays public.',
@@ -26,6 +27,7 @@ export class ExchangeRatesController {
   @Get('unit/:unit')
   @ApiParam({ name: 'unit', example: 'BTC' })
   @ApiOperation({
+    operationId: 'exchangeRatesByUnit',
     description:
       'Deliberately public: returns a market exchange rate, not anything scoped to the ' +
       'caller. No auth today; stays public.',

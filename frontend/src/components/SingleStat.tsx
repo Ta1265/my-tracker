@@ -2,8 +2,8 @@
 
 import React from 'react';
 import Skeleton from '@mui/joy/Skeleton';
-import { useQuery } from '@tanstack/react-query';
-import type { CoinSummaryResponseDto } from '../../types/contracts';
+import { useCoinSummariesByUnit } from '../api/generated';
+import type { CoinSummaryResponseDto } from '../api/generated';
 import TickerDisplay from './TickerDisplay';
 import { usePriceHistory } from '../context/PriceHistoryProvider';
 import { useSingleStat } from '../context/SingleStatContext';
@@ -83,26 +83,17 @@ const SingleStat: React.FC<{}> = () => {
 
   const {
     isPending: summaryLoading,
-    data: coinSummary,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: [`summary`, unit],
-    queryFn: async ({ signal }): Promise<CoinSummaryResponseDto> => {
-      const resp = await fetch(`/api/summary/${unit}`, { signal });
-      if (!resp.ok) {
-        throw new Error('Network response error');
-      }
+    data: coinSummaries,
+    isError: isQueryError,
+    error: queryError,
+  } = useCoinSummariesByUnit(unit);
 
-      const data = await resp.json();
-
-      if (!data?.length || data.length !== 1) {
-        throw new Error('Unexpected response');
-      }
-
-      return data[0];
-    },
-  });
+  const isUnexpectedResponse =
+    !isQueryError && coinSummaries !== undefined && coinSummaries.length !== 1;
+  const isError = isQueryError || isUnexpectedResponse;
+  const error = queryError ?? (isUnexpectedResponse ? new Error('Unexpected response') : null);
+  const coinSummary: CoinSummaryResponseDto | undefined =
+    coinSummaries?.length === 1 ? coinSummaries[0] : undefined;
 
   const isPending = summaryLoading || loading;
 

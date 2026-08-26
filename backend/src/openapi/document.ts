@@ -12,15 +12,5 @@ export function createOpenApiDocumentBuilder(): DocumentBuilder {
       in: 'cookie',
       name: 'portfolio_session',
     })
-    .addBearerAuth({ type: 'http', scheme: 'bearer' }, 'metrics-secret')
-    .addTag('Auth')
-    .addTag('Transactions')
-    .addTag('Summary')
-    .addTag('Stats')
-    .addTag('Product')
-    .addTag('Exchange Rates')
-    .addTag('Price History')
-    .addTag('Time-Frame P&L')
-    .addTag('Token Info')
-    .addTag('Metrics');
+    .addBearerAuth({ type: 'http', scheme: 'bearer' }, 'metrics-secret');
 }

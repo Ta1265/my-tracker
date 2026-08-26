@@ -54,9 +54,6 @@ CMD ["pnpm", "--filter", "@portfolio/backend", "start:dev"]
 FROM common-build AS builder
 WORKDIR /app
 RUN pnpm --filter @portfolio/backend build
-COPY backend/openapi.json ./backend/openapi.json
-COPY scripts ./scripts
-RUN node scripts/generate-api-contract.mjs --check --only=spec
 
 # 5. Deploy stage - self-contained production closure
 FROM builder AS deploy

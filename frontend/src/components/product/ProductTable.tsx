@@ -9,8 +9,8 @@ import Table from '@mui/joy/Table';
 import SortArrow from '../SortArrow';
 import Tooltip from '@mui/joy/Tooltip';
 import RemoveIcon from '@mui/icons-material/Remove';
-import { useQuery } from '@tanstack/react-query';
-import type { ProductTransactionResponseDto } from '../../../types/contracts';
+import { useProductTransactions } from '../../api/generated';
+import type { ProductTransactionResponseDto } from '../../api/generated';
 
 const EMPTY_PRODUCT_DATA: ProductTransactionResponseDto[] = [];
 
@@ -33,16 +33,7 @@ const ProductTable: React.FC<Props> = ({
 }) => {
   const [loaded, setLoaded] = useState(false);
 
-  const query = useQuery({
-    queryKey: ['product', unit],
-    queryFn: async (): Promise<ProductTransactionResponseDto[]> =>
-      fetch(`/api/product/${unit}`).then((res) => {
-        if (!res.ok) {
-          throw new Error('Network response error');
-        }
-        return res.json();
-      }),
-  });
+  const query = useProductTransactions(unit);
 
   const columns = useMemo(
     () => [

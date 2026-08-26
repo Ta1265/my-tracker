@@ -20,6 +20,7 @@ import { useReload } from '../context/ReloadContext';
 import { SnackbarContext } from '../context/SnackBarContext';
 import { useGetTokenList } from '../_hooks/useGetTokenList';
 import { Grid } from '@mui/material';
+import { addTransaction } from '../api/generated';
 
 const textFieldSx = {
   '& .MuiOutlinedInput-root': {
@@ -158,32 +159,19 @@ const AddTransaction: React.FC<{
       });
       return;
     }
-    fetch('/api/transaction/add', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        side: formValues.side.value,
-        token_id: formValues.coin.value,
-        size: formValues.size.value,
-        price: formValues.price.value,
-        fee: formValues.fee.value,
-        date: formValues.dateOfTransaction.value?.toISOString(),
-        notes: formValues.notes.value,
-      }),
+    addTransaction({
+      side: formValues.side.value,
+      token_id: formValues.coin.value as number,
+      size: formValues.size.value,
+      price: formValues.price.value,
+      fee: formValues.fee.value,
+      date: formValues.dateOfTransaction.value?.toISOString() as string,
+      notes: formValues.notes.value,
     })
-      .then(async (resp) => {
-        if (resp.status !== 200) {
-          throw new Error(
-            'Failed to add transaction. \n' +
-              `Error: ${(await resp.json()).error}`,
-          );
-        }
+      .then(() => {
         snackBarCtx.toastSuccess({
           message: 'Transaction added successfully.',
         });
-        console.log({ resp });
         setIsOpen(false);
         triggerReload();
         setFormValues(getDefaultFormValue());

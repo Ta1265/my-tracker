@@ -13,6 +13,7 @@ export class StatsController {
   @ApiCookieAuth()
   @ApiParam({ name: 'unit', example: 'BTC' })
   @ApiOperation({
+    operationId: 'statsByUnit',
     description: "Look up the caller's stats for a coin and return a formatted StatsResponseDto.",
   })
   @ApiOkResponse({ type: StatsResponseDto })
