@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useCurrentSession } from '@/auth/useCurrentSession';
+import { seamSignOut } from '@/auth/actions';
 import { Dropdown } from 'flowbite-react';
 import { usePathname } from 'next/navigation';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
@@ -22,7 +23,7 @@ const themeSwatchColor: Record<ThemeId, string> = {
 };
 
 const NavDropdown: React.FC = () => {
-  const { data: session } = useSession();
+  const { data: session } = useCurrentSession();
   const pathname = usePathname();
   const isProductPage = pathname?.startsWith('/product');
   const isStatsPage = pathname?.startsWith('/stats') || pathname === '/';
@@ -251,7 +252,9 @@ const NavDropdown: React.FC = () => {
           <Dropdown.Item
             className="py-2 text-sm"
             style={{ color: 'var(--text-secondary)' }}
-            onClick={() => signOut()}
+            onClick={() => {
+              void seamSignOut();
+            }}
           >
             Sign out
           </Dropdown.Item>

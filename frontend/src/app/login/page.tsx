@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation';
-import { getServerAuthSession } from '@/server/auth';
+import { getSession } from '@/server/authSession';
 import LoginClient from './LoginClient';
 
 export default async function LoginPage() {
-  const session = await getServerAuthSession();
+  const session = await getSession();
   if (session?.isAuthenticated) {
     redirect('/stats');
   }

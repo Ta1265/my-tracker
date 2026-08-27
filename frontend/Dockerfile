@@ -13,22 +13,20 @@ FROM base AS deps
 WORKDIR /app
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY frontend/package.json ./frontend/
-# The cache mount persists pnpm's store across builds without baking it into a layer.
-# --filter installs only the frontend package (and its workspace deps, once any exist).
+COPY packages/shared/package.json ./packages/shared/
+# @portfolio/frontend's `...` filter only pulls @portfolio/shared in as a prod dependency;
+# naming it directly also installs its own devDependency (typescript) needed for its `tsc` build.
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm install --frozen-lockfile --filter @portfolio/frontend...
+    pnpm install --frozen-lockfile --filter @portfolio/frontend... --filter @portfolio/shared
 
 # 2. Common build stage
 FROM base AS common-build
 WORKDIR /app
 # pnpm keeps the real packages in the workspace root's node_modules; a package's own
 # node_modules just symlinks into it, so both need copying or the symlinks dangle.
-# This stays scoped to frontend's own dependencies - the filtered install above never
-# pulls in another workspace package's deps, so this won't grow once backend/ exists
-# and gets its own Dockerfile with its own filtered install (verified in
-# architecture.md's Docker section).
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/frontend/node_modules ./frontend/node_modules
+COPY --from=deps /app/packages/shared/node_modules ./packages/shared/node_modules
 COPY --from=deps /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/package.json ./
 COPY frontend/package.json ./frontend/
 COPY frontend/src ./frontend/src
@@ -45,9 +43,15 @@ COPY tsconfig.base.json ./tsconfig.base.json
 # Orval formats its output through Prettier's API, which resolves config by walking up
 # from the generated file - so the root config has to exist in the image.
 COPY prettier.config.mjs ./prettier.config.mjs
+COPY packages/shared ./packages/shared
+# packages/shared has its own tsc build; neither `next dev` nor `next build` runs it, and
+# both resolve the package through its compiled dist/, so this must precede them.
+RUN pnpm --filter @portfolio/shared build
 ENV NEXT_TELEMETRY_DISABLED 1
 ARG NEXT_PUBLIC_API_TARGET=legacy
 ENV NEXT_PUBLIC_API_TARGET=$NEXT_PUBLIC_API_TARGET
+ARG NEXT_PUBLIC_AUTH_TARGET=legacy
+ENV NEXT_PUBLIC_AUTH_TARGET=$NEXT_PUBLIC_AUTH_TARGET
 RUN pnpm --filter @portfolio/frontend exec prisma generate
 
 # 2. Target for development

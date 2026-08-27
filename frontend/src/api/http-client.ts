@@ -6,6 +6,12 @@
  * it only prepends, never strips.
  */
 function mapUrl(url: string): string {
+  // NextAuth's /api/auth/[...nextauth] is a different contract, not a `/backend`-prefixed
+  // one, so these always reach Nest directly regardless of the data seam's target below.
+  if (url.startsWith('/backend/api/auth/')) {
+    return url;
+  }
+
   const target = process.env.NEXT_PUBLIC_API_TARGET;
   if (target === 'nest') {
     return url;

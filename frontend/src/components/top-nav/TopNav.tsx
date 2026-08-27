@@ -3,14 +3,14 @@
 import Link from 'next/link';
 import React, { useState } from 'react';
 import PortfolioIcon from '../PortfolioIcon';
-import { useSession } from 'next-auth/react';
+import { useCurrentSession } from '@/auth/useCurrentSession';
 import AddTransaction from '../AddTransaction';
 import NavDropdown from './NavDropdown';
 import Button from '@mui/material/Button';
 
 export default function TopNav() {
   const [isOpen, setIsOpen] = useState(false);
-  const { data: session } = useSession();
+  const { data: session } = useCurrentSession();
 
   return (
     <>

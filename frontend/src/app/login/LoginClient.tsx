@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { signIn } from 'next-auth/react';
+import { seamSignIn } from '@/auth/actions';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Box from '@mui/material/Box';
@@ -63,11 +63,10 @@ export default function LoginClient() {
   const isBusy = isSubmitting || isNavigating;
 
   const onSubmit = async (data: FormValues) => {
-    const result = await signIn('credentials', {
+    const result = await seamSignIn({
       username: data.username,
       password: data.password,
-      rememberMe: String(data.rememberMe),
-      redirect: false,
+      rememberMe: data.rememberMe,
       callbackUrl,
     });
 

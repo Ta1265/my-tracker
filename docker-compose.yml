@@ -45,7 +45,11 @@ services:
       target: ${TARGET:-dev}  # prod or dev
       context: .
       dockerfile: frontend/Dockerfile
-      args: { NEXT_PUBLIC_API_TARGET: "${NEXT_PUBLIC_API_TARGET:-legacy}" }
+      args:
+        {
+          NEXT_PUBLIC_API_TARGET: "${NEXT_PUBLIC_API_TARGET:-legacy}",
+          NEXT_PUBLIC_AUTH_TARGET: "${NEXT_PUBLIC_AUTH_TARGET:-legacy}",
+        }
     environment:
       HOST: 0.0.0.0
     # Set environment variables from defaults.env and local override.env
