@@ -48,12 +48,12 @@ export class TransactionsService {
     await this.em.flush();
   }
 
-  // `nativeDelete` returns an affected-row count rather than throwing on a miss, so a
-  // miss is folded into the same 500 as a real delete failure to match today's route.
-  async deleteTransaction(id: number): Promise<void> {
+  // `nativeDelete` returns an affected-row count rather than throwing on a miss, so the
+  // zero-affected branch folds a genuine miss, a throw, and a foreign-owned row into one 500.
+  async deleteTransaction(id: number, userId: number): Promise<void> {
     let affected: number;
     try {
-      affected = await this.em.nativeDelete(Transaction, { id });
+      affected = await this.em.nativeDelete(Transaction, { id, userId });
     } catch {
       affected = 0;
     }

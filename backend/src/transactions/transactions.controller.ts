@@ -84,7 +84,9 @@ export class TransactionsController {
   })
   @ApiResponse({
     status: 500,
-    description: 'The delete failed (e.g. no row with that id - there is no existence check).',
+    description:
+      'The delete failed: no row with that id, or the id belongs to another ' +
+      'user - the two are indistinguishable to the caller.',
     schema: {
       type: 'object',
       properties: { error: { type: 'string' } },
@@ -92,8 +94,6 @@ export class TransactionsController {
     },
   })
   async delete(@Param('id') id: string, @CurrentUser() user: SessionClaims): Promise<void> {
-    // Deliberately not scoped to `user.sub`: any authenticated caller can delete any
-    // user's row by id, matching the existing route's behavior. Not a fix target.
-    await this.transactionsService.deleteTransaction(parseInt(id, 10));
+    await this.transactionsService.deleteTransaction(parseInt(id, 10), user.sub);
   }
 }
