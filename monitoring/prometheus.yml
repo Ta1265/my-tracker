@@ -12,3 +12,12 @@ scrape_configs:
     authorization:
       type: Bearer
       credentials: '${METRICS_SECRET}'
+
+  - job_name: nestjs-backend
+    static_configs:
+      - targets:
+          - nest-api:3001
+    metrics_path: /backend/api/metrics
+    authorization:
+      type: Bearer
+      credentials: '${METRICS_SECRET}'

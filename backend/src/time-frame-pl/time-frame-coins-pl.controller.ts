@@ -1,4 +1,4 @@
-import { Controller, Get, NotImplementedException, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import {
   ApiCookieAuth,
   ApiExtraModels,
@@ -16,10 +16,13 @@ import {
   TimeFrameCoinsPlEntryDto,
   TimeFrameCoinsPlResponseDto,
 } from './dto/time-frame-coins-pl-response.dto';
+import { TimeFrameCoinsPlService } from './time-frame-coins-pl.service';
 
 @ApiTags('Time-Frame P&L')
 @Controller('time-frame-coins-pl')
 export class TimeFrameCoinsPlController {
+  constructor(private readonly timeFrameCoinsPlService: TimeFrameCoinsPlService) {}
+
   @Get(':timeFrame')
   @UseGuards(SessionGuard)
   @ApiCookieAuth()
@@ -36,12 +39,10 @@ export class TimeFrameCoinsPlController {
       additionalProperties: { $ref: getSchemaPath(TimeFrameCoinsPlEntryDto) },
     },
   })
-  // Will call dbService.ts's getCoinSummaries twice (current and past) and
-  // get-exchange-rates.ts's getPriceHistoryForTimeFrame for the time-frame start price.
   async getByTimeFrame(
     @Param('timeFrame') timeFrame: string,
     @CurrentUser() user: SessionClaims,
   ): Promise<TimeFrameCoinsPlResponseDto> {
-    throw new NotImplementedException();
+    return this.timeFrameCoinsPlService.getCoinsPl(user.sub, timeFrame);
   }
 }

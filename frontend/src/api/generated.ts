@@ -114,6 +114,28 @@ export interface ProfitLossChartResponseDto {
   highestPointIndex: number;
 }
 
+export interface PriceHistoryResponseDto {
+  /** Each entry is [unixTimestamp, openPrice, closePrice], returned verbatim and unformatted (getPriceHistoryForTimeFrame's return shape). */
+  prices: number[][];
+  /** Unformatted price change, as a decimal ratio. */
+  price_change: number;
+  /** Unformatted price change, in USD. */
+  usd_price_change: number;
+}
+
+export interface TokenInfoSyncResponseDto {
+  success: boolean;
+  userId: number;
+}
+
+export interface TokenInfoResponseDto {
+  token_id: number;
+  symbol: string;
+  slug: string;
+  name: string;
+  rank: number;
+}
+
 export interface StatsResponseDto {
   productName: string;
   /** formatUSD-formatted average purchase price. */
@@ -165,15 +187,6 @@ export interface ProductTransactionResponseDto {
   realizedGains: RealizedGainsDto;
 }
 
-export interface PriceHistoryResponseDto {
-  /** Each entry is [unixTimestamp, openPrice, closePrice], returned verbatim and unformatted (getPriceHistoryForTimeFrame's return shape). */
-  prices: number[][];
-  /** Unformatted price change, as a decimal ratio. */
-  price_change: number;
-  /** Unformatted price change, in USD. */
-  usd_price_change: number;
-}
-
 export interface PriceHistoryCheckResponseDto {
   coinName: string;
   /** TimeFrame values missing from Redis under time-frame-pl-{timeFrame}-coinName-{coinName} (both segments lowercased). */
@@ -205,19 +218,6 @@ export interface TimeFrameTotalPlResponseDto {
   currentTotalValue: number;
   totalPastPl: number;
   totalCurPl: number;
-}
-
-export interface TokenInfoSyncResponseDto {
-  success: boolean;
-  userId: number;
-}
-
-export interface TokenInfoResponseDto {
-  token_id: number;
-  symbol: string;
-  slug: string;
-  name: string;
-  rank: number;
 }
 
 export type Login401 = {
@@ -255,21 +255,15 @@ export type ProfitLossChartParams = {
   timeFrame?: TimeFrame;
 };
 
-export type PriceHistoryCheck401 = {
-  error?: string;
-};
-
-export type SetPriceHistory400 = {
-  error?: string;
-};
-
-export type TimeFrameCoinsPl200 = { [key: string]: TimeFrameCoinsPlEntryDto };
-
 export type TokenInfoSync400 = {
   error?: string;
 };
 
 export type TokenInfoSync401 = {
+  error?: string;
+};
+
+export type TokenInfoSync403 = {
   error?: string;
 };
 
@@ -280,6 +274,16 @@ export type TokenInfoSearch400 = {
 export type TokenInfoSearch500 = {
   error?: string;
 };
+
+export type PriceHistoryCheck401 = {
+  error?: string;
+};
+
+export type SetPriceHistory400 = {
+  error?: string;
+};
+
+export type TimeFrameCoinsPl200 = { [key: string]: TimeFrameCoinsPlEntryDto };
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
@@ -1423,12 +1427,515 @@ export function useCoinSummariesByUnit<
   return withQueryKey(query, queryOptions.queryKey);
 }
 
+export const getExchangeRatesByUnitUrl = (unit: string) => {
+  return `/backend/api/exchange-rates/unit/${unit}`;
+};
+
+/**
+ * Deliberately public: returns a market exchange rate, not anything scoped to the caller. No auth today; stays public.
+ */
+export const exchangeRatesByUnit = async (
+  unit: string,
+  options?: Parameters<typeof httpClient>[1],
+): Promise<string> => {
+  return httpClient<string>(getExchangeRatesByUnitUrl(unit), {
+    ...options,
+    method: 'GET',
+  });
+};
+
+export const getExchangeRatesByUnitQueryKey = (unit: string) => {
+  return [`/backend/api/exchange-rates/unit/${unit}`] as const;
+};
+
+export const getExchangeRatesByUnitQueryOptions = <
+  TData = Awaited<ReturnType<typeof exchangeRatesByUnit>>,
+  TError = string,
+>(
+  unit: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof exchangeRatesByUnit>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof httpClient>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getExchangeRatesByUnitQueryKey(unit);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof exchangeRatesByUnit>>> = ({ signal }) =>
+    exchangeRatesByUnit(unit, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: unit !== null && unit !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<Awaited<ReturnType<typeof exchangeRatesByUnit>>, TError, TData> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+};
+
+export type ExchangeRatesByUnitQueryResult = NonNullable<
+  Awaited<ReturnType<typeof exchangeRatesByUnit>>
+>;
+export type ExchangeRatesByUnitQueryError = string;
+
+export function useExchangeRatesByUnit<
+  TData = Awaited<ReturnType<typeof exchangeRatesByUnit>>,
+  TError = string,
+>(
+  unit: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof exchangeRatesByUnit>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof exchangeRatesByUnit>>,
+          TError,
+          Awaited<ReturnType<typeof exchangeRatesByUnit>>
+        >,
+        'initialData'
+      >;
+    request?: SecondParameter<typeof httpClient>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useExchangeRatesByUnit<
+  TData = Awaited<ReturnType<typeof exchangeRatesByUnit>>,
+  TError = string,
+>(
+  unit: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof exchangeRatesByUnit>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof exchangeRatesByUnit>>,
+          TError,
+          Awaited<ReturnType<typeof exchangeRatesByUnit>>
+        >,
+        'initialData'
+      >;
+    request?: SecondParameter<typeof httpClient>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useExchangeRatesByUnit<
+  TData = Awaited<ReturnType<typeof exchangeRatesByUnit>>,
+  TError = string,
+>(
+  unit: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof exchangeRatesByUnit>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof httpClient>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+export function useExchangeRatesByUnit<
+  TData = Awaited<ReturnType<typeof exchangeRatesByUnit>>,
+  TError = string,
+>(
+  unit: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof exchangeRatesByUnit>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof httpClient>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getExchangeRatesByUnitQueryOptions(unit, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+export const getCoinPriceHistoryUrl = (timeFrame: TimeFrame, coinName: string) => {
+  return `/backend/api/exchange-rates/${timeFrame}/${coinName}`;
+};
+
+/**
+ * Deliberately public: returns market price history for a coin, not anything scoped to the caller. No auth today; stays public.
+ */
+export const coinPriceHistory = async (
+  timeFrame: TimeFrame,
+  coinName: string,
+  options?: Parameters<typeof httpClient>[1],
+): Promise<PriceHistoryResponseDto> => {
+  return httpClient<PriceHistoryResponseDto>(getCoinPriceHistoryUrl(timeFrame, coinName), {
+    ...options,
+    method: 'GET',
+  });
+};
+
+export const getCoinPriceHistoryQueryKey = (timeFrame: TimeFrame, coinName: string) => {
+  return [`/backend/api/exchange-rates/${timeFrame}/${coinName}`] as const;
+};
+
+export const getCoinPriceHistoryQueryOptions = <
+  TData = Awaited<ReturnType<typeof coinPriceHistory>>,
+  TError = unknown,
+>(
+  timeFrame: TimeFrame,
+  coinName: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof coinPriceHistory>>, TError, TData>>;
+    request?: SecondParameter<typeof httpClient>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getCoinPriceHistoryQueryKey(timeFrame, coinName);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof coinPriceHistory>>> = ({ signal }) =>
+    coinPriceHistory(timeFrame, coinName, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled:
+      timeFrame !== null && timeFrame !== undefined && coinName !== null && coinName !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<Awaited<ReturnType<typeof coinPriceHistory>>, TError, TData> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+};
+
+export type CoinPriceHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof coinPriceHistory>>>;
+export type CoinPriceHistoryQueryError = unknown;
+
+export function useCoinPriceHistory<
+  TData = Awaited<ReturnType<typeof coinPriceHistory>>,
+  TError = unknown,
+>(
+  timeFrame: TimeFrame,
+  coinName: string,
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof coinPriceHistory>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof coinPriceHistory>>,
+          TError,
+          Awaited<ReturnType<typeof coinPriceHistory>>
+        >,
+        'initialData'
+      >;
+    request?: SecondParameter<typeof httpClient>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useCoinPriceHistory<
+  TData = Awaited<ReturnType<typeof coinPriceHistory>>,
+  TError = unknown,
+>(
+  timeFrame: TimeFrame,
+  coinName: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof coinPriceHistory>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof coinPriceHistory>>,
+          TError,
+          Awaited<ReturnType<typeof coinPriceHistory>>
+        >,
+        'initialData'
+      >;
+    request?: SecondParameter<typeof httpClient>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useCoinPriceHistory<
+  TData = Awaited<ReturnType<typeof coinPriceHistory>>,
+  TError = unknown,
+>(
+  timeFrame: TimeFrame,
+  coinName: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof coinPriceHistory>>, TError, TData>>;
+    request?: SecondParameter<typeof httpClient>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+export function useCoinPriceHistory<
+  TData = Awaited<ReturnType<typeof coinPriceHistory>>,
+  TError = unknown,
+>(
+  timeFrame: TimeFrame,
+  coinName: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof coinPriceHistory>>, TError, TData>>;
+    request?: SecondParameter<typeof httpClient>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getCoinPriceHistoryQueryOptions(timeFrame, coinName, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+export const getTokenInfoSyncUrl = (userId: string) => {
+  return `/backend/api/token-info/${userId}`;
+};
+
+/**
+ * This route's name is misleading - it does not return token info, it triggers a price-history sync (a database write) keyed by the given userId. Requires a session, with the sync scoped to the authenticated caller's own id - an id/session mismatch is rejected rather than trusting the path param.
+ */
+export const tokenInfoSync = async (
+  userId: string,
+  options?: Parameters<typeof httpClient>[1],
+): Promise<TokenInfoSyncResponseDto> => {
+  return httpClient<TokenInfoSyncResponseDto>(getTokenInfoSyncUrl(userId), {
+    ...options,
+    method: 'GET',
+  });
+};
+
+export const getTokenInfoSyncQueryKey = (userId: string) => {
+  return [`/backend/api/token-info/${userId}`] as const;
+};
+
+export const getTokenInfoSyncQueryOptions = <
+  TData = Awaited<ReturnType<typeof tokenInfoSync>>,
+  TError = TokenInfoSync400 | TokenInfoSync401 | TokenInfoSync403,
+>(
+  userId: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSync>>, TError, TData>>;
+    request?: SecondParameter<typeof httpClient>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getTokenInfoSyncQueryKey(userId);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof tokenInfoSync>>> = ({ signal }) =>
+    tokenInfoSync(userId, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: userId !== null && userId !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSync>>, TError, TData> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+};
+
+export type TokenInfoSyncQueryResult = NonNullable<Awaited<ReturnType<typeof tokenInfoSync>>>;
+export type TokenInfoSyncQueryError = TokenInfoSync400 | TokenInfoSync401 | TokenInfoSync403;
+
+export function useTokenInfoSync<
+  TData = Awaited<ReturnType<typeof tokenInfoSync>>,
+  TError = TokenInfoSync400 | TokenInfoSync401 | TokenInfoSync403,
+>(
+  userId: string,
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSync>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof tokenInfoSync>>,
+          TError,
+          Awaited<ReturnType<typeof tokenInfoSync>>
+        >,
+        'initialData'
+      >;
+    request?: SecondParameter<typeof httpClient>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useTokenInfoSync<
+  TData = Awaited<ReturnType<typeof tokenInfoSync>>,
+  TError = TokenInfoSync400 | TokenInfoSync401 | TokenInfoSync403,
+>(
+  userId: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSync>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof tokenInfoSync>>,
+          TError,
+          Awaited<ReturnType<typeof tokenInfoSync>>
+        >,
+        'initialData'
+      >;
+    request?: SecondParameter<typeof httpClient>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useTokenInfoSync<
+  TData = Awaited<ReturnType<typeof tokenInfoSync>>,
+  TError = TokenInfoSync400 | TokenInfoSync401 | TokenInfoSync403,
+>(
+  userId: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSync>>, TError, TData>>;
+    request?: SecondParameter<typeof httpClient>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+export function useTokenInfoSync<
+  TData = Awaited<ReturnType<typeof tokenInfoSync>>,
+  TError = TokenInfoSync400 | TokenInfoSync401 | TokenInfoSync403,
+>(
+  userId: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSync>>, TError, TData>>;
+    request?: SecondParameter<typeof httpClient>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getTokenInfoSyncQueryOptions(userId, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+export const getTokenInfoSearchUrl = (searchTerm: string) => {
+  return `/backend/api/token-info/search/${searchTerm}`;
+};
+
+/**
+ * Deliberately public: returns generic token metadata (symbol/name/slug lookup), not anything scoped to the caller. No auth today; stays public.
+ */
+export const tokenInfoSearch = async (
+  searchTerm: string,
+  options?: Parameters<typeof httpClient>[1],
+): Promise<TokenInfoResponseDto[]> => {
+  return httpClient<TokenInfoResponseDto[]>(getTokenInfoSearchUrl(searchTerm), {
+    ...options,
+    method: 'GET',
+  });
+};
+
+export const getTokenInfoSearchQueryKey = (searchTerm: string) => {
+  return [`/backend/api/token-info/search/${searchTerm}`] as const;
+};
+
+export const getTokenInfoSearchQueryOptions = <
+  TData = Awaited<ReturnType<typeof tokenInfoSearch>>,
+  TError = TokenInfoSearch400 | TokenInfoSearch500,
+>(
+  searchTerm: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSearch>>, TError, TData>>;
+    request?: SecondParameter<typeof httpClient>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getTokenInfoSearchQueryKey(searchTerm);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof tokenInfoSearch>>> = ({ signal }) =>
+    tokenInfoSearch(searchTerm, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: searchTerm !== null && searchTerm !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSearch>>, TError, TData> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+};
+
+export type TokenInfoSearchQueryResult = NonNullable<Awaited<ReturnType<typeof tokenInfoSearch>>>;
+export type TokenInfoSearchQueryError = TokenInfoSearch400 | TokenInfoSearch500;
+
+export function useTokenInfoSearch<
+  TData = Awaited<ReturnType<typeof tokenInfoSearch>>,
+  TError = TokenInfoSearch400 | TokenInfoSearch500,
+>(
+  searchTerm: string,
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSearch>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof tokenInfoSearch>>,
+          TError,
+          Awaited<ReturnType<typeof tokenInfoSearch>>
+        >,
+        'initialData'
+      >;
+    request?: SecondParameter<typeof httpClient>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useTokenInfoSearch<
+  TData = Awaited<ReturnType<typeof tokenInfoSearch>>,
+  TError = TokenInfoSearch400 | TokenInfoSearch500,
+>(
+  searchTerm: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSearch>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof tokenInfoSearch>>,
+          TError,
+          Awaited<ReturnType<typeof tokenInfoSearch>>
+        >,
+        'initialData'
+      >;
+    request?: SecondParameter<typeof httpClient>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useTokenInfoSearch<
+  TData = Awaited<ReturnType<typeof tokenInfoSearch>>,
+  TError = TokenInfoSearch400 | TokenInfoSearch500,
+>(
+  searchTerm: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSearch>>, TError, TData>>;
+    request?: SecondParameter<typeof httpClient>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+export function useTokenInfoSearch<
+  TData = Awaited<ReturnType<typeof tokenInfoSearch>>,
+  TError = TokenInfoSearch400 | TokenInfoSearch500,
+>(
+  searchTerm: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSearch>>, TError, TData>>;
+    request?: SecondParameter<typeof httpClient>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getTokenInfoSearchQueryOptions(searchTerm, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
 export const getStatsByUnitUrl = (unit: string) => {
   return `/backend/api/stats/${unit}`;
 };
 
 /**
- * Look up the caller's stats for a coin and return a formatted StatsResponseDto.
+ * Look up the caller's stats for a coin and return a formatted StatsResponseDto. A unit with no matching row returns an empty 200 body, not a 404.
  */
 export const statsByUnit = async (
   unit: string,
@@ -1657,267 +2164,6 @@ export function useProductTransactions<
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
   const queryOptions = getProductTransactionsQueryOptions(product, options);
-
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-export const getCoinPriceHistoryUrl = (timeFrame: TimeFrame, coinName: string) => {
-  return `/backend/api/exchange-rates/${timeFrame}/${coinName}`;
-};
-
-/**
- * Deliberately public: returns market price history for a coin, not anything scoped to the caller. No auth today; stays public.
- */
-export const coinPriceHistory = async (
-  timeFrame: TimeFrame,
-  coinName: string,
-  options?: Parameters<typeof httpClient>[1],
-): Promise<PriceHistoryResponseDto> => {
-  return httpClient<PriceHistoryResponseDto>(getCoinPriceHistoryUrl(timeFrame, coinName), {
-    ...options,
-    method: 'GET',
-  });
-};
-
-export const getCoinPriceHistoryQueryKey = (timeFrame: TimeFrame, coinName: string) => {
-  return [`/backend/api/exchange-rates/${timeFrame}/${coinName}`] as const;
-};
-
-export const getCoinPriceHistoryQueryOptions = <
-  TData = Awaited<ReturnType<typeof coinPriceHistory>>,
-  TError = unknown,
->(
-  timeFrame: TimeFrame,
-  coinName: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof coinPriceHistory>>, TError, TData>>;
-    request?: SecondParameter<typeof httpClient>;
-  },
-) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-
-  const queryKey = queryOptions?.queryKey ?? getCoinPriceHistoryQueryKey(timeFrame, coinName);
-
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof coinPriceHistory>>> = ({ signal }) =>
-    coinPriceHistory(timeFrame, coinName, { signal, ...requestOptions });
-
-  return {
-    queryKey,
-    queryFn,
-    enabled:
-      timeFrame !== null && timeFrame !== undefined && coinName !== null && coinName !== undefined,
-    ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof coinPriceHistory>>, TError, TData> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
-};
-
-export type CoinPriceHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof coinPriceHistory>>>;
-export type CoinPriceHistoryQueryError = unknown;
-
-export function useCoinPriceHistory<
-  TData = Awaited<ReturnType<typeof coinPriceHistory>>,
-  TError = unknown,
->(
-  timeFrame: TimeFrame,
-  coinName: string,
-  options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof coinPriceHistory>>, TError, TData>> &
-      Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof coinPriceHistory>>,
-          TError,
-          Awaited<ReturnType<typeof coinPriceHistory>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof httpClient>;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useCoinPriceHistory<
-  TData = Awaited<ReturnType<typeof coinPriceHistory>>,
-  TError = unknown,
->(
-  timeFrame: TimeFrame,
-  coinName: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof coinPriceHistory>>, TError, TData>> &
-      Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof coinPriceHistory>>,
-          TError,
-          Awaited<ReturnType<typeof coinPriceHistory>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof httpClient>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useCoinPriceHistory<
-  TData = Awaited<ReturnType<typeof coinPriceHistory>>,
-  TError = unknown,
->(
-  timeFrame: TimeFrame,
-  coinName: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof coinPriceHistory>>, TError, TData>>;
-    request?: SecondParameter<typeof httpClient>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-export function useCoinPriceHistory<
-  TData = Awaited<ReturnType<typeof coinPriceHistory>>,
-  TError = unknown,
->(
-  timeFrame: TimeFrame,
-  coinName: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof coinPriceHistory>>, TError, TData>>;
-    request?: SecondParameter<typeof httpClient>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getCoinPriceHistoryQueryOptions(timeFrame, coinName, options);
-
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-export const getExchangeRatesByUnitUrl = (unit: string) => {
-  return `/backend/api/exchange-rates/unit/${unit}`;
-};
-
-/**
- * Deliberately public: returns a market exchange rate, not anything scoped to the caller. No auth today; stays public.
- */
-export const exchangeRatesByUnit = async (
-  unit: string,
-  options?: Parameters<typeof httpClient>[1],
-): Promise<string> => {
-  return httpClient<string>(getExchangeRatesByUnitUrl(unit), {
-    ...options,
-    method: 'GET',
-  });
-};
-
-export const getExchangeRatesByUnitQueryKey = (unit: string) => {
-  return [`/backend/api/exchange-rates/unit/${unit}`] as const;
-};
-
-export const getExchangeRatesByUnitQueryOptions = <
-  TData = Awaited<ReturnType<typeof exchangeRatesByUnit>>,
-  TError = string,
->(
-  unit: string,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof exchangeRatesByUnit>>, TError, TData>
-    >;
-    request?: SecondParameter<typeof httpClient>;
-  },
-) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-
-  const queryKey = queryOptions?.queryKey ?? getExchangeRatesByUnitQueryKey(unit);
-
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof exchangeRatesByUnit>>> = ({ signal }) =>
-    exchangeRatesByUnit(unit, { signal, ...requestOptions });
-
-  return {
-    queryKey,
-    queryFn,
-    enabled: unit !== null && unit !== undefined,
-    ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof exchangeRatesByUnit>>, TError, TData> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
-};
-
-export type ExchangeRatesByUnitQueryResult = NonNullable<
-  Awaited<ReturnType<typeof exchangeRatesByUnit>>
->;
-export type ExchangeRatesByUnitQueryError = string;
-
-export function useExchangeRatesByUnit<
-  TData = Awaited<ReturnType<typeof exchangeRatesByUnit>>,
-  TError = string,
->(
-  unit: string,
-  options: {
-    query: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof exchangeRatesByUnit>>, TError, TData>
-    > &
-      Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof exchangeRatesByUnit>>,
-          TError,
-          Awaited<ReturnType<typeof exchangeRatesByUnit>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof httpClient>;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useExchangeRatesByUnit<
-  TData = Awaited<ReturnType<typeof exchangeRatesByUnit>>,
-  TError = string,
->(
-  unit: string,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof exchangeRatesByUnit>>, TError, TData>
-    > &
-      Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof exchangeRatesByUnit>>,
-          TError,
-          Awaited<ReturnType<typeof exchangeRatesByUnit>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof httpClient>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useExchangeRatesByUnit<
-  TData = Awaited<ReturnType<typeof exchangeRatesByUnit>>,
-  TError = string,
->(
-  unit: string,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof exchangeRatesByUnit>>, TError, TData>
-    >;
-    request?: SecondParameter<typeof httpClient>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-export function useExchangeRatesByUnit<
-  TData = Awaited<ReturnType<typeof exchangeRatesByUnit>>,
-  TError = string,
->(
-  unit: string,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof exchangeRatesByUnit>>, TError, TData>
-    >;
-    request?: SecondParameter<typeof httpClient>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getExchangeRatesByUnitQueryOptions(unit, options);
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
     queryKey: DataTag<QueryKey, TData, TError>;
@@ -2362,248 +2608,6 @@ export function useTimeFrameTotalPl<
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
   const queryOptions = getTimeFrameTotalPlQueryOptions(timeFrame, options);
-
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-export const getTokenInfoSyncUrl = (userId: string) => {
-  return `/backend/api/token-info/${userId}`;
-};
-
-/**
- * This route's name is misleading - it does not return token info, it triggers a price-history sync (a database write) keyed by the given userId. Requires a session, with the sync scoped to the authenticated caller's own id - an id/session mismatch is rejected rather than trusting the path param.
- */
-export const tokenInfoSync = async (
-  userId: string,
-  options?: Parameters<typeof httpClient>[1],
-): Promise<TokenInfoSyncResponseDto> => {
-  return httpClient<TokenInfoSyncResponseDto>(getTokenInfoSyncUrl(userId), {
-    ...options,
-    method: 'GET',
-  });
-};
-
-export const getTokenInfoSyncQueryKey = (userId: string) => {
-  return [`/backend/api/token-info/${userId}`] as const;
-};
-
-export const getTokenInfoSyncQueryOptions = <
-  TData = Awaited<ReturnType<typeof tokenInfoSync>>,
-  TError = TokenInfoSync400 | TokenInfoSync401,
->(
-  userId: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSync>>, TError, TData>>;
-    request?: SecondParameter<typeof httpClient>;
-  },
-) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-
-  const queryKey = queryOptions?.queryKey ?? getTokenInfoSyncQueryKey(userId);
-
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof tokenInfoSync>>> = ({ signal }) =>
-    tokenInfoSync(userId, { signal, ...requestOptions });
-
-  return {
-    queryKey,
-    queryFn,
-    enabled: userId !== null && userId !== undefined,
-    ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSync>>, TError, TData> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
-};
-
-export type TokenInfoSyncQueryResult = NonNullable<Awaited<ReturnType<typeof tokenInfoSync>>>;
-export type TokenInfoSyncQueryError = TokenInfoSync400 | TokenInfoSync401;
-
-export function useTokenInfoSync<
-  TData = Awaited<ReturnType<typeof tokenInfoSync>>,
-  TError = TokenInfoSync400 | TokenInfoSync401,
->(
-  userId: string,
-  options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSync>>, TError, TData>> &
-      Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof tokenInfoSync>>,
-          TError,
-          Awaited<ReturnType<typeof tokenInfoSync>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof httpClient>;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useTokenInfoSync<
-  TData = Awaited<ReturnType<typeof tokenInfoSync>>,
-  TError = TokenInfoSync400 | TokenInfoSync401,
->(
-  userId: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSync>>, TError, TData>> &
-      Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof tokenInfoSync>>,
-          TError,
-          Awaited<ReturnType<typeof tokenInfoSync>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof httpClient>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useTokenInfoSync<
-  TData = Awaited<ReturnType<typeof tokenInfoSync>>,
-  TError = TokenInfoSync400 | TokenInfoSync401,
->(
-  userId: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSync>>, TError, TData>>;
-    request?: SecondParameter<typeof httpClient>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-export function useTokenInfoSync<
-  TData = Awaited<ReturnType<typeof tokenInfoSync>>,
-  TError = TokenInfoSync400 | TokenInfoSync401,
->(
-  userId: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSync>>, TError, TData>>;
-    request?: SecondParameter<typeof httpClient>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getTokenInfoSyncQueryOptions(userId, options);
-
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-export const getTokenInfoSearchUrl = (searchTerm: string) => {
-  return `/backend/api/token-info/search/${searchTerm}`;
-};
-
-/**
- * Deliberately public: returns generic token metadata (symbol/name/slug lookup), not anything scoped to the caller. No auth today; stays public.
- */
-export const tokenInfoSearch = async (
-  searchTerm: string,
-  options?: Parameters<typeof httpClient>[1],
-): Promise<TokenInfoResponseDto[]> => {
-  return httpClient<TokenInfoResponseDto[]>(getTokenInfoSearchUrl(searchTerm), {
-    ...options,
-    method: 'GET',
-  });
-};
-
-export const getTokenInfoSearchQueryKey = (searchTerm: string) => {
-  return [`/backend/api/token-info/search/${searchTerm}`] as const;
-};
-
-export const getTokenInfoSearchQueryOptions = <
-  TData = Awaited<ReturnType<typeof tokenInfoSearch>>,
-  TError = TokenInfoSearch400 | TokenInfoSearch500,
->(
-  searchTerm: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSearch>>, TError, TData>>;
-    request?: SecondParameter<typeof httpClient>;
-  },
-) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-
-  const queryKey = queryOptions?.queryKey ?? getTokenInfoSearchQueryKey(searchTerm);
-
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof tokenInfoSearch>>> = ({ signal }) =>
-    tokenInfoSearch(searchTerm, { signal, ...requestOptions });
-
-  return {
-    queryKey,
-    queryFn,
-    enabled: searchTerm !== null && searchTerm !== undefined,
-    ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSearch>>, TError, TData> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
-};
-
-export type TokenInfoSearchQueryResult = NonNullable<Awaited<ReturnType<typeof tokenInfoSearch>>>;
-export type TokenInfoSearchQueryError = TokenInfoSearch400 | TokenInfoSearch500;
-
-export function useTokenInfoSearch<
-  TData = Awaited<ReturnType<typeof tokenInfoSearch>>,
-  TError = TokenInfoSearch400 | TokenInfoSearch500,
->(
-  searchTerm: string,
-  options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSearch>>, TError, TData>> &
-      Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof tokenInfoSearch>>,
-          TError,
-          Awaited<ReturnType<typeof tokenInfoSearch>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof httpClient>;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useTokenInfoSearch<
-  TData = Awaited<ReturnType<typeof tokenInfoSearch>>,
-  TError = TokenInfoSearch400 | TokenInfoSearch500,
->(
-  searchTerm: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSearch>>, TError, TData>> &
-      Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof tokenInfoSearch>>,
-          TError,
-          Awaited<ReturnType<typeof tokenInfoSearch>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof httpClient>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useTokenInfoSearch<
-  TData = Awaited<ReturnType<typeof tokenInfoSearch>>,
-  TError = TokenInfoSearch400 | TokenInfoSearch500,
->(
-  searchTerm: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSearch>>, TError, TData>>;
-    request?: SecondParameter<typeof httpClient>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-export function useTokenInfoSearch<
-  TData = Awaited<ReturnType<typeof tokenInfoSearch>>,
-  TError = TokenInfoSearch400 | TokenInfoSearch500,
->(
-  searchTerm: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof tokenInfoSearch>>, TError, TData>>;
-    request?: SecondParameter<typeof httpClient>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getTokenInfoSearchQueryOptions(searchTerm, options);
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
     queryKey: DataTag<QueryKey, TData, TError>;

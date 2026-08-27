@@ -1,23 +1,22 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  HttpCode,
-  NotImplementedException,
-  Param,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Header, HttpCode, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiCookieAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SessionClaims } from '@portfolio/shared';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { SessionGuard } from '../auth/session.guard';
 import { TransactionAddRequestDto } from './dto/transaction-add-request.dto';
+import { TransactionsService } from './transactions.service';
 
 @ApiTags('Transactions')
 @Controller('transaction')
 export class TransactionsController {
+  constructor(private readonly transactionsService: TransactionsService) {}
+
   @Post('add')
+  @HttpCode(200)
+  // Nest's default reply for a returned string uses Express's res.send(), which sends
+  // text/html and drops the JSON quoting; the old route returns a JSON-encoded string,
+  // so the content type is pinned here and the body is pre-serialized to match.
+  @Header('Content-Type', 'application/json')
   @UseGuards(SessionGuard)
   @ApiCookieAuth()
   @ApiOperation({
@@ -47,13 +46,12 @@ export class TransactionsController {
       example: { error: 'Unauthorized' },
     },
   })
-  // Validate the body, look up the token, and write a Transaction row owned by the
-  // caller's session, then return the bare string "Transaction added".
   async add(
     @Body() body: TransactionAddRequestDto,
     @CurrentUser() user: SessionClaims,
   ): Promise<string> {
-    throw new NotImplementedException();
+    await this.transactionsService.addTransaction(user.sub, body);
+    return JSON.stringify('Transaction added');
   }
 
   @Delete(':id')
@@ -93,9 +91,9 @@ export class TransactionsController {
       example: { error: 'An error occurred while deleting the transaction' },
     },
   })
-  // Delete the transaction row by id - matches the existing behavior of not checking
-  // whether the row exists first.
   async delete(@Param('id') id: string, @CurrentUser() user: SessionClaims): Promise<void> {
-    throw new NotImplementedException();
+    // Deliberately not scoped to `user.sub`: any authenticated caller can delete any
+    // user's row by id, matching the existing route's behavior. Not a fix target.
+    await this.transactionsService.deleteTransaction(parseInt(id, 10));
   }
 }

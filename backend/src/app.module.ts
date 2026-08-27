@@ -9,6 +9,7 @@ import { HealthController } from './health/health.controller';
 import { MetricsModule } from './metrics/metrics.module';
 import { PriceHistoryModule } from './price-history/price-history.module';
 import { ProductModule } from './product/product.module';
+import { RedisModule } from './redis/redis.module';
 import { StatsModule } from './stats/stats.module';
 import { SummaryModule } from './summary/summary.module';
 import { TimeFramePlModule } from './time-frame-pl/time-frame-pl.module';
@@ -28,6 +29,7 @@ import { TransactionsModule } from './transactions/transactions.module';
     ProductModule,
     ExchangeRatesModule,
     PriceHistoryModule,
+    RedisModule,
     TimeFramePlModule,
     TokenInfoModule,
     MetricsModule,

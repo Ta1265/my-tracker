@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform, TransformFnParams } from 'class-transformer';
-import { IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 // Every field below is required in the finished contract and documented as such via
 // @ApiProperty, but also carries @IsOptional() so the permissive global pipe never
@@ -16,11 +16,13 @@ export class TransactionAddRequestDto {
     example: 'BUY',
     description: "'BUY' or 'SELL', case-insensitive - normalized to upper case before validation.",
   })
+  // No @IsIn here: the handler's own BadRequestException('Invalid side') is what
+  // enforces this now, so the pipe can't pre-empt it with class-validator's own message.
   @Transform(({ value }: TransformFnParams): unknown =>
     typeof value === 'string' ? value.toUpperCase() : value,
   )
   @IsOptional()
-  @IsIn(['BUY', 'SELL'])
+  @IsString()
   side!: string;
 
   @ApiProperty({ example: '0.5', description: 'Coin quantity, as a decimal string.' })

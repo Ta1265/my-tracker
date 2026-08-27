@@ -1,4 +1,4 @@
-import { Controller, Get, NotImplementedException, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import {
   ApiCookieAuth,
   ApiOkResponse,
@@ -14,6 +14,7 @@ import { TIME_FRAMES } from '../common/time-frame/time-frames';
 import { CoinSummaryResponseDto } from './dto/coin-summary-response.dto';
 import { PortfolioSummaryResponseDto } from './dto/portfolio-summary-response.dto';
 import { ProfitLossChartResponseDto } from './dto/profit-loss-chart-response.dto';
+import { SummaryService } from './summary.service';
 
 // Route declaration order matters: Nest matches in declaration order, so every
 // literal-segment route (coins, portfolio, profitLossChart, profitLossChart/:timeFrame)
@@ -22,6 +23,8 @@ import { ProfitLossChartResponseDto } from './dto/profit-loss-chart-response.dto
 @Controller('summary')
 @UseGuards(SessionGuard)
 export class SummaryController {
+  constructor(private readonly summaryService: SummaryService) {}
+
   @Get('coins')
   @ApiCookieAuth()
   @ApiOperation({
@@ -29,9 +32,8 @@ export class SummaryController {
     description: "Return a per-coin summary of the caller's portfolio.",
   })
   @ApiOkResponse({ type: CoinSummaryResponseDto, isArray: true })
-  // Will call dbService.ts's getCoinSummaries(userId).
   async getCoins(@CurrentUser() user: SessionClaims): Promise<CoinSummaryResponseDto[]> {
-    throw new NotImplementedException();
+    return this.summaryService.getCoins(user.sub);
   }
 
   @Get('portfolio')
@@ -41,9 +43,8 @@ export class SummaryController {
     description: "Return the caller's aggregate portfolio summary.",
   })
   @ApiOkResponse({ type: PortfolioSummaryResponseDto })
-  // Will call dbService.ts's getPortfolioSummary(userId).
   async getPortfolio(@CurrentUser() user: SessionClaims): Promise<PortfolioSummaryResponseDto> {
-    throw new NotImplementedException();
+    return this.summaryService.getPortfolio(user.sub);
   }
 
   @Get('profitLossChart')
@@ -64,13 +65,11 @@ export class SummaryController {
       '0 }, not an error.',
   })
   @ApiOkResponse({ type: ProfitLossChartResponseDto })
-  // Will call update-price-history.ts's getNetCashFlowHistory(userId, timeFrame) - not
-  // the different, same-named function in dbService.ts.
   async getProfitLossChartByQuery(
     @CurrentUser() user: SessionClaims,
-    @Query('timeFrame') timeFrame = 'all',
+    @Query('timeFrame') timeFrame?: string,
   ): Promise<ProfitLossChartResponseDto> {
-    throw new NotImplementedException();
+    return this.summaryService.getProfitLossChart(user.sub, timeFrame || 'all');
   }
 
   @Get('profitLossChart/:timeFrame')
@@ -85,13 +84,11 @@ export class SummaryController {
       'error.',
   })
   @ApiOkResponse({ type: ProfitLossChartResponseDto })
-  // Will call update-price-history.ts's getNetCashFlowHistory(userId, timeFrame) - not
-  // the different, same-named function in dbService.ts.
   async getProfitLossChartByParam(
     @Param('timeFrame') timeFrame: string,
     @CurrentUser() user: SessionClaims,
   ): Promise<ProfitLossChartResponseDto> {
-    throw new NotImplementedException();
+    return this.summaryService.getProfitLossChart(user.sub, timeFrame);
   }
 
   @Get(':unit')
@@ -104,11 +101,10 @@ export class SummaryController {
       'summary/coins. No known frontend caller today, documented in full regardless.',
   })
   @ApiOkResponse({ type: CoinSummaryResponseDto, isArray: true })
-  // Will call dbService.ts's getCoinSummaries(userId, unit).
   async getByUnit(
     @Param('unit') unit: string,
     @CurrentUser() user: SessionClaims,
   ): Promise<CoinSummaryResponseDto[]> {
-    throw new NotImplementedException();
+    return this.summaryService.getCoinsByUnit(user.sub, unit);
   }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, NotImplementedException, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, UseGuards } from '@nestjs/common';
 import { ApiCookieAuth, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SessionClaims } from '@portfolio/shared';
 import { CurrentUser } from '../auth/current-user.decorator';
@@ -6,10 +6,13 @@ import { SessionGuard } from '../auth/session.guard';
 import { PriceHistoryCheckResponseDto } from './dto/price-history-check-response.dto';
 import { SetPriceHistoryRequestDto } from './dto/set-price-history-request.dto';
 import { SetPriceHistoryResponseDto } from './dto/set-price-history-response.dto';
+import { PriceHistoryService } from './price-history.service';
 
 @ApiTags('Price History')
 @Controller('price-history')
 export class PriceHistoryController {
+  constructor(private readonly priceHistoryService: PriceHistoryService) {}
+
   @Get('check')
   @UseGuards(SessionGuard)
   @ApiCookieAuth()
@@ -29,13 +32,12 @@ export class PriceHistoryController {
       example: { error: 'Unauthorized' },
     },
   })
-  // Will check Redis EXISTS under time-frame-pl-{timeFrame}-coinName-{coin} (both
-  // segments lowercased), for each coin the caller has transacted in.
   async check(@CurrentUser() user: SessionClaims): Promise<PriceHistoryCheckResponseDto[]> {
-    throw new NotImplementedException();
+    return this.priceHistoryService.checkCoverage(user.sub);
   }
 
   @Post('set')
+  @HttpCode(200)
   @ApiOperation({
     operationId: 'setPriceHistory',
     description:
@@ -53,9 +55,12 @@ export class PriceHistoryController {
       example: { error: 'Missing required fields' },
     },
   })
-  // Will call update-price-history.ts's syncPriceHistoryToDbForUserId and cache
-  // priceHistoryResp under the coinName/timeFrame key.
   async set(@Body() body: SetPriceHistoryRequestDto): Promise<SetPriceHistoryResponseDto> {
-    throw new NotImplementedException();
+    const message = await this.priceHistoryService.setEntry(
+      body.coinName,
+      body.timeFrame,
+      body.priceHistoryResp,
+    );
+    return { message };
   }
 }

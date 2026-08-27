@@ -1,4 +1,11 @@
-import { Controller, Get, NotImplementedException, Param, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  ForbiddenException,
+  Get,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiCookieAuth,
   ApiOkResponse,
@@ -12,10 +19,13 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { SessionGuard } from '../auth/session.guard';
 import { TokenInfoResponseDto } from './dto/token-info-response.dto';
 import { TokenInfoSyncResponseDto } from './dto/token-info-sync-response.dto';
+import { TokenInfoService } from './token-info.service';
 
 @ApiTags('Token Info')
 @Controller('token-info')
 export class TokenInfoController {
+  constructor(private readonly tokenInfoService: TokenInfoService) {}
+
   @Get(':userId')
   @UseGuards(SessionGuard)
   @ApiCookieAuth()
@@ -47,13 +57,31 @@ export class TokenInfoController {
       example: { error: 'Unauthorized' },
     },
   })
+  @ApiResponse({
+    status: 403,
+    description: "The userId path param does not match the caller's own session.",
+    schema: {
+      type: 'object',
+      properties: { error: { type: 'string' } },
+      example: { error: 'Forbidden' },
+    },
+  })
   // Triggers syncPriceHistoryToDbForUserId - does not return token info despite the
   // route name.
   async sync(
     @Param('userId') userId: string,
     @CurrentUser() user: SessionClaims,
   ): Promise<TokenInfoSyncResponseDto> {
-    throw new NotImplementedException();
+    const parsedUserId = userId ? parseInt(userId, 10) : NaN;
+    if (!parsedUserId) {
+      throw new BadRequestException('Missing userId param');
+    }
+    if (parsedUserId !== user.sub) {
+      throw new ForbiddenException();
+    }
+
+    await this.tokenInfoService.syncPriceHistoryForUser(parsedUserId);
+    return { success: true, userId: parsedUserId };
   }
 
   @Get('search/:searchTerm')
@@ -83,8 +111,13 @@ export class TokenInfoController {
       example: { error: 'Internal Server Error' },
     },
   })
-  // Will query TokenInfo (take: 10, OR on name/symbol startsWith searchTerm).
   async search(@Param('searchTerm') searchTerm: string): Promise<TokenInfoResponseDto[]> {
-    throw new NotImplementedException();
+    if (!searchTerm) {
+      throw new BadRequestException('Missing search query');
+    }
+
+    // The entity's columns are nullable (schema-safety), the DTO's are not (they match
+    // the data every row actually has) - the cast bridges that, not a shape change.
+    return (await this.tokenInfoService.searchTokenInfo(searchTerm)) as TokenInfoResponseDto[];
   }
 }

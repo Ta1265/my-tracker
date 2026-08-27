@@ -1,9 +1,17 @@
-import { Controller, Get, NotImplementedException } from '@nestjs/common';
+import { Controller, Get, Headers, Res } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
+import { AppConfigService } from '../config/app-config.service';
+import { MetricsService } from './metrics.service';
 
 @ApiTags('Metrics')
 @Controller('metrics')
 export class MetricsController {
+  constructor(
+    private readonly metricsService: MetricsService,
+    private readonly appConfigService: AppConfigService,
+  ) {}
+
   @Get()
   @ApiSecurity('metrics-secret')
   @ApiOperation({
@@ -24,10 +32,24 @@ export class MetricsController {
     description: 'Missing/incorrect bearer token, or METRICS_SECRET unset.',
     content: { 'text/plain': { schema: { type: 'string', example: 'Forbidden' } } },
   })
-  // Check Authorization: Bearer {METRICS_SECRET} exactly; on match, return
-  // register.metrics()'s Prometheus exposition text; on mismatch, 403 plain-text
-  // Forbidden.
-  async getMetrics(): Promise<string> {
-    throw new NotImplementedException();
+  // Writes the response directly via `@Res({ passthrough: false })` so a 403 reaches
+  // the client as plain text `Forbidden`, not AllExceptionsFilter's
+  // `{ error: 'Forbidden' }` wrapping - throwing ForbiddenException() would go through
+  // that filter.
+  async getMetrics(
+    @Headers('authorization') authHeader: string | undefined,
+    @Res({ passthrough: false }) res: Response,
+  ): Promise<void> {
+    const { metricsSecret } = this.appConfigService;
+
+    if (!metricsSecret || authHeader !== `Bearer ${metricsSecret}`) {
+      res.status(403).type('text/plain').send('Forbidden');
+      return;
+    }
+
+    res
+      .status(200)
+      .set('Content-Type', this.metricsService.registry.contentType)
+      .send(await this.metricsService.registry.metrics());
   }
 }
