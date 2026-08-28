@@ -50,10 +50,13 @@ IP data flows from nginx → `X-Real-IP` header → Next.js middleware → `x-cl
 
 ## Rotating `METRICS_SECRET`
 
-The `METRICS_SECRET` is shared between two places and **must be kept in sync**:
+The `METRICS_SECRET` is shared between three consumers across two files and **must be
+kept in sync**:
 
-1. `.env` — read by the Next.js container to validate Bearer tokens on `/api/metrics`
-2. `monitoring/prometheus.yml` — used by Prometheus in the scrape job `authorization.credentials` field
+1. `.env` — read by both the Next.js and Nest API containers to validate Bearer tokens on
+   their respective `/api/metrics` and `/backend/api/metrics` routes
+2. `monitoring/prometheus.yml` — used by Prometheus in both scrape jobs'
+   `authorization.credentials` fields
 
 **Rotation steps:**
 
@@ -64,13 +67,21 @@ openssl rand -hex 32
 # 2. Update .env
 METRICS_SECRET=<new-secret>
 
-# 3. Update monitoring/prometheus.yml → authorization.credentials
+# 3. Update monitoring/prometheus.yml → authorization.credentials for both scrape job
+#    entries: nextjs-app (metrics_path: /api/metrics) and nestjs-backend
+#    (metrics_path: /backend/api/metrics)
 
-# 4. Restart both containers
-docker compose restart next-app prometheus
+# 4. Restart all three containers
+docker compose restart next-app nest-api prometheus
 ```
 
 > If the secret is mismatched, Prometheus will log `403 Forbidden` scrape errors and metric data will stop flowing to Grafana.
+
+> As long as `monitoring/prometheus.yml` carries the literal `${METRICS_SECRET}` in
+> `authorization.credentials`, Prometheus sends that literal string and both jobs return
+> `403`/`down`, because the `--enable-feature=expand-external-labels` flag described under
+> "Local Development Notes" below does not reach that field. Rotating the secret does not
+> by itself produce healthy targets.
 
 ## Local Development Notes
 
