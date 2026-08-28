@@ -47,8 +47,8 @@ services:
       dockerfile: frontend/Dockerfile
       args:
         {
-          NEXT_PUBLIC_API_TARGET: "${NEXT_PUBLIC_API_TARGET:-legacy}",
-          NEXT_PUBLIC_AUTH_TARGET: "${NEXT_PUBLIC_AUTH_TARGET:-legacy}",
+          NEXT_PUBLIC_API_TARGET: "${NEXT_PUBLIC_API_TARGET:-nest}",
+          NEXT_PUBLIC_AUTH_TARGET: "${NEXT_PUBLIC_AUTH_TARGET:-nest}",
         }
     environment:
       HOST: 0.0.0.0
