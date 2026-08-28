@@ -24,6 +24,11 @@ const getCssVar = (name: string, fallback: string): string => {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
 };
 
+const isNarrowViewport = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth < 768;
+};
+
 
 
 const GlowLine = {
@@ -177,7 +182,7 @@ export const LineChart: React.FC<Props> = () => {
                 maxTicksLimit: 6,
                 color: 'rgba(255,255,255,0.35)',
                 font: {
-                  size: window?.innerWidth < 768 ? 10 : 12,
+                  size: isNarrowViewport() ? 10 : 12,
                 },
                 display: true,
               },
@@ -193,7 +198,7 @@ export const LineChart: React.FC<Props> = () => {
                 maxTicksLimit: 6,
                 color: 'rgba(255,255,255,0.35)',
                 font: {
-                  size: window?.innerWidth < 768 ? 10 : 12,
+                  size: isNarrowViewport() ? 10 : 12,
                 },
                 callback: (value) => {
                   const val = +value;
@@ -203,7 +208,7 @@ export const LineChart: React.FC<Props> = () => {
                     return '$' + val.toFixed(0);
                   }
                 },
-                display: window?.innerWidth < 768 ? false : true,
+                display: !isNarrowViewport(),
               },
             },
           },

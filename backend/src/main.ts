@@ -1,5 +1,6 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
@@ -11,8 +12,13 @@ import { MetricsService } from './metrics/metrics.service';
 import { createOpenApiDocumentBuilder, GLOBAL_PREFIX } from './openapi/document';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { logger: createWinstonLogger() });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: createWinstonLogger(),
+  });
   app.setGlobalPrefix(GLOBAL_PREFIX);
+  // App Router route handlers enforce no body-size limit, so the price-history payloads
+  // (a coin's full daily series, ~250KB and growing) exceed Express's 100KB default.
+  app.useBodyParser('json', { limit: '10mb' });
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalInterceptors(new HttpMetricsInterceptor(app.get(MetricsService)));
