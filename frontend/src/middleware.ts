@@ -3,7 +3,7 @@ import type { NextRequestWithAuth } from 'next-auth/middleware';
 import { NextResponse, type NextFetchEvent, type NextRequest } from 'next/server';
 import { SESSION_COOKIE_NAME } from '@portfolio/shared';
 import { getAuthTarget } from '@/auth/target';
-import { verifySessionToken } from '@/server/session';
+import { verifySessionToken } from '@/auth/session';
 
 // Note: Next.js middleware runs on the Edge runtime, which is incompatible with
 // Node.js-only packages (prom-client, winston). HTTP metrics are tracked in

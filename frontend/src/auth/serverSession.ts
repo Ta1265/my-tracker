@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { SESSION_COOKIE_NAME } from '@portfolio/shared';
 import type { LoginResponseDto } from '@/api/generated';
 import { getAuthTarget } from '@/auth/target';
-import { getServerAuthSession } from './auth';
+import { getServerAuthSession } from '@/server/auth';
 import { toSession, verifySessionToken } from './session';
 
 export async function getSession(): Promise<LoginResponseDto | null> {
