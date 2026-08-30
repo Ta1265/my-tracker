@@ -30,6 +30,14 @@ services:
     volumes:
       - mysql-volume:/var/lib/mysql:rw
       # - ./mysql-db:/docker-entrypoint-initdb.d/
+    # A fresh volume takes tens of seconds before MySQL accepts connections; the one-off
+    # migrations runner has no restart policy to retry behind, so it waits on this.
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-uroot', '-p$$MYSQL_ROOT_PASSWORD']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
     networks:
       portfolio-network:
         aliases:
@@ -106,7 +114,8 @@ services:
     profiles:
       - migrate
     depends_on:
-      - portfolio-db
+      portfolio-db:
+        condition: service_healthy
     build:
       target: migrations
       context: .
