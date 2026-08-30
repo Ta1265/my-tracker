@@ -7,7 +7,7 @@ scrape_configs:
     static_configs:
       - targets:
           - next-app:3000
-    metrics_path: /api/metrics
+    metrics_path: /metrics
     # METRICS_SECRET must match .env — rotate both together and restart next-app + prometheus
     authorization:
       type: Bearer

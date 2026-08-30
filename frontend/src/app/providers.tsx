@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { SessionProvider } from 'next-auth/react';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { ReloadProvider } from '@/context/ReloadContext';
@@ -31,11 +30,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <SnackbarProvider>
               <ReloadProvider id="reload-provider" onReload={refetchAllQueries}>
-                <SessionProvider>
-                  <BackgroundProvider>
-                    <CoinbaseWsProvider>{children}</CoinbaseWsProvider>
-                  </BackgroundProvider>
-                </SessionProvider>
+                <BackgroundProvider>
+                  <CoinbaseWsProvider>{children}</CoinbaseWsProvider>
+                </BackgroundProvider>
               </ReloadProvider>
             </SnackbarProvider>
           </LocalizationProvider>

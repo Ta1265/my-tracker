@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Counter, Histogram, Registry, collectDefaultMetrics } from 'prom-client';
 
-// Same metric and label names as frontend/src/server/metrics.ts - Prometheus's `job`
-// label distinguishes the two services, so renaming here would break existing Grafana
-// dashboards. No globalThis guard: Nest providers are already singletons, so the
-// hot-reload re-registration problem the frontend guards against doesn't apply here.
+// No globalThis guard: Nest providers are already singletons, so the hot-reload
+// re-registration problem a per-request module system would have doesn't apply here.
 @Injectable()
 export class MetricsService {
   readonly registry = new Registry();

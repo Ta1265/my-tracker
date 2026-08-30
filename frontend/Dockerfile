@@ -48,11 +48,6 @@ COPY packages/shared ./packages/shared
 # both resolve the package through its compiled dist/, so this must precede them.
 RUN pnpm --filter @portfolio/shared build
 ENV NEXT_TELEMETRY_DISABLED 1
-ARG NEXT_PUBLIC_API_TARGET=nest
-ENV NEXT_PUBLIC_API_TARGET=$NEXT_PUBLIC_API_TARGET
-ARG NEXT_PUBLIC_AUTH_TARGET=nest
-ENV NEXT_PUBLIC_AUTH_TARGET=$NEXT_PUBLIC_AUTH_TARGET
-RUN pnpm --filter @portfolio/frontend exec prisma generate
 
 # 2. Target for development
 FROM common-build AS dev

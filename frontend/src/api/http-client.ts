@@ -1,24 +1,3 @@
-/**
- * Maps a spec path onto the origin in force. The spec's paths carry the backend's
- * `/backend` prefix; the Next.js routes they coexist with today do not, so `legacy`
- * (the default) strips it before the request is made. `nest` passes the path through
- * unchanged once Epic 7 flips the target. `output.baseUrl` cannot do this rewrite -
- * it only prepends, never strips.
- */
-function mapUrl(url: string): string {
-  // NextAuth's /api/auth/[...nextauth] is a different contract, not a `/backend`-prefixed
-  // one, so these always reach Nest directly regardless of the data seam's target below.
-  if (url.startsWith('/backend/api/auth/')) {
-    return url;
-  }
-
-  const target = process.env.NEXT_PUBLIC_API_TARGET;
-  if (target === 'nest') {
-    return url;
-  }
-  return url.startsWith('/backend') ? url.slice('/backend'.length) : url;
-}
-
 async function resolveErrorMessage(response: Response): Promise<string> {
   try {
     const body = await response.json();
@@ -32,7 +11,7 @@ async function resolveErrorMessage(response: Response): Promise<string> {
 }
 
 export async function httpClient<T>(url: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(mapUrl(url), options);
+  const response = await fetch(url, options);
 
   if (!response.ok) {
     throw new Error(await resolveErrorMessage(response));

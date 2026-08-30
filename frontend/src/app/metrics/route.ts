@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { register } from '../../../server/metrics';
+import { register } from '../../metrics/registry';
 
 // Never cache the metrics scrape response
 export const dynamic = 'force-dynamic';
