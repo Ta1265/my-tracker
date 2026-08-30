@@ -3,7 +3,10 @@ import { defineConfig } from '@mikro-orm/mysql';
 const required = (name: string): string => {
   const value = process.env[name];
   if (!value) {
-    throw new Error(`${name} is missing or empty - check defaults.env/override.env`);
+    throw new Error(
+      `${name} is missing or empty - Compose injects it from ` +
+        'defaults.env/override.env via env_file',
+    );
   }
   return value;
 };
