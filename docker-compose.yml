@@ -94,16 +94,31 @@ services:
     volumes:
       - ./backend/src:/app/backend/src
     restart: unless-stopped
-    # Host 3001 is Grafana's; 3002 is the documented fallback for direct nest-api
-    # access. Bound to loopback only, for browsing Swagger UI at
-    # http://127.0.0.1:3002/backend/docs from the host - not for codegen, which now
-    # runs inside next-app over the Compose network.
     ports:
-      - 127.0.0.1:3002:3001
+      - 127.0.0.1:3002:3001 # Browsing Swagger UI @ /backend/docs
     networks:
       portfolio-network:
         aliases:
           - nest-api
+
+  # Runs to completion and exits;
+  migrations:
+    profiles:
+      - migrate
+    depends_on:
+      - portfolio-db
+    build:
+      target: migrations
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      TZ: UTC
+    env_file:
+      - ./defaults.env
+      - ./override.env
+    restart: "no"
+    networks:
+      portfolio-network:
 
   # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

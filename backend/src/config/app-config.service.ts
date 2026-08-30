@@ -5,17 +5,10 @@ import { ConfigService } from '@nestjs/config';
 export class AppConfigService {
   // Validated once at construction, so it's exposed as a non-optional field. Optional
   // config below stays a getter typed `string | undefined`.
-  readonly databaseUrl: string;
   readonly sessionPrivateKeyJwk: string;
   readonly sessionPublicKeyJwk: string;
 
   constructor(private readonly configService: ConfigService) {
-    const databaseUrl = this.configService.get<string>('DATABASE_URL');
-    if (!databaseUrl) {
-      throw new Error('DATABASE_URL is missing or empty - check defaults.env/override.env');
-    }
-    this.databaseUrl = databaseUrl;
-
     const sessionPrivateKeyJwk = this.configService.get<string>('SESSION_PRIVATE_KEY_JWK');
     if (!sessionPrivateKeyJwk) {
       throw new Error(

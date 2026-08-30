@@ -69,6 +69,22 @@ JSON - which the Orval section below already covers - is at `/backend/docs-json`
 host without going through nginx; it isn't needed for `spec:generate` below, which runs
 inside the `next-app` container over the Compose network.
 
+# Database migrations
+
+Migrations are hand-written SQL.
+
+```sh
+docker exec nest-api pnpm migration:create   # blank stub in backend/src/db/migrations/
+docker exec nest-api pnpm migration:list     # what has been applied
+docker exec nest-api pnpm migration:up       # apply everything pending
+docker exec nest-api pnpm migration:down     # refuses on the baseline - see its down()
+docker compose run --rm migrations           # deploy path: applies pending, then exits
+docker exec portfolio-db mysql -uroot -proot PORTFOLIO -e "select * from mikro_orm_migrations"  # the ledger
+```
+
+Migrations never run at app boot. The ledger above is what stops the baseline from
+running a second time.
+
 # API client type generation with [Orval](https://orval.dev/docs)
 
 The backend serves its OpenAPI document at `/backend/docs-json` and republishes it

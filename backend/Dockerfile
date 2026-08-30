@@ -32,6 +32,7 @@ COPY --from=deps /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/package.json 
 COPY backend/package.json ./backend/
 COPY backend/src ./backend/src
 COPY backend/tsconfig.json ./backend/
+COPY backend/tsconfig.build.json ./backend/
 COPY backend/nest-cli.json ./backend/
 COPY backend/eslint.config.mjs ./backend/
 COPY backend/.prettierrc.json ./backend/
@@ -44,11 +45,13 @@ RUN pnpm --filter @portfolio/shared build
 
 # 3. Target for development
 FROM common-build AS dev
-WORKDIR /app
+# The workspace root is /app, but this lands in the backend package so `docker exec
+# nest-api pnpm <script>` works without a --filter.
+WORKDIR /app/backend
 # next dev sets this itself; nest start:dev has no equivalent, so it's set explicitly
 # here - the logging pipeline's defaultMeta.environment relies on it being present.
 ENV NODE_ENV=development
-CMD ["pnpm", "--filter", "@portfolio/backend", "start:dev"]
+CMD ["pnpm", "start:dev"]
 
 # 4. Build stage for production target
 FROM common-build AS builder
@@ -75,3 +78,17 @@ USER nestjs
 EXPOSE 3001
 ENV PORT=3001
 CMD ["node", "dist/main.js"]
+
+# 7. One-off migration runner - the production closure with a different entrypoint, so
+# migrations run against exactly the artifacts being deployed.
+FROM prod AS migrations
+USER root
+# pnpm here is a corepack shim that downloads on first use, and the unprivileged user has
+# no writable HOME; baking it into a world-readable store keeps the deploy step offline.
+ENV COREPACK_HOME=/opt/corepack
+RUN corepack install --global pnpm@11.22.0 && chmod -R a+rX /opt/corepack
+# pnpm 11 reinstalls dependencies before running any script, which would need a writable
+# /app and the registry. The deployed closure is already complete.
+RUN printf 'verifyDepsBeforeRun: false\n' >> /app/pnpm-workspace.yaml
+USER nestjs
+CMD ["pnpm", "migration:up"]

@@ -8,14 +8,20 @@
   "scripts": {
     "build": "nest build",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "start": "nest start --exec \"node --env-file-if-exists=../defaults.env --env-file-if-exists=../override.env\"",
-    "start:dev": "nest start --watch --exec \"node --env-file-if-exists=../defaults.env --env-file-if-exists=../override.env\"",
-    "start:prod": "node --env-file-if-exists=../defaults.env --env-file-if-exists=../override.env dist/main.js",
-    "lint": "eslint \"{src,test}/**/*.ts\""
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:prod": "node dist/main.js",
+    "lint": "eslint \"{src,test}/**/*.ts\"",
+    "migration:create": "mikro-orm migration:create --blank",
+    "migration:list": "mikro-orm migration:list",
+    "migration:up": "mikro-orm migration:up",
+    "migration:down": "mikro-orm migration:down"
   },
   "dependencies": {
+    "@mikro-orm/cli": "7.1.12",
     "@mikro-orm/core": "7.1.12",
     "@mikro-orm/decorators": "7.1.12",
+    "@mikro-orm/migrations": "7.1.12",
     "@mikro-orm/mysql": "7.1.12",
     "@mikro-orm/nestjs": "^7.0.2",
     "@nestjs/common": "^11.2.1",
@@ -41,8 +47,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
-    "@mikro-orm/cli": "7.1.12",
-    "@mikro-orm/entity-generator": "7.1.12",
     "@nestjs/cli": "^11.0.0",
     "@types/bcrypt": "5.0.2",
     "@types/cookie-parser": "^1.4.9",
@@ -53,9 +57,11 @@
     "eslint-plugin-prettier": "^5.5.6",
     "globals": "^17.11.0",
     "prettier": "^3.9.6",
-    "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.0",
     "typescript-eslint": "^8.67.0"
+  },
+  "mikro-orm": {
+    "preferTs": false
   }
 }
