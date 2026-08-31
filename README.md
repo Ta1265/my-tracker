@@ -29,12 +29,10 @@ pnpm install
 
 ## The frontend's internal layout
 
-- `frontend/src/auth/` is the auth seam: `session.ts` and `serverSession.ts` (moved here
-  from `frontend/src/server/`), plus `target.ts`, `actions.ts`, and
-  `useCurrentSession.ts`. It's a deliberate mix of server-only and `'use client'` files,
-  with no barrel file.
-- `frontend/src/server/` still holds the pre-existing Next.js API layer - `auth.ts`,
-  `logger.ts`, `metrics.ts`, `redisClient.ts`, `db/`, `helpers/` - none of which has moved.
+- `frontend/src/auth/` holds the auth helpers: `session.ts` (token verification, safe on
+  every runtime), `serverSession.ts` (server-only, reads the cookie), and `actions.ts`
+  (`'use client'`). It's a deliberate mix of server-only and client files, with no barrel
+  file.
 - `frontend/src/api/` holds the Orval-generated client (`generated.ts`) and its mutator
   (`http-client.ts`); see the section below for how `generated.ts` gets regenerated.
 
@@ -79,7 +77,9 @@ docker exec nest-api pnpm migration:list     # what has been applied
 docker exec nest-api pnpm migration:up       # apply everything pending
 docker exec nest-api pnpm migration:down     # refuses on the baseline - see its down()
 docker compose run --rm migrations           # deploy path: applies pending, then exits
-docker exec portfolio-db mysql -uroot -proot PORTFOLIO -e "select * from mikro_orm_migrations"  # the ledger
+
+# the ledger of what has been applied
+docker exec portfolio-db mysql -uroot -proot PORTFOLIO -e "select * from mikro_orm_migrations"
 ```
 
 Migrations never run at app boot. The ledger above is what stops the baseline from
