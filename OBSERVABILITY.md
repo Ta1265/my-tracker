@@ -85,18 +85,18 @@ docker compose restart next-app nest-api prometheus
 
 ## Local Development Notes
 
-### `globalThis` guard in `metrics.ts`
+### `globalThis` guard in `registry.ts`
 
 Next.js hot-reloads module files in development, which would normally cause `prom-client` to throw:
 
 ```
-Error: A metric with that name has already been registered: external_api_calls_total
+Error: A metric with that name has already been registered: process_cpu_user_seconds_total
 ```
 
-`src/server/metrics.ts` uses a `globalThis` guard (the same pattern as `src/server/db/db.ts` uses for the Prisma singleton) to keep a single registry instance alive across hot-reloads:
+`src/metrics/registry.ts` uses a `globalThis` guard to keep a single registry instance alive across hot-reloads:
 
 ```typescript
-const g = globalThis as unknown as { metricsRegistry: Registry | undefined; ... };
+const g = globalThis as unknown as { metricsRegistry: Registry | undefined };
 if (!g.metricsRegistry) {
   // only register metrics once per process lifetime
 }
@@ -104,8 +104,8 @@ if (!g.metricsRegistry) {
 
 ### Middleware and Edge runtime
 
-Next.js middleware runs on the **Edge runtime**, which does not support Node.js-specific packages (`prom-client`, `winston`). The middleware therefore only extracts the real client IP from `X-Forwarded-For`/`X-Real-IP` and forwards it via an `x-client-ip` header. HTTP metrics (`http_requests_total`, `http_request_duration_ms`) are incremented inside individual API route handlers which run on the Node.js runtime.
+Next.js middleware runs on the **Edge runtime**, which does not support Node.js-specific packages such as `prom-client`. The middleware therefore only handles auth and extracts the real client IP from `X-Forwarded-For`/`X-Real-IP`, forwarding it via an `x-client-ip` header. The frontend no longer serves API routes of its own, so it exposes only the default process metrics collected in `src/metrics/registry.ts`; per-request HTTP metrics come from the backend.
 
 ### Prometheus scrape and `expand-external-labels`
 
-The Prometheus container is started with `--enable-feature=expand-external-labels`, which enables `${VAR}` substitution in `prometheus.yml`. The `METRICS_SECRET` environment variable is passed into the container via `env_file: .env` in `docker-compose.yml`.
+The Prometheus container is started with `--enable-feature=expand-external-labels`, which enables `${VAR}` substitution in `prometheus.yml`. The `METRICS_SECRET` environment variable is passed into the container via `env_file: ./defaults.env` and `./override.env` in `docker-compose.yml`.

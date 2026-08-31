@@ -1,8 +1,7 @@
 import { Registry, collectDefaultMetrics } from 'prom-client';
 
-// globalThis guard: Next.js hot-reloads re-evaluate modules in dev mode — without this
-// guard each reload would attempt to re-register metrics and throw "A metric with that
-// name has already been registered". Storing on globalThis survives module re-evaluation.
+// Next.js hot-reloads re-evaluate modules in dev, and re-registering a metric throws
+// "A metric with that name has already been registered"; globalThis survives that.
 const g = globalThis as unknown as {
   metricsRegistry: Registry | undefined;
 };

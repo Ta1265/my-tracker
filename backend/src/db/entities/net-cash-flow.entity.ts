@@ -1,7 +1,7 @@
 import { Entity, PrimaryKey, Property } from '@mikro-orm/decorators/legacy';
 
-// Live `date` column is `datetime`, not `@db.Date` per schema.prisma, so it maps to
-// `Date` rather than `string`.
+// The live `date` column is `datetime`, not a date-only type, so it maps to `Date`
+// rather than `string`.
 @Entity({ tableName: 'NetCashFlow' })
 export class NetCashFlow {
   @PrimaryKey({

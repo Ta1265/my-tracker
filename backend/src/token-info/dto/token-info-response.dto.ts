@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-// Raw TokenInfo row shape (schema.prisma), returned verbatim - no formatting.
+// Raw `TokenInfo` row shape, returned verbatim - no formatting.
 export class TokenInfoResponseDto {
   @ApiProperty({ example: 1 })
   token_id!: number;
