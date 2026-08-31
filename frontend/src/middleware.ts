@@ -2,10 +2,9 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { SESSION_COOKIE_NAME } from '@portfolio/shared';
 import { verifySessionToken } from '@/auth/session';
 
-// Note: Next.js middleware runs on the Edge runtime, which is incompatible with
-// Node.js-only packages (prom-client, winston). HTTP metrics are tracked in
-// individual API route handlers instead. This middleware only handles auth and
-// forwards the real client IP via a header for downstream server code to log.
+// Next.js middleware runs on the Edge runtime, which cannot load Node.js-only
+// packages such as prom-client, so this file handles auth only and forwards the
+// real client IP via a header for downstream server code to log.
 function withClientIp(request: NextRequest): NextResponse {
   const ip =
     request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??

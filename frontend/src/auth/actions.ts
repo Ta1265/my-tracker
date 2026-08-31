@@ -22,7 +22,6 @@ export async function seamSignIn(params: {
 
 export async function seamSignOut(): Promise<void> {
   await logout();
-  // Hard-navigate so the app re-evaluates auth state from a clean load, mirroring
-  // next-auth/react's own default post-sign-out navigation.
+  // Hard-navigate so the app re-evaluates auth state from a clean load.
   window.location.href = '/';
 }

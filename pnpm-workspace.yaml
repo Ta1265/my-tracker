@@ -3,11 +3,8 @@ packages:
   - backend
   - packages/*
 allowBuilds:
-  '@prisma/client': true
-  '@prisma/engines': true
   '@scarf/scarf': false
   bcrypt: true
   esbuild: true
-  prisma: true
   unrs-resolver: true
 injectWorkspacePackages: true
