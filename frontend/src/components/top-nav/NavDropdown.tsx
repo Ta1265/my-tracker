@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useCurrentSession } from '@/auth/useCurrentSession';
+import { useAuthSession } from '@/api/generated';
 import { seamSignOut } from '@/auth/actions';
 import { Dropdown } from 'flowbite-react';
 import { usePathname } from 'next/navigation';
@@ -23,7 +23,7 @@ const themeSwatchColor: Record<ThemeId, string> = {
 };
 
 const NavDropdown: React.FC = () => {
-  const { data: session } = useCurrentSession();
+  const { data: session } = useAuthSession();
   const pathname = usePathname();
   const isProductPage = pathname?.startsWith('/product');
   const isStatsPage = pathname?.startsWith('/stats') || pathname === '/';
