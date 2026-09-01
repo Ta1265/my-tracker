@@ -155,9 +155,7 @@ export const LineChart: React.FC<Props> = ({
             easing: 'easeInOutQuart',
           },
           plugins: {
-            // @ts-ignore
-            VerticalLiner: {},
-            // @ts-ignore
+            verticalLiner: {},
             glowLine: {
               color: lineColor,
               blur: 20,

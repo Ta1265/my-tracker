@@ -1,5 +1,4 @@
 'use client';
-/* eslint-disable react/jsx-key */
 
 import { useTable, useSortBy } from 'react-table';
 import type { Column } from 'react-table';
@@ -33,6 +32,9 @@ const ALL_STATS_COLUMNS: (Column<CoinSummaryResponseDto> & { id: string })[] = [
         alt={cell.value.productName}
         width={30}
         height={30}
+        // These are 2-10 KB PNGs already sized for the 30px slot, and the standalone
+        // production server has no `sharp`, so /_next/image would fail outright.
+        unoptimized
       />
     ),
   },

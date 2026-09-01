@@ -8,7 +8,7 @@ import Link from '@mui/joy/Link';
 
 const SortArrow: React.FC<{
   isSorted: boolean;
-  isSortedDesc: boolean;
+  isSortedDesc?: boolean;
   children: React.ReactNode;
 }> = ({ isSorted, isSortedDesc, children }) => {
   return (

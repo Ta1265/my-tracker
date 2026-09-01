@@ -1,6 +1,6 @@
+/** @jsxImportSource @emotion/react */
 'use client';
 
-/** @jsxImportSource @emotion/react */
 import React from 'react';
 import { css, keyframes } from '@emotion/react';
 import AnimatingNumber from './AnimatingNumber';

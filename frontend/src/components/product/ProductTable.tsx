@@ -1,6 +1,5 @@
 'use client';
 
-/* eslint-disable react/jsx-key */
 import React, { useMemo } from 'react';
 import { useState, useEffect } from 'react';
 import { useTable, useSortBy } from 'react-table';
@@ -35,7 +34,7 @@ const ProductTable: React.FC<Props> = ({
 
   const query = useProductTransactions(unit);
 
-  const columns = useMemo(
+  const columns = useMemo<Column<ProductTransactionResponseDto>[]>(
     () => [
       {
         Header: 'Date',
@@ -63,7 +62,9 @@ const ProductTable: React.FC<Props> = ({
         accessor: 'side',
         styles: { textAlign: 'right' },
         Cell: ({ cell: { value } }: { cell: { value: any } }) => {
-          return <div style={{ color: value === 'BUY' ? 'var(--green)' : 'var(--red)' }}>{value}</div>;
+          return (
+            <div style={{ color: value === 'BUY' ? 'var(--green)' : 'var(--red)' }}>{value}</div>
+          );
         },
       },
       {
@@ -224,12 +225,16 @@ const ProductTable: React.FC<Props> = ({
   }, []);
 
   return (
-    <TableComponent columns={columns} data={query.data ?? EMPTY_PRODUCT_DATA} loaded={loaded && query.isSuccess} />
+    <TableComponent
+      columns={columns}
+      data={query.data ?? EMPTY_PRODUCT_DATA}
+      loaded={loaded && query.isSuccess}
+    />
   );
 };
 
 interface TableComponentProps {
-  columns: Column<any>[];
+  columns: Column<ProductTransactionResponseDto>[];
   data: ProductTransactionResponseDto[];
   loaded: boolean;
 }
@@ -264,13 +269,13 @@ function TableComponent({ columns, data, loaded }: TableComponentProps) {
     <div
       ref={scrollContainerRef}
       className="
-         w-full
-         overflow-x-auto
-         overflow-y-visible
          scrollbar
          scrollbar-thin
          scrollbar-track-transparent
          scrollbar-thumb-gray-700
+         w-full
+         overflow-x-auto
+         overflow-y-visible
        "
       style={{
         // overscrollBehavior: 'none',
@@ -307,42 +312,51 @@ function TableComponent({ columns, data, loaded }: TableComponentProps) {
             uppercase
           "
         >
-          {headerGroups.map((headerGroup) => (
-            <tr id="product-header-row" {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column, index) => {
-                return (
-                  <th
-                    scope="col"
-                    className="
+          {headerGroups.map((headerGroup) => {
+            const { key: headerGroupKey, ...headerGroupProps } = headerGroup.getHeaderGroupProps();
+            return (
+              <tr id="product-header-row" key={headerGroupKey} {...headerGroupProps}>
+                {headerGroup.headers.map((column) => {
+                  const { key: columnKey, ...columnProps } = column.getHeaderProps(
+                    column.getSortByToggleProps(),
+                  );
+                  return (
+                    <th
+                      scope="col"
+                      className="
                       py-1
                       text-center
                       dark:text-gray-400
                     "
-                    {...column.getHeaderProps(column.getSortByToggleProps())}
-                    style={{
-                      top: '-1px', // prevent rows peeking above sticky header
-                      textAlign: 'center',
-                      verticalAlign: 'middle',
-                      ...(column.styles && { ...column.styles }),
-                      ...(column.myWidth && { width: column.myWidth }),
-                    }}
-                  >
-                    <SortArrow isSorted={column.isSorted} isSortedDesc={column.isSortedDesc}>
-                      {column.render('Header')}
-                    </SortArrow>
-                  </th>
-                );
-              })}
-            </tr>
-          ))}
+                      key={columnKey}
+                      {...columnProps}
+                      style={{
+                        top: '-1px', // prevent rows peeking above sticky header
+                        textAlign: 'center',
+                        verticalAlign: 'middle',
+                        ...(column.styles && { ...column.styles }),
+                        ...(column.myWidth && { width: column.myWidth }),
+                      }}
+                    >
+                      <SortArrow isSorted={column.isSorted} isSortedDesc={column.isSortedDesc}>
+                        {column.render('Header')}
+                      </SortArrow>
+                    </th>
+                  );
+                })}
+              </tr>
+            );
+          })}
         </thead>
         <tbody {...getTableBodyProps()} className="border-border">
           {rows.map((row, rowIndex) => {
             prepareRow(row);
+            const { key: rowKey, ...rowProps } = row.getRowProps();
             return (
               <tr
                 id="transaction-row"
-                {...row.getRowProps()}
+                key={rowKey}
+                {...rowProps}
                 className={`
                 ease-in-out-out
                 transform
@@ -355,26 +369,30 @@ function TableComponent({ columns, data, loaded }: TableComponentProps) {
                   transitionDelay: `${rowIndex * 0.005}s`,
                 }}
               >
-                {row.cells.map((cell, index) => (
-                  <td
-                    {...cell.getCellProps()}
-                    className={`
+                {row.cells.map((cell) => {
+                  const { key: cellKey, ...cellProps } = cell.getCellProps();
+                  return (
+                    <td
+                      key={cellKey}
+                      {...cellProps}
+                      className={`
                       text-right
                       transition-opacity
                       duration-500
                       ${loaded ? 'opacity-100' : 'opacity-0'}
                     `}
-                    style={{
-                      transitionDelay: `${rowIndex * 0.05}s`,
-                      // textAlign: 'center',
-                      // display: 'flex',
-                      justifyContent: 'right',
-                      alignItems: 'right',
-                    }}
-                  >
-                    {cell.render('Cell')}
-                  </td>
-                ))}
+                      style={{
+                        transitionDelay: `${rowIndex * 0.05}s`,
+                        // textAlign: 'center',
+                        // display: 'flex',
+                        justifyContent: 'right',
+                        alignItems: 'right',
+                      }}
+                    >
+                      {cell.render('Cell')}
+                    </td>
+                  );
+                })}
               </tr>
             );
           })}

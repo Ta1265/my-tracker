@@ -1,7 +1,6 @@
 'use client';
 
-/** @jsxImportSource @emotion/react */
-import React, {} from 'react';
+import React from 'react';
 import Box from '@mui/material/Box';
 import { usePriceFeed } from '../../context/CoinbaseWsFeedContext';
 import TickerDisplay from '../TickerDisplay';

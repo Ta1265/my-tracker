@@ -151,7 +151,7 @@ const AddTransaction: React.FC<{
     return isValid;
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (!validateForm()) {
       snackBarCtx.toastError({
