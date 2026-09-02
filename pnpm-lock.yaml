@@ -304,30 +304,9 @@ importers:
 
   packages/shared:
     devDependencies:
-      '@eslint/js':
-        specifier: ^9.39.5
-        version: 9.39.5
-      eslint:
-        specifier: ^9.39.5
-        version: 9.39.5(jiti@1.21.7)(supports-color@10.2.2)
-      eslint-config-prettier:
-        specifier: ^10.1.8
-        version: 10.1.8(eslint@9.39.5(jiti@1.21.7)(supports-color@10.2.2))
-      eslint-plugin-prettier:
-        specifier: ^5.5.6
-        version: 5.5.6(@types/eslint@9.6.1)(eslint-config-prettier@10.1.8(eslint@9.39.5(jiti@1.21.7)(supports-color@10.2.2)))(eslint@9.39.5(jiti@1.21.7)(supports-color@10.2.2))(prettier@3.9.6)
-      globals:
-        specifier: ^17.11.0
-        version: 17.11.0
-      prettier:
-        specifier: ^3.9.6
-        version: 3.9.6
       typescript:
         specifier: ^5.9.0
         version: 5.9.3
-      typescript-eslint:
-        specifier: ^8.67.0
-        version: 8.67.0(eslint@9.39.5(jiti@1.21.7)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@5.9.3)
 
 packages:
 

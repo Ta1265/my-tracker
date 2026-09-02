@@ -35,6 +35,9 @@ async function bootstrap() {
     SwaggerModule.setup('backend/docs', app, document);
   }
 
+  // Without this MikroORM's onApplicationShutdown never fires, so the pool is never closed.
+  app.enableShutdownHooks();
+
   await app.listen(process.env.PORT ?? 3001);
 }
 void bootstrap();

@@ -1,5 +1,4 @@
 {
-  "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "target": "es2017",
     "lib": ["dom", "dom.iterable", "esnext"],
@@ -28,11 +27,10 @@
     "**/*.ts",
     "**/*.tsx",
     ".eslintrc.cjs",
-    "next-env.d.ts",
     "**/*.cjs",
     "**/*.mjs",
     ".next/types/**/*.ts",
-    "tailwind.config.ts",
+    "tailwind.config.ts"
   ],
   "exclude": ["node_modules", ".next"]
 }
