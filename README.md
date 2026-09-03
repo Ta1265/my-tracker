@@ -1,98 +1,66 @@
+# Portfolio
 
-# Developer setup
+A crypto portfolio tracker. It ingests your transactions, prices them against live exchange
+rates, and organizes it all in a customizable dashboard.
 
-## Prerequisites
+## Stack
 
-- Node 24 - the root `.nvmrc` pins `24`, and both `frontend/package.json` and
-  `backend/package.json` declare `"engines": { "node": ">=24 <25" }`.
-- pnpm - the root `package.json` pins the exact version via
-  `"packageManager": "pnpm@11.22.0"`.
-- Docker and Docker Compose.
+- **Frontend** - Next.js 14 (App Router), MUI, TanStack Query, Chart.js
+- **Backend** - NestJS 11, MikroORM
+- **Data** - MySQL, Redis
+- **Infrastructure** - Docker Compose, nginx
+- **Observability** - Grafana, Loki, Prometheus
+- **Tooling** - TypeScript, pnpm workspace, Orval
 
-## Workspace layout
+## Quick start
 
-This is a pnpm workspace (`pnpm-workspace.yaml`) made up of three package groups:
-`frontend`, `backend`, and `packages/*`, sharing a single root `pnpm-lock.yaml` (there is
-no `package-lock.json` anywhere in the repo). `injectWorkspacePackages: true` is set, so
-workspace dependencies are inlined rather than symlinked.
-
-`packages/shared` (`@portfolio/shared`) holds only the session claim contract consumed by
-both apps: the `SessionClaims` interface, and the `SESSION_ALGORITHM` and
-`SESSION_COOKIE_NAME` constants. Both `frontend` and `backend` depend on it as
-`"@portfolio/shared": "workspace:*"`.
-
-Install everything from the repo root:
+Requires Docker, Node 24, and pnpm.
 
 ```sh
-pnpm install
-```
-
-## The frontend's internal layout
-
-- `frontend/src/auth/` holds the auth helpers: `session.ts` (token verification, safe on
-  every runtime), `serverSession.ts` (server-only, reads the cookie), and `actions.ts`
-  (`'use client'`). It's a deliberate mix of server-only and client files, with no barrel
-  file.
-- `frontend/src/api/` holds the Orval-generated client (`generated.ts`) and its mutator
-  (`http-client.ts`); see the section below for how `generated.ts` gets regenerated.
-
-## Bringing up the stack
-
-```sh
+pnpm install                            # host-side only: IDE types and linting
+sudo ./setup_local_https.sh             # one-time, macOS + mkcert
+docker network create portfolio-network # compose declares it external
 docker compose up -d --build
 ```
 
-This builds the `dev` target by default (`target: ${TARGET:-dev}` in
-`docker-compose.yml`); set `TARGET=prod` in the environment for a production-target
-build instead.
+| | |
+| --- | --- |
+| App | `https://www.tubesock.xyz` |
+| API docs | `https://www.tubesock.xyz/backend/docs` |
+| Grafana | `http://localhost:3001` |
 
-One-time local HTTPS setup on macOS, using mkcert (see the script's own header comment
-for the full list of what it does and assumes):
+Compose builds the `dev` target by default; set `TARGET=prod` for a production build.
 
-```sh
-sudo ./setup_local_https.sh
-```
+## Project layout
 
-After that, the stack is reachable at `https://www.tubesock.xyz`.
+A pnpm workspace of three package groups: `frontend` (Next.js), `backend` (NestJS), and
+`packages/*`. `packages/shared` carries the session-claim contract that both apps sign and
+verify against.
 
-## The nginx topology
+nginx terminates TLS and splits traffic by path: `/backend/` to the API, everything else
+to Next.js.
 
-`nginx/nginx.conf` terminates TLS, redirects port 80 to 443, and then splits traffic by
-path: `location /backend/` proxies to `nest-api:3001`, and everything else proxies to
-`next-app:3000`.
-
-Swagger UI is served at `https://www.tubesock.xyz/backend/docs` (the backend's OpenAPI
-JSON - which the Orval section below already covers - is at `/backend/docs-json`).
-`nest-api` also publishes `127.0.0.1:3002:3001`, for browsing Swagger directly from the
-host without going through nginx; it isn't needed for `spec:generate` below, which runs
-inside the `next-app` container over the Compose network.
-
-# Database migrations
-
-Migrations are hand-written SQL.
+## Database migrations
 
 ```sh
 docker exec nest-api pnpm migration:create   # blank stub in backend/src/db/migrations/
 docker exec nest-api pnpm migration:list     # what has been applied
 docker exec nest-api pnpm migration:up       # apply everything pending
-docker exec nest-api pnpm migration:down     # refuses on the baseline - see its down()
-docker compose run --rm migrations           # deploy path: applies pending, then exits
-
-# the ledger of what has been applied
-docker exec portfolio-db mysql -uroot -proot PORTFOLIO -e "select * from mikro_orm_migrations"
+docker exec nest-api pnpm migration:down     # refuses on the baseline
+docker compose run --rm migrations           # deploy path: apply pending, then exit
 ```
 
-Migrations never run at app boot. The ledger above is what stops the baseline from
-running a second time.
+## API client generation
 
-# API client type generation with [Orval](https://orval.dev/docs)
-
-The backend serves its OpenAPI document at `/backend/docs-json` and republishes it
-automatically on save (`nest start --watch`). Orval reads that URL on the frontend and writes
-`frontend/src/api/generated.ts`. The generated types and hooks in this file should be committed.
-
-After changing a backend DTO or controller signature, regenerate the frontend types and hooks.
+The backend publishes its OpenAPI document at `/backend/docs-json`. [Orval](https://orval.dev/docs)
+reads it and writes `frontend/src/api/generated.ts`, which is committed. Regenerate after
+changing any backend DTO or controller signature:
 
 ```sh
 docker exec next-app pnpm --filter @portfolio/frontend spec:generate
 ```
+
+## Observability
+
+Grafana, Loki, and Prometheus run alongside the app, with the dashboard and datasources
+auto-provisioned on first boot. See [OBSERVABILITY.md](OBSERVABILITY.md).
