@@ -98,7 +98,7 @@ export class SummaryService {
     }
 
     return (await this.em.getConnection().execute(
-      `
+      /* SQL */ `
       SELECT
         stats.unit AS productName,
         stats.coinName AS coinName,
@@ -146,7 +146,7 @@ export class SummaryService {
   // query with no ORM equivalent.
   async getPortfolioSummary(userId: number): Promise<PortfolioSummary> {
     const rows = (await this.em.getConnection().execute(
-      `
+      /* SQL */ `
       SELECT
         SUM(COALESCE(units.costBasis, 0)) AS costBasis,
         SUM(COALESCE(units.total_buy_cost, 0)) AS totalBuyCost,
@@ -199,7 +199,7 @@ export class SummaryService {
     }
 
     const rows = (await this.em.getConnection().execute(
-      `
+      /* SQL */ `
       SELECT token_info_id, unit, side, ABS(total) AS total, date, ABS(size) AS size
       FROM PORTFOLIO.Transaction
       WHERE userId = ?${filterClause}

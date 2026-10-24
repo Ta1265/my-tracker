@@ -18,11 +18,9 @@ export function createWinstonLogger(): LoggerService {
   return WinstonModule.createLogger({
     instance: winston.createLogger({
       level: process.env.LOG_LEVEL ?? 'info',
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        addRequestId(),
-        winston.format.json(),
-      ),
+      // No timestamp format: Docker stamps every stdout line, and that is the timestamp
+      // Alloy forwards to Loki. A second one in the payload would only ever be redundant.
+      format: winston.format.combine(addRequestId(), winston.format.json()),
       defaultMeta: {
         service: 'portfolio',
         environment: process.env.NODE_ENV,

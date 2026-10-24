@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Header, Param, Query, UseGuards } from '@nestjs/common';
 import {
   ApiCookieAuth,
   ApiOkResponse,
@@ -10,6 +10,7 @@ import {
 import { SessionClaims } from '@portfolio/shared';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { SessionGuard } from '../auth/session.guard';
+import { PORTFOLIO_CACHE_CONTROL } from '../common/http/cache-control';
 import { TIME_FRAMES } from '../common/time-frame/time-frames';
 import { CoinSummaryResponseDto } from './dto/coin-summary-response.dto';
 import { PortfolioSummaryResponseDto } from './dto/portfolio-summary-response.dto';
@@ -26,6 +27,7 @@ export class SummaryController {
   constructor(private readonly summaryService: SummaryService) {}
 
   @Get('coins')
+  @Header('Cache-Control', PORTFOLIO_CACHE_CONTROL)
   @ApiCookieAuth()
   @ApiOperation({
     operationId: 'coinSummaries',
@@ -37,6 +39,7 @@ export class SummaryController {
   }
 
   @Get('portfolio')
+  @Header('Cache-Control', PORTFOLIO_CACHE_CONTROL)
   @ApiCookieAuth()
   @ApiOperation({
     operationId: 'portfolioSummary',
@@ -48,6 +51,7 @@ export class SummaryController {
   }
 
   @Get('profitLossChart')
+  @Header('Cache-Control', PORTFOLIO_CACHE_CONTROL)
   @ApiCookieAuth()
   @ApiQuery({
     name: 'timeFrame',
@@ -73,6 +77,7 @@ export class SummaryController {
   }
 
   @Get('profitLossChart/:timeFrame')
+  @Header('Cache-Control', PORTFOLIO_CACHE_CONTROL)
   @ApiCookieAuth()
   @ApiParam({ name: 'timeFrame', enum: TIME_FRAMES, enumName: 'TimeFrame', example: 'all' })
   @ApiOperation({
@@ -92,6 +97,7 @@ export class SummaryController {
   }
 
   @Get(':unit')
+  @Header('Cache-Control', PORTFOLIO_CACHE_CONTROL)
   @ApiCookieAuth()
   @ApiParam({ name: 'unit', example: 'BTC' })
   @ApiOperation({

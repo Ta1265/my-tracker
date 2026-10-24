@@ -1,8 +1,9 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Header, Param, UseGuards } from '@nestjs/common';
 import { ApiCookieAuth, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { SessionClaims } from '@portfolio/shared';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { SessionGuard } from '../auth/session.guard';
+import { PORTFOLIO_CACHE_CONTROL } from '../common/http/cache-control';
 import { TIME_FRAMES } from '../common/time-frame/time-frames';
 import { TimeFrameTotalPlResponseDto } from './dto/time-frame-total-pl-response.dto';
 import { TimeFrameTotalPlService } from './time-frame-total-pl.service';
@@ -13,6 +14,7 @@ export class TimeFrameTotalPlController {
   constructor(private readonly timeFrameTotalPlService: TimeFrameTotalPlService) {}
 
   @Get(':timeFrame')
+  @Header('Cache-Control', PORTFOLIO_CACHE_CONTROL)
   @UseGuards(SessionGuard)
   @ApiCookieAuth()
   @ApiParam({ name: 'timeFrame', enum: TIME_FRAMES, enumName: 'TimeFrame', example: 'd' })

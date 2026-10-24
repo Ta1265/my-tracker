@@ -8,6 +8,7 @@ import { AppConfigService } from './config/app-config.service';
 import { createWinstonLogger } from './common/logging/winston-logger.factory';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { HttpMetricsInterceptor } from './common/interceptors/http-metrics.interceptor';
+import { RequestLoggingInterceptor } from './common/interceptors/request-logging.interceptor';
 import { MetricsService } from './metrics/metrics.service';
 import { createOpenApiDocumentBuilder, GLOBAL_PREFIX } from './openapi/document';
 
@@ -21,7 +22,10 @@ async function bootstrap() {
   app.useBodyParser('json', { limit: '10mb' });
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
-  app.useGlobalInterceptors(new HttpMetricsInterceptor(app.get(MetricsService)));
+  app.useGlobalInterceptors(
+    new RequestLoggingInterceptor(),
+    new HttpMetricsInterceptor(app.get(MetricsService)),
+  );
 
   // Permissive by design: must never reject a request the existing Next.js routes
   // accept. No business-rule validators live here - just shape/type coercion.

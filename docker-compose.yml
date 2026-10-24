@@ -25,7 +25,13 @@ services:
       - mysql-volume:/var/lib/mysql:rw
     # The migrations runner has no restart policy, so it waits on this instead.
     healthcheck:
-      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-uroot', '-p$$MYSQL_ROOT_PASSWORD']
+      # CMD-SHELL, not CMD: the exec form has no shell, so $MYSQL_ROOT_PASSWORD went to
+      # mysqladmin as a literal string and every probe logged an access denial.
+      test:
+        [
+          'CMD-SHELL',
+          'mysqladmin ping -h localhost -uroot -p"$$MYSQL_ROOT_PASSWORD"',
+        ]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -84,6 +90,14 @@ services:
     restart: unless-stopped
     ports:
       - 127.0.0.1:3002:3001 # Browsing Swagger UI @ /backend/docs
+    # The endpoint runs SELECT 1, so an unhealthy container means the API is up but its
+    # database is not - a distinction a port check cannot make.
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:3001/backend/api/health || exit 1']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
     networks:
       portfolio-network:
         aliases:
@@ -155,11 +169,12 @@ services:
     restart: unless-stopped
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus-entrypoint.sh:/usr/local/bin/prometheus-entrypoint.sh:ro
+    entrypoint: /usr/local/bin/prometheus-entrypoint.sh
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--web.enable-lifecycle'
-      - '--enable-feature=expand-external-labels'
     env_file:
       - ./defaults.env
       - ./override.env

@@ -34,8 +34,23 @@ discovery.relabel "containers" {
 loki.source.docker "containers" {
   host          = "unix:///var/run/docker.sock"
   targets       = discovery.relabel.containers.output
-  forward_to    = [loki.write.default.receiver]
+  forward_to    = [loki.process.filter_noise.receiver]
   relabel_rules = discovery.relabel.containers.rules
+}
+
+// Loki's compactor and index-shipper emit an info line every few seconds, which is ~40%
+// of everything ingested. warn and error still come through.
+loki.process "filter_noise" {
+  forward_to = [loki.write.default.receiver]
+
+  stage.match {
+    selector = "{container_name=\"loki\"}"
+
+    stage.drop {
+      expression          = "level=info"
+      drop_counter_reason = "loki_self_info"
+    }
+  }
 }
 
 // Push logs to the Loki service

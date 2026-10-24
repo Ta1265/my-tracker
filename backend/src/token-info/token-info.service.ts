@@ -29,7 +29,8 @@ export class TokenInfoService {
   // joining on a non-FK column pair (Transaction.unit = TokenInfo.symbol).
   async getTokensForUserId(userId: number): Promise<UserToken[]> {
     return (await this.em.getConnection().execute(
-      `SELECT DISTINCT
+      /* SQL */ `
+      SELECT DISTINCT
          trans.coinName AS coinName,
          trans.unit AS unit,
          tokenInfo.token_id AS tokenInfoId
@@ -88,13 +89,12 @@ export class TokenInfoService {
 
       // INSERT IGNORE tolerates the composite-PK collision a re-sync produces;
       // em.create()/flush() would throw on it instead.
-      await this.em
-        .getConnection()
-        .execute(
-          `INSERT IGNORE INTO TokenPriceHistory (timeFrame, close_price, date, token_info_id) ` +
-            `VALUES ${placeholders}`,
-          values,
-        );
+      await this.em.getConnection().execute(
+        /* SQL */ `
+          INSERT IGNORE INTO TokenPriceHistory (timeFrame, close_price, date, token_info_id)
+          VALUES ${placeholders}`,
+        values,
+      );
     }
   }
 }

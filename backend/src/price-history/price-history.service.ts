@@ -19,7 +19,7 @@ export class PriceHistoryService {
   async checkCoverage(userId: number): Promise<PriceHistoryCheckResponseDto[]> {
     const coins = (await this.em
       .getConnection()
-      .execute('SELECT DISTINCT coinName FROM PORTFOLIO.Transaction WHERE userId = ?', [
+      .execute(/* SQL */ `SELECT DISTINCT coinName FROM PORTFOLIO.Transaction WHERE userId = ?`, [
         userId,
       ])) as { coinName: string }[];
 

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Header, Param, UseGuards } from '@nestjs/common';
 import {
   ApiCookieAuth,
   ApiExtraModels,
@@ -11,6 +11,7 @@ import {
 import { SessionClaims } from '@portfolio/shared';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { SessionGuard } from '../auth/session.guard';
+import { PORTFOLIO_CACHE_CONTROL } from '../common/http/cache-control';
 import { TIME_FRAMES } from '../common/time-frame/time-frames';
 import {
   TimeFrameCoinsPlEntryDto,
@@ -24,6 +25,7 @@ export class TimeFrameCoinsPlController {
   constructor(private readonly timeFrameCoinsPlService: TimeFrameCoinsPlService) {}
 
   @Get(':timeFrame')
+  @Header('Cache-Control', PORTFOLIO_CACHE_CONTROL)
   @UseGuards(SessionGuard)
   @ApiCookieAuth()
   @ApiExtraModels(TimeFrameCoinsPlEntryDto)
