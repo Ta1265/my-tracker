@@ -1,0 +1,678 @@
+'use client';
+
+import { DateTimePicker } from '@mui/x-date-pickers';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import dayjs from 'dayjs';
+import React, { useState, useContext } from 'react';
+import Modal from 'react-modal';
+import Select from 'react-select';
+
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import InputAdornment from '@mui/material/InputAdornment';
+import Stack from '@mui/material/Stack';
+import Switch from '@mui/material/Switch';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import { useReload } from '../context/ReloadContext';
+import { SnackbarContext } from '../context/SnackBarContext';
+import { useGetTokenList } from '../_hooks/useGetTokenList';
+import { Grid } from '@mui/material';
+import { addTransaction } from '../api/generated';
+
+const textFieldSx = {
+  '& .MuiOutlinedInput-root': {
+    '&.Mui-focused fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.7)',
+    },
+  },
+  '& input:focus': {
+    borderColor: 'rgba(255, 255, 255, 0.7)',
+    outline: 'none',
+    boxShadow: 'none',
+  },
+  '& input': {
+    backgroundColor: 'transparent',
+    height: '38px',
+  },
+  // '& label:not(.Mui-focused)': {
+  //   transform: 'translate(14px, 7px) scale(1)',
+  // },
+};
+
+const theme = createTheme({
+  palette: {
+    mode: 'dark', // This makes it use dark mode colors
+    primary: {
+      main: '#90caf9',
+    },
+    secondary: {
+      main: '#f48fb1',
+    },
+  },
+});
+
+const getDefaultFormValue = () => ({
+  coin: {
+    value: null as number | null,
+    errors: [] as Array<string>,
+  },
+  dateOfTransaction: {
+    value: null as dayjs.Dayjs | null,
+    errors: [] as Array<any>,
+  },
+  side: {
+    value: 'buy',
+    errors: [] as Array<string>,
+  },
+  size: {
+    value: '',
+    errors: [] as Array<string>,
+  },
+  price: {
+    value: '',
+    errors: [] as Array<string>,
+  },
+  fee: {
+    value: '',
+    errors: [] as Array<string>,
+  },
+  total: {
+    value: '',
+    errors: [] as Array<string>,
+  },
+  notes: {
+    value: '',
+    errors: [] as Array<string>,
+  },
+});
+
+const AddTransaction: React.FC<{
+  isOpen: boolean;
+  setIsOpen: (value: boolean) => void;
+}> = ({ isOpen, setIsOpen }) => {
+  const snackBarCtx = useContext(SnackbarContext);
+  const { triggerReload } = useReload();
+  const [formValues, setFormValues] = useState(getDefaultFormValue());
+  // const [formTotal, setFormTotal] = useState(null as number | null);
+
+  // const [coinSearchValue, setCoinSearchValue] = useState('');
+
+  const { coinOptions, isLoading, setCoinSearchValue, coinSearchValue } =
+    useGetTokenList();
+
+  const coinOnChange = (option: any) => {
+    if (!option || !option.value) {
+      return setFormValues({
+        ...formValues,
+        coin: {
+          value: null,
+          errors: ['Coin is required.'],
+        },
+      });
+    }
+    setFormValues({
+      ...formValues,
+      coin: {
+        value: option.value.token_id,
+        errors: [],
+      },
+    });
+    // setCoinSearchValue(option.value.name);
+  };
+
+  const validateForm = () => {
+    let isValid = true;
+    const newFormValues = { ...formValues };
+
+    if (!newFormValues.coin.value) {
+      isValid = false;
+      newFormValues.coin.errors = ['Coin Name is required.'];
+    }
+    if (!newFormValues.size.value.length) {
+      isValid = false;
+      newFormValues.size.errors = ['Size is required.'];
+    }
+    if (!newFormValues.price.value.length) {
+      isValid = false;
+      newFormValues.price.errors = ['Price is required.'];
+    }
+    if (!newFormValues.fee.value.length) {
+      isValid = false;
+      newFormValues.fee.errors = ['Fee is required.'];
+    }
+    if (!newFormValues.dateOfTransaction.value) {
+      isValid = false;
+      newFormValues.dateOfTransaction.errors = ['Date is required.'];
+    }
+    setFormValues(newFormValues);
+    return isValid;
+  };
+
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!validateForm()) {
+      snackBarCtx.toastError({
+        message: 'Invalid Fields. Please check the form.',
+      });
+      return;
+    }
+    addTransaction({
+      side: formValues.side.value,
+      token_id: formValues.coin.value as number,
+      size: formValues.size.value,
+      price: formValues.price.value,
+      fee: formValues.fee.value,
+      date: formValues.dateOfTransaction.value?.toISOString() as string,
+      notes: formValues.notes.value,
+    })
+      .then(() => {
+        snackBarCtx.toastSuccess({
+          message: 'Transaction added successfully.',
+        });
+        setIsOpen(false);
+        triggerReload();
+        setFormValues(getDefaultFormValue());
+      })
+      .catch((error) => {
+        console.error(error);
+        snackBarCtx.toastError({
+          message: `Failed to add transaction. ${error.message}`,
+        });
+      });
+  };
+
+  const closeModal = () => {
+    setFormValues(getDefaultFormValue());
+    setIsOpen(false);
+  };
+
+  const calcTotal = () => {
+    if (
+      formValues.size.value.length &&
+      formValues.price.value.length &&
+      formValues.fee.value.length
+    ) {
+      let total =
+        parseFloat(formValues.price.value) * parseFloat(formValues.size.value);
+      if (formValues.side.value === 'buy') {
+        total += parseFloat(formValues.fee.value);
+      } else {
+        total -= parseFloat(formValues.fee.value);
+      }
+      return total;
+    }
+    return '';
+  };
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Modal
+        isOpen={isOpen}
+        onRequestClose={closeModal}
+        ariaHideApp={false}
+        shouldCloseOnOverlayClick={false}
+        contentLabel="Add Transaction"
+        className="outline-none"
+        overlayClassName="fixed inset-0 z-[99] modal-overlay"
+        style={{
+          overlay: {
+            background: 'rgba(0, 0, 0, 0.80)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+          },
+          content: {
+            position: 'relative',
+            inset: 'unset',
+            width: '100%',
+            maxWidth: '500px',
+            maxHeight: '92dvh',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            boxSizing: 'border-box',
+            borderRadius: '20px 20px 0 0',
+            background: 'var(--bg-elevated)',
+            padding: '0',
+            border: '1px solid var(--border-medium)',
+            borderBottom: 'none',
+            boxShadow: '0 -12px 60px rgba(0,0,0,0.7)',
+          },
+        }}
+      >
+        {/* Modal header */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '14px 20px 12px',
+            borderBottom: '1px solid var(--border-subtle)',
+            background: 'var(--bg-card)',
+            borderRadius: '20px 20px 0 0',
+          }}
+        >
+          {/* Drag handle (visible on mobile) */}
+          <div
+            className="sm:hidden"
+            style={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', width: 36, height: 4, borderRadius: 4, background: 'var(--border-medium)' }}
+          />
+          <span
+            style={{
+              fontSize: 14,
+              fontWeight: 600,
+              letterSpacing: '0.02em',
+              color: 'var(--text-primary)',
+            }}
+          >
+            Add Transaction
+          </span>
+          <button
+            onClick={closeModal}
+            aria-label="Close"
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--text-muted)',
+              fontSize: 20,
+              lineHeight: 1,
+              padding: '2px 4px',
+              borderRadius: 4,
+              transition: 'color 0.15s',
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; }}
+          >
+            ✕
+          </button>
+        </div>
+
+        <div style={{ padding: '1.25rem 1rem' }}>
+
+        {/* <form onSubmit={handleSubmit} className=""> */}
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
+              <Typography>Buy</Typography>
+              <Switch
+                checked={formValues.side.value === 'sell'}
+                onChange={(e) => {
+                  setFormValues({
+                    ...formValues,
+                    side: {
+                      value: formValues.side.value === 'buy' ? 'sell' : 'buy',
+                      errors: [],
+                    },
+                  });
+                }}
+              />
+              <Typography>Sell</Typography>
+            </Stack>
+          </Grid>
+
+          <Grid item xs={12}>
+            <DateTimePicker
+              label="Date of Transaction"
+              onError={(error) => {
+                setFormValues({
+                  ...formValues,
+                  dateOfTransaction: {
+                    value: null,
+                    errors: [error],
+                  },
+                });
+              }}
+              onChange={(value) => {
+                if (!value) {
+                  return setFormValues({
+                    ...formValues,
+                    dateOfTransaction: {
+                      value: null,
+                      errors: ['Date is required.'],
+                    },
+                  });
+                }
+                return setFormValues({
+                  ...formValues,
+                  dateOfTransaction: {
+                    value: value,
+                    errors: [],
+                  },
+                });
+              }}
+              sx={{
+                '& Input': {
+                  backgroundColor: 'transparent',
+                  height: '38px',
+                },
+                // '& label:not(.Mui-focused)': {
+                //   transform: 'translate(14px, 7px) scale(1)',
+                // },
+              }}
+              // referenceDate={dayjs()}
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  helperText: formValues.dateOfTransaction.errors?.[0],
+                  error: !!formValues.dateOfTransaction.errors?.length,
+                },
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            {coinOptions && (
+              <Select
+                className={`
+                  capitalize
+                  ${formValues.coin.errors.length > 0 ? 'error' : ''}
+                `}
+                value={coinOptions.find(
+                  (option) => option.value.token_id === formValues.coin.value,
+                )}
+                onChange={coinOnChange}
+                options={coinOptions}
+                onInputChange={(value) => setCoinSearchValue(value)}
+                menuIsOpen={coinSearchValue.length > 0}
+                isSearchable
+                placeholder="Coin Name..."
+                styles={{
+                  control: (provided, state) => ({
+                    ...provided,
+                    padding: '0.5rem',
+                    borderRadius: '0.375rem',
+                    backgroundColor: 'black',
+                    color: '#F3F4F6',
+                    borderColor: formValues.coin.errors.length ? '#f44336' : '#4B5563',
+                    '&:hover': {
+                      borderColor: '#4B5563',
+                    },
+                    boxShadow: 'none',
+                  }),
+                  menu: (provided) => ({
+                    ...provided,
+                    backgroundColor: '#1F2937',
+                    borderColor: '#4B5563',
+                    zIndex: 999,
+                  }),
+                  option: (provided, state) => ({
+                    ...provided,
+                    color: state.isSelected ? '#F3F4F6' : '#9CA3AF',
+                    zIndex: 999,
+                    backgroundColor: state.isSelected ? '#374151' : '#111111',
+                  }),
+                  singleValue: (provided) => ({
+                    ...provided,
+                    color: '#F3F4F6',
+                  }),
+                  input: (provided) => ({
+                    ...provided,
+                    color: '#F3F4F6',
+                    outline: 'none',
+                    boxShadow: 'none',
+                  }),
+                }}
+              />
+            )}
+            {formValues.coin.errors.length > 0 && (
+              <div
+                className="error-message"
+                style={{
+                  color: '#f44336',
+                  fontSize: '0.75rem',
+                  marginTop: '0.25rem',
+                  // marginLeft: '14px',
+                }}
+              >
+                {formValues.coin.errors.join(', ')}
+              </div>
+            )}
+          </Grid>
+
+          <Grid item xs={12} minHeight="36px">
+            <TextField
+              autoComplete="off"
+              // style={{ width: '270px' }}
+              sx={textFieldSx}
+              error={formValues.size.errors.length > 0}
+              helperText={formValues.size.errors.join(', ')}
+              className="h-full w-full"
+              id="outlined-basic"
+              label="Size"
+              variant="outlined"
+              inputProps={{
+                pattern: '\\d*\\.?\\d*',
+                min: '0',
+                step: '0.00000001',
+              }}
+              InputProps={{
+                classes: {
+                  root: 'translate(14px, 14px) scale(1)',
+                },
+                ...(formValues.size.value?.length && {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      {formValues.side.value === 'buy' ? <AddIcon /> : <RemoveIcon />}
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {formValues.coin.value || 'Coins'}
+                    </InputAdornment>
+                  ),
+                }),
+              }}
+              value={formValues.size.value}
+              onChange={(e) => {
+                let inputValue = e.target.value;
+                if (inputValue === '') {
+                  return setFormValues({
+                    ...formValues,
+                    size: {
+                      value: '',
+                      errors: ['Size is required.'],
+                    },
+                  });
+                }
+
+                if (inputValue.startsWith('.')) {
+                  inputValue = '0' + inputValue;
+                }
+
+                if (!/^(\d+\.?\d*|\.\d+)$/.test(inputValue)) {
+                  return;
+                }
+
+                setFormValues({
+                  ...formValues,
+                  size: {
+                    value: inputValue,
+                    errors: [],
+                  },
+                });
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              autoComplete="off"
+              // style={{ width: '270px' }}
+              sx={textFieldSx}
+              error={formValues.price.errors.length > 0}
+              helperText={formValues.price.errors.join(', ')}
+              className="w-full"
+              id="outlined-basic"
+              label="Price"
+              variant="outlined"
+              inputProps={{
+                pattern: '\\d*\\.?\\d*',
+                min: '0',
+                step: '0.00000001',
+              }}
+              InputProps={{
+                ...(formValues.price.value?.length && {
+                  endAdornment: <InputAdornment position="end">USD</InputAdornment>,
+                }),
+              }}
+              value={formValues.price.value}
+              onChange={(e) => {
+                let inputValue = e.target.value;
+                if (inputValue === '') {
+                  return setFormValues({
+                    ...formValues,
+                    price: {
+                      value: '',
+                      errors: ['Price is required.'],
+                    },
+                  });
+                }
+
+                if (inputValue.startsWith('.')) {
+                  inputValue = '0' + inputValue;
+                }
+
+                if (!/^(\d+\.?\d*|\.\d+)$/.test(inputValue)) {
+                  return;
+                }
+
+                setFormValues({
+                  ...formValues,
+                  price: {
+                    value: inputValue,
+                    errors: [],
+                  },
+                });
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              autoComplete="off"
+              // style={{ width: '270px' }}
+              sx={textFieldSx}
+              error={formValues.fee.errors.length > 0}
+              helperText={formValues.fee.errors.join(', ')}
+              className="w-full"
+              id="outlined-basic"
+              label="Fee"
+              variant="outlined"
+              value={formValues.fee.value}
+              InputProps={{
+                ...(formValues.fee.value?.length && {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <RemoveIcon />
+                    </InputAdornment>
+                  ),
+                  endAdornment: <InputAdornment position="end">USD</InputAdornment>,
+                }),
+              }}
+              onChange={(e) => {
+                let inputValue = e.target.value;
+                if (inputValue === '') {
+                  return setFormValues({
+                    ...formValues,
+                    fee: {
+                      value: '',
+                      errors: ['Fee is required.'],
+                    },
+                  });
+                }
+
+                if (inputValue.startsWith('.')) {
+                  inputValue = '0' + inputValue;
+                }
+
+                if (!/^(\d+\.?\d*|\.\d+)$/.test(inputValue)) {
+                  return;
+                }
+
+                setFormValues({
+                  ...formValues,
+                  fee: {
+                    value: inputValue,
+                    errors: [],
+                  },
+                });
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              autoComplete="off"
+              // disabled={true}
+              // style={{ width: '270px' }}
+              sx={textFieldSx}
+              error={formValues.total.errors.length > 0}
+              helperText={formValues.total.errors.join(', ')}
+              className="w-full"
+              id="outlined-basic"
+              label="Total"
+              variant="outlined"
+              InputProps={{
+                ...(formValues.size.value?.length &&
+                  formValues.price.value?.length &&
+                  formValues.fee.value?.length && {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        {formValues.side.value === 'buy' ? <RemoveIcon /> : <AddIcon />}
+                      </InputAdornment>
+                    ),
+                    endAdornment: <InputAdornment position="end">USD</InputAdornment>,
+                  }),
+              }}
+              value={calcTotal()?.toLocaleString('en-US')}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              autoComplete="off"
+              // style={{ width: '270px' }}
+              sx={textFieldSx}
+              error={formValues.notes.errors.length > 0}
+              helperText={formValues.notes.errors.join(', ')}
+              className="w-full"
+              id="outlined-basic"
+              label="Notes"
+              variant="outlined"
+              onChange={(e) => {
+                e.preventDefault();
+                setFormValues({
+                  ...formValues,
+                  notes: {
+                    value: e.target.value,
+                    errors: [],
+                  },
+                });
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <Box display="flex" justifyContent="space-between">
+              <Button onClick={closeModal} variant="outlined">
+                Close
+              </Button>
+              <Button variant="outlined" onClick={handleSubmit}>
+                Submit
+              </Button>
+            </Box>
+          </Grid>
+        </Grid>
+        {/* </form> */}
+        </div>
+      </Modal>
+    </ThemeProvider>
+  );
+};
+
+export default AddTransaction;

@@ -1,0 +1,405 @@
+'use client';
+
+import React, { useMemo } from 'react';
+import { useState, useEffect } from 'react';
+import { useTable, useSortBy } from 'react-table';
+import { type Column } from 'react-table';
+import Table from '@mui/joy/Table';
+import SortArrow from '../SortArrow';
+import Tooltip from '@mui/joy/Tooltip';
+import RemoveIcon from '@mui/icons-material/Remove';
+import { useProductTransactions } from '../../api/generated';
+import type { ProductTransactionResponseDto } from '../../api/generated';
+
+const EMPTY_PRODUCT_DATA: ProductTransactionResponseDto[] = [];
+
+const sortDollars = (rowA: any, rowB: any, columnId: string) => {
+  const aNum = parseFloat(rowA.values[columnId].replace(/[$,]/g, ''));
+  const bNum = parseFloat(rowB.values[columnId].replace(/[$,]/g, ''));
+  return aNum - bNum;
+};
+
+interface Props {
+  setDeleteTransactionSelection: React.Dispatch<React.SetStateAction<number | null>>;
+  setConfirmModalIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  unit: string;
+}
+
+const ProductTable: React.FC<Props> = ({
+  unit,
+  setDeleteTransactionSelection,
+  setConfirmModalIsOpen,
+}) => {
+  const [loaded, setLoaded] = useState(false);
+
+  const query = useProductTransactions(unit);
+
+  const columns = useMemo<Column<ProductTransactionResponseDto>[]>(
+    () => [
+      {
+        Header: 'Date',
+        accessor: 'date',
+        Cell: ({ cell: { value } }: { cell: { value: any } }) => {
+          return (
+            <Tooltip title={value}>
+              <div
+                style={{
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                }}
+              >
+                {new Date(value).toLocaleDateString()}
+              </div>
+            </Tooltip>
+          );
+        },
+      },
+      {
+        Header: 'Side',
+        accessor: 'side',
+        styles: { textAlign: 'right' },
+        Cell: ({ cell: { value } }: { cell: { value: any } }) => {
+          return (
+            <div style={{ color: value === 'BUY' ? 'var(--green)' : 'var(--red)' }}>{value}</div>
+          );
+        },
+      },
+      {
+        Header: 'Balance',
+        accessor: 'runningBalance',
+        styles: { textAlign: 'right', paddingRight: '25px' },
+        Cell: ({
+          cell: {
+            row: { original },
+          },
+        }: {
+          cell: { row: { original: ProductTransactionResponseDto } };
+        }) => {
+          const { runningBalance, side, size } = original;
+
+          const sizeStr = `${side === 'BUY' ? '+' : '-'}${parseFloat(size).toString()} `;
+
+          return (
+            <div style={{ display: 'inline-flex', justifyContent: 'flex-end', width: '100%' }}>
+              <div style={{ color: side === 'BUY' ? 'var(--green)' : 'var(--red)' }}>{sizeStr}</div>
+              <div style={{ fontStyle: 'italic' }}> ({parseFloat(runningBalance).toString()})</div>
+            </div>
+          );
+        },
+      },
+      {
+        Header: 'Price',
+        accessor: 'price',
+        sortType: sortDollars,
+        styles: { textAlign: 'right', paddingRight: '5px' },
+      },
+      {
+        Header: 'Fee',
+        accessor: 'fee',
+        sortType: sortDollars,
+        styles: { textAlign: 'right', paddingRight: '15px' },
+      },
+      {
+        Header: 'Cost(Basis)',
+        accessor: 'total',
+        styles: { textAlign: 'right', paddingRight: '15px' },
+        Cell: ({
+          cell: {
+            row: { original },
+          },
+        }: {
+          cell: { row: { original: ProductTransactionResponseDto } };
+        }) => {
+          // return original.total;
+          const { total, runningCostBasis, side } = original;
+          const totalNum = Math.abs(parseFloat(total.replace(/[$,]/g, '')));
+          const totalDollars = totalNum.toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+          const totalStr = side === 'SELL' ? `-${totalDollars}` : `+${totalDollars}`;
+
+          return (
+            <div style={{ display: 'inline-flex', justifyContent: 'flex-end', width: '100%' }}>
+              <div style={{ color: side === 'SELL' ? '#27AD75' : '#F0616D' }}>{totalStr}</div>
+              <div style={{ fontStyle: 'italic' }}>({runningCostBasis})</div>
+            </div>
+          );
+        },
+      },
+      {
+        Header: 'Realized',
+        accessor: 'realizedGains',
+        styles: { textAlign: 'right' },
+        Cell: ({ cell }: { cell: { value: ProductTransactionResponseDto['realizedGains'] } }) => {
+          const { total, short, long } = cell.value;
+          if (total === 0) {
+            return ' - ';
+          }
+          const totalDollars = total.toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+          const shortDollars = short.toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+          const longDollars = long.toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+          return (
+            <Tooltip
+              title={`FIFO Total: ${totalDollars}, Short: ${shortDollars}, Long: ${longDollars}`}
+            >
+              <div style={{ color: total > 0 ? '#27AD75' : '#F0616D' }}>{totalDollars}</div>
+            </Tooltip>
+          );
+        },
+      },
+      {
+        Header: 'Notes',
+        accessor: 'notes',
+        myWidth: '50px',
+        sortType: (rowA: any, rowB: any, columnId: string): any => {
+          const a = rowA.values[columnId];
+          const b = rowB.values[columnId];
+          return a > b ? 1 : -1;
+        },
+        Cell: ({ cell: { value } }: { cell: { value: any } }) => {
+          return (
+            <Tooltip title={value}>
+              <div
+                style={{
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  width: '50px',
+                }}
+              >
+                {value}
+              </div>
+            </Tooltip>
+          );
+        },
+      },
+      {
+        Header: '',
+        accessor: 'id',
+        myWidth: '5%',
+        Cell: ({ cell: { value } }: { cell: { value: any } }) => {
+          return (
+            <Tooltip title="Delete transaction">
+              <RemoveIcon
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  setConfirmModalIsOpen(true);
+                  setDeleteTransactionSelection(value);
+                }}
+              />
+            </Tooltip>
+          );
+        },
+      },
+    ],
+    [setDeleteTransactionSelection, setConfirmModalIsOpen],
+  );
+
+  useEffect(() => {
+    setLoaded(true);
+
+    return () => setLoaded(false);
+  }, []);
+
+  return (
+    <TableComponent
+      columns={columns}
+      data={query.data ?? EMPTY_PRODUCT_DATA}
+      loaded={loaded && query.isSuccess}
+    />
+  );
+};
+
+interface TableComponentProps {
+  columns: Column<ProductTransactionResponseDto>[];
+  data: ProductTransactionResponseDto[];
+  loaded: boolean;
+}
+
+function TableComponent({ columns, data, loaded }: TableComponentProps) {
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
+    { columns, data },
+    useSortBy,
+  );
+
+  const [screenWidth, setScreenWidth] = useState<number | null>(null);
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setScreenWidth(window.innerWidth);
+
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        window.scrollBy({ top: e.deltaY, behavior: 'auto' });
+      }
+    };
+
+    scrollContainer.addEventListener('wheel', handleWheel, { passive: false });
+    return () => scrollContainer.removeEventListener('wheel', handleWheel);
+  }, []);
+
+  return (
+    <div
+      ref={scrollContainerRef}
+      className="
+         scrollbar
+         scrollbar-thin
+         scrollbar-track-transparent
+         scrollbar-thumb-gray-700
+         w-full
+         overflow-x-auto
+         overflow-y-visible
+       "
+      style={{
+        // overscrollBehavior: 'none',
+        touchAction: 'pan-x pan-y',
+      }}
+    >
+      <Table
+        {...getTableProps()}
+        className=""
+        style={{
+          width: '100%',
+          minWidth: '680px',
+          // overscrollBehavior: 'none',
+          tableLayout: 'auto',
+          textAlign: 'right',
+        }}
+        variant="plain"
+        size={screenWidth && screenWidth < 768 ? 'sm' : 'md'}
+        stickyHeader={true}
+        sx={{
+          '& thead th': {
+            borderBottomWidth: '3px',
+            backgroundColor: 'transparent',
+            color: 'var(--text-muted)',
+          },
+          '& tbody td': {
+            color: 'var(--text-secondary)',
+          },
+        }}
+      >
+        <thead
+          className="
+            py-1
+            uppercase
+          "
+        >
+          {headerGroups.map((headerGroup) => {
+            const { key: headerGroupKey, ...headerGroupProps } = headerGroup.getHeaderGroupProps();
+            return (
+              <tr id="product-header-row" key={headerGroupKey} {...headerGroupProps}>
+                {headerGroup.headers.map((column) => {
+                  const { key: columnKey, ...columnProps } = column.getHeaderProps(
+                    column.getSortByToggleProps(),
+                  );
+                  return (
+                    <th
+                      scope="col"
+                      className="
+                      py-1
+                      text-center
+                      dark:text-gray-400
+                    "
+                      key={columnKey}
+                      {...columnProps}
+                      style={{
+                        top: '-1px', // prevent rows peeking above sticky header
+                        textAlign: 'center',
+                        verticalAlign: 'middle',
+                        ...(column.styles && { ...column.styles }),
+                        ...(column.myWidth && { width: column.myWidth }),
+                      }}
+                    >
+                      <SortArrow isSorted={column.isSorted} isSortedDesc={column.isSortedDesc}>
+                        {column.render('Header')}
+                      </SortArrow>
+                    </th>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </thead>
+        <tbody {...getTableBodyProps()} className="border-border">
+          {rows.map((row, rowIndex) => {
+            prepareRow(row);
+            const { key: rowKey, ...rowProps } = row.getRowProps();
+            return (
+              <tr
+                id="transaction-row"
+                key={rowKey}
+                {...rowProps}
+                className={`
+                ease-in-out-out
+                transform
+                border-gray-800
+                transition-transform
+                duration-500
+                ${loaded ? 'translate-y-0' : '-translate-y-5'}
+              `}
+                style={{
+                  transitionDelay: `${rowIndex * 0.005}s`,
+                }}
+              >
+                {row.cells.map((cell) => {
+                  const { key: cellKey, ...cellProps } = cell.getCellProps();
+                  return (
+                    <td
+                      key={cellKey}
+                      {...cellProps}
+                      className={`
+                      text-right
+                      transition-opacity
+                      duration-500
+                      ${loaded ? 'opacity-100' : 'opacity-0'}
+                    `}
+                      style={{
+                        transitionDelay: `${rowIndex * 0.05}s`,
+                        // textAlign: 'center',
+                        // display: 'flex',
+                        justifyContent: 'right',
+                        alignItems: 'right',
+                      }}
+                    >
+                      {cell.render('Cell')}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </Table>
+    </div>
+  );
+}
+
+export default ProductTable;

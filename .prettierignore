@@ -1,5 +1,7 @@
 node_modules
 .private
-.next
-db_dumps
-public
+frontend/.next
+db-dumps
+frontend/public
+pnpm-lock.yaml
+monitoring/grafana/provisioning

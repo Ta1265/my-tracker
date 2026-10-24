@@ -1,0 +1,10 @@
+packages:
+  - frontend
+  - backend
+  - packages/*
+allowBuilds:
+  '@scarf/scarf': false
+  bcrypt: true
+  esbuild: true
+  unrs-resolver: true
+injectWorkspacePackages: true

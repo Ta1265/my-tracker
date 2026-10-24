@@ -1,0 +1,8 @@
+{
+  "name": "bmad",
+  "description": "Document-driven, epic-gated feature workflow. Analyst, PM, Architect, Scrum Master, Dev and Reviewer each run as their own subagent and each own exactly one document. Stories are drafted and signed off an epic at a time, reviewed once per epic, and driven by /bmad:run until an owner gate is reached.",
+  "version": "2.0.0",
+  "author": {
+    "name": "Taylor Anderson"
+  }
+}
